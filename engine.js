@@ -104,7 +104,7 @@ Sprite.prototype.draw = function(context) {
 //---------Collision---------------
 /**
  * @class contains collision related functionality
- * @param {*} engine 
+ * @param {*} engine Current Engine Object 
  */
 function Collision(engine) {
   this.engine = engine;
