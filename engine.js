@@ -1,4 +1,9 @@
 //---------Engine------------------
+/**
+ * @class  Game Engine Class 
+ * @param {*} canvas Canvas element from the HTML File
+ * @param {*} context Drawing Context
+ */
 function Engine(canvas, context) {
   this.canvas = canvas;
   this.context = context;
@@ -12,10 +17,16 @@ function Engine(canvas, context) {
   this.canvas.onmousemove = this.input.handleMouseMove.bind(this.input);
 }
 
+/**
+ * Update Method of the Game Engine class
+ */
 Engine.prototype.update = function() {
   this.collision.update();
 }
 
+/**
+ * Draw Method of the game engine class
+ */
 Engine.prototype.draw = function() {
   this.canvas.width = this.canvas.width;
   for (var i = 0; i < this.objects.length; i++) {
@@ -23,10 +34,16 @@ Engine.prototype.draw = function() {
   }
 }
 
+/**
+ * Method to add new Objects to the game engines list of Objects
+ */
 Engine.prototype.addObject = function(object) {
   this.objects.push(object);
 }
 
+/**
+ * Method to remove Objects from the game engines list of objects
+ */
 Engine.prototype.deleteObject = function(index) {
   if(this.input.objectSelected == index) 
     this.input.objectSelected = null;
@@ -35,11 +52,22 @@ Engine.prototype.deleteObject = function(index) {
   this.objects.splice(index, 1);
 }
 
+/**
+ * Method to Get Count of Objects in the list of Objects
+ */
 Engine.prototype.objectCount = function() {
   return this.objects.length;
 }
 
 //---------Sprite------------------
+/**
+ * @class Sprite Class
+ * @param {*} x x coordinate 
+ * @param {*} y y coordinate 
+ * @param {*} width width of Sprite
+ * @param {*} height height of Sprite
+ * @param {*} src src of Image
+ */
 function Sprite(x, y, width, height, src) {
   this.X = x;
   this.Y = y;
@@ -52,7 +80,10 @@ function Sprite(x, y, width, height, src) {
   this.tags = {};
 }
 
-//Draw sprite if it is not hidden
+
+/**
+ * Function to draw sprite if it is not hidden 
+ */
 Sprite.prototype.draw = function(context) {
   if(this.tags.hidden != true) {
     context.drawImage(this.image, this.X, this.Y, this.image.width, this.image.height);
@@ -68,17 +99,25 @@ Sprite.prototype.draw = function(context) {
 }
 
 //---------Collision---------------
+/**
+ * @class contains collision related functionality
+ * @param {*} engine 
+ */
 function Collision(engine) {
   this.engine = engine;
   this.movedObjectIndex = null;
   this.collisionHandler = null;
 }
 
+/**
+ * Sets collisionHandler
+ */
 Collision.prototype.setCollisionHandler = function(handler) {
   this.collisionHandler = handler;
 }
-
-//Check if a point-object collision occurs
+/**
+ * Check if a point-object collision occurs
+ */
 Collision.prototype.checkCollision = function(object, x, y) {
   var minX = object.X;
   var maxX = object.X + object.width;
@@ -90,12 +129,16 @@ Collision.prototype.checkCollision = function(object, x, y) {
   return false;
 }
 
-//Check if an object-object collision occurs
+/**
+ * Check if an object-object collision occurs 
+ */
 Collision.prototype.checkBoxCollision = function(obj1, obj2) {
-  
+  //TODO to be added when needed
 }
 
-//Check if the last moved Object interests with any other object
+/**
+ * Check if the last moved Object interests with any other object. 
+ */
 Collision.prototype.update = function() {
   if(this.movedObjectIndex == null)
     return;
@@ -113,6 +156,10 @@ Collision.prototype.update = function() {
 }
 
 //---------Input-------------------
+/**
+ * @class for mantaining Input to the Engine
+ * @param {*} engine The Current Engine Object  
+ */
 function Input(engine) {
   this.engine = engine;
   this.objectSelected = null;
@@ -120,18 +167,30 @@ function Input(engine) {
   this.intervalY = null;
 }
 
+/**
+ * Set Mouse Down Event Handler
+ */
 Input.prototype.setMouseDownHandler = function(handler) {
   this.mouseDownHandler = handler;
 }
 
+/**
+ * Set Mouse Up Event Handler
+ */
 Input.prototype.setMouseUpHandler = function(handler) {
   this.mouseUpHandler = handler;
 }
 
+/**
+ * Set Mouse Move Event Handler
+ */
 Input.prototype.setMouseMoveHandler = function(handler) {
   this.mouseMoveHandler = handler;
 }
 
+/**
+ * Set Current selected object
+ */
 Input.prototype.setObjectSelected = function(iter) {
   if(this.objectSelected != null)
     this.engine.objects[this.objectSelected].tags.selected = false;
@@ -141,7 +200,11 @@ Input.prototype.setObjectSelected = function(iter) {
   this.objectSelected = iter;
 }
 
-//call handler if an object was clicked on
+/**
+ * call handler if an object was clicked on.
+ * Checks for collision, If it has occurred, determines difference between mouse postion and position of the object 
+ * and calls the event handler of the game
+ */
 Input.prototype.handleMouseDown = function(e) {
   var x = e.clientX, y = e.clientY;
   for (var iter = 0; iter < this.engine.objects.length; iter++) {
@@ -155,7 +218,9 @@ Input.prototype.handleMouseDown = function(e) {
   }
 }
 
-//call handler if an object was released
+/**
+ * call handler if an object was released 
+ */
 Input.prototype.handleMouseUp = function(e) {
   if(this.objectSelected != null) {
     this.mouseUpHandler(this.engine.objects[this.objectSelected], this.objectSelected, e.clientX, e.clientY);
@@ -166,7 +231,9 @@ Input.prototype.handleMouseUp = function(e) {
   }
 }
 
-//call handler if an object was dragged
+/**
+ * call handler if an object was dragged 
+ */
 Input.prototype.handleMouseMove = function(e) {
   if(this.objectSelected != null)
     this.mouseMoveHandler(this.engine.objects[this.objectSelected], this.objectSelected, e.clientX - this.intervalX, e.clientY - this.intervalY);
