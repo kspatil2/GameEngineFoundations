@@ -8,6 +8,9 @@
  * @param {*} context Drawing Context
  */
 function Engine(canvas, context) {
+  this.cleanUp(canvas, context);  
+}
+Engine.prototype.cleanUp = function(canvas, context){
   this.canvas = canvas;
   this.context = context;
   this.objects = new Array();           //Game objects(sprites)
@@ -20,7 +23,8 @@ function Engine(canvas, context) {
   this.canvas.onmousemove = this.input.handleMouseMove.bind(this.input);
  // this.canvas.onkeydown = this.input.handleKeyPress.bind(this.input);
   document.addEventListener("keydown", this.input.handleKeyPress.bind(this.input));
- }
+
+}
 
 /**
  * Update Method of the Game Engine class
@@ -44,6 +48,7 @@ Engine.prototype.draw = function() {
  */
 Engine.prototype.addObject = function(object) {
   this.objects.push(object);
+  this.objects[this.objects.length-1].id = this.objects.length - 1;
 }
 
 /**
@@ -147,7 +152,6 @@ Collision.prototype.checkBoxCollision = function(obj1, obj2) {
 Collision.prototype.update = function() {
   if(this.movedObjectIndex == null)
     return;
-  
   var movedObject = this.engine.objects[this.movedObjectIndex];
   var movedX = movedObject.X + (movedObject.width / 2);
   var movedY = movedObject.Y + (movedObject.height / 2);
@@ -227,6 +231,10 @@ Input.prototype.handleMouseDown = function(e) {
   }
 }
 
+Input.prototype.setMovedObject = function(id){
+  //console.log(id);
+  this.engine.collision.movedObjectIndex = id;
+}
 /**
  * call handler if an object was released 
  */

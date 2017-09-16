@@ -1,10 +1,12 @@
 function SnakeGame() {
   this.canvas = document.getElementById("whyupdate");
   this.context = this.canvas.getContext('2d');
-  this.engine = new Engine(this.canvas, this.context);
+  
 }
 
 SnakeGame.prototype.init = function() {
+  this.engine = new Engine(this.canvas, this.context);
+  this.food = null;
   //Bind game level listeners
   this.d = "right";
   this.score = 0;
@@ -14,8 +16,20 @@ SnakeGame.prototype.init = function() {
   this.create_food();
 
   this.engine.input.setKeyboardPressHandler(this.keyControls.bind(this));
+  this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
+  
 }
 
+SnakeGame.prototype.handleCollission = function(head,sprite2,index1,index2){
+  console.log(sprite2);
+  console.log(head);
+  if(sprite2.tags.name == "food"){
+    this.ateFood = true;
+  }
+  else{
+    this.init();
+  }
+}
 
 SnakeGame.prototype.create_snake = function()
 {
@@ -42,11 +56,13 @@ SnakeGame.prototype.create_food = function()
 {
   var x = Math.round(Math.random()*(this.canvas.width-this.cw)/this.cw);
   var y = Math.round(Math.random()*(this.canvas.height-this.cw)/this.cw);
-
-  var new_sprite = new Sprite( this.cw * x, this.cw * y, this.cw, this.cw, "https://kspatil2.github.io/edited_RockDude.jpg");
-  new_sprite.tags.name = "food";
-  var food = new Sprite( this.cw * x, this.cw * y, this.cw, this.cw, "https://kspatil2.github.io/edited_RockDude.jpg");
-  this.engine.addObject(food);
+  if(this.food == undefined){
+    this.food = new Sprite( this.cw * x, this.cw * y, this.cw, this.cw, "https://kspatil2.github.io/edited_RockDude.jpg");
+    this.food.tags.name = "food";
+    this.engine.addObject(this.food);
+  }
+  this.food.X = x*this.cw;
+  this.food.Y = y*this.cw;
 }
 
 SnakeGame.prototype.loadContent = function() {
@@ -55,19 +71,27 @@ SnakeGame.prototype.loadContent = function() {
 
 SnakeGame.prototype.update = function() {
   this.engine.update();
-   var nx = this.snake_array[0].X/this.cw;
+  var nx = this.snake_array[0].X/this.cw;
   var ny = this.snake_array[0].Y/this.cw;
-
   if(this.d=="right") nx++;
   else if(this.d=="left") nx--;
   else if(this.d=="up" ) ny--;
   else if(this.d=="down" ) ny++;
-
-  var tail = this.snake_array.pop();
-  tail.X = nx * this.cw;
-  tail.Y = ny * this.cw;
-
+  var tail = this.snake_array[this.snake_array.length-1];
+  if(this.ateFood != true){
+    tail = this.snake_array.pop();
+    tail.X = nx * this.cw;
+    tail.Y = ny * this.cw;
+  }
+  else {
+    tail = new Sprite(nx*this.cw,ny*this.cw,this.cw,this.cw,"https://kspatil2.github.io/edited_air.png");
+    tail.tags.name = "snake";
+    this.engine.addObject(tail);
+    this.create_food();
+    this.ateFood = false;
+  }
   this.snake_array.unshift(tail);
+  this.engine.input.setMovedObject(this.snake_array[0].id);
 }
 
 SnakeGame.prototype.create_walls = function()
@@ -144,7 +168,7 @@ SnakeGame.prototype.gameLoop = function() {
 function initGame() {
   var game = new SnakeGame();
   game.loadContent();
-  setInterval(game.gameLoop.bind(game), 30);
+  setInterval(game.gameLoop.bind(game), 100);
 }
 
 initGame();
