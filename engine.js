@@ -18,8 +18,9 @@ function Engine(canvas, context) {
   this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
   this.canvas.onmouseup = this.input.handleMouseUp.bind(this.input);
   this.canvas.onmousemove = this.input.handleMouseMove.bind(this.input);
-  this.canvas.onkeydown = this.input.handleKeyPress.bind(this.input);
-}
+ // this.canvas.onkeydown = this.input.handleKeyPress.bind(this.input);
+  document.addEventListener("keydown", this.input.handleKeyPress.bind(this.input));
+ }
 
 /**
  * Update Method of the Game Engine class
@@ -248,6 +249,6 @@ Input.prototype.handleMouseMove = function(e) {
 }
 
 Input.prototype.handleKeyPress = function(e) {
- if(this.objectSelected != null)
+ //if(this.objectSelected != null)
    this.keyboardPressHandler(e);
 }
