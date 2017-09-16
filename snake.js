@@ -9,12 +9,11 @@ SnakeGame.prototype.init = function() {
   this.d = "right";
   this.score = 0;
   this.cw = 40;
+  this.create_walls();
   this.create_snake();
   this.create_food();
 
   this.engine.input.setKeyboardPressHandler(this.keyControls.bind(this));
-
-  
 }
 
 
@@ -24,7 +23,7 @@ SnakeGame.prototype.create_snake = function()
 	this.snake_array = [];
 	for(var i =length -1; i>=0; i--)
 	{
-		var current_sprite = new Sprite(i*this.cw,0, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+		var current_sprite = new Sprite((i+2)*this.cw,2*this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
 		this.snake_array.push(current_sprite);
     this.engine.addObject(current_sprite);
 	}
@@ -66,6 +65,37 @@ SnakeGame.prototype.update = function() {
   tail.Y = ny * this.cw;
 
   this.snake_array.unshift(tail);
+}
+
+SnakeGame.prototype.create_walls = function()
+{
+  var height = this.canvas.height/this.cw;
+  var width = this.canvas.width/this.cw;
+	this.boundary = [];
+	for(var i =0; i<width; i++)
+	{
+		var current_sprite = new Sprite(i*this.cw,0, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+		this.boundary.push(current_sprite);
+    this.engine.addObject(current_sprite);
+  }
+  for(var i =1; i<height; i++)
+	{
+		var current_sprite = new Sprite(this.canvas.width-this.cw,i*this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+		this.boundary.push(current_sprite);
+    this.engine.addObject(current_sprite);
+  }
+  for(var i =1; i<height; i++)
+	{
+		var current_sprite = new Sprite(0,i*this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+		this.boundary.push(current_sprite);
+    this.engine.addObject(current_sprite);
+  }
+  for(var i =1; i<width; i++)
+	{
+		var current_sprite = new Sprite(i*this.cw,this.canvas.height-this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+		this.boundary.push(current_sprite);
+    this.engine.addObject(current_sprite);
+	}
 }
 
 SnakeGame.prototype.drawLayout = function()
