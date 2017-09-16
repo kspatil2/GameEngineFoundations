@@ -24,6 +24,7 @@ SnakeGame.prototype.create_snake = function()
 	for(var i =length -1; i>=0; i--)
 	{
 		var current_sprite = new Sprite((i+2)*this.cw,2*this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "snake";
 		this.snake_array.push(current_sprite);
     this.engine.addObject(current_sprite);
 	}
@@ -42,6 +43,8 @@ SnakeGame.prototype.create_food = function()
   var x = Math.round(Math.random()*(this.canvas.width-this.cw)/this.cw);
   var y = Math.round(Math.random()*(this.canvas.height-this.cw)/this.cw);
 
+  var new_sprite = new Sprite( this.cw * x, this.cw * y, this.cw, this.cw, "https://kspatil2.github.io/edited_RockDude.jpg");
+  new_sprite.tags.name = "food";
   var food = new Sprite( this.cw * x, this.cw * y, this.cw, this.cw, "https://kspatil2.github.io/edited_RockDude.jpg");
   this.engine.addObject(food);
 }
@@ -75,24 +78,28 @@ SnakeGame.prototype.create_walls = function()
 	for(var i =0; i<width; i++)
 	{
 		var current_sprite = new Sprite(i*this.cw,0, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "wall";
 		this.boundary.push(current_sprite);
     this.engine.addObject(current_sprite);
   }
   for(var i =1; i<height; i++)
 	{
 		var current_sprite = new Sprite(this.canvas.width-this.cw,i*this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "wall";
 		this.boundary.push(current_sprite);
     this.engine.addObject(current_sprite);
   }
   for(var i =1; i<height; i++)
 	{
 		var current_sprite = new Sprite(0,i*this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "wall";
 		this.boundary.push(current_sprite);
     this.engine.addObject(current_sprite);
   }
   for(var i =1; i<width; i++)
 	{
 		var current_sprite = new Sprite(i*this.cw,this.canvas.height-this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "wall";
 		this.boundary.push(current_sprite);
     this.engine.addObject(current_sprite);
 	}
