@@ -18,6 +18,7 @@ function Engine(canvas, context) {
   this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
   this.canvas.onmouseup = this.input.handleMouseUp.bind(this.input);
   this.canvas.onmousemove = this.input.handleMouseMove.bind(this.input);
+  this.canvas.onkeydown = this.input.handleKeyPress.bind(this.input);
 }
 
 /**
@@ -191,6 +192,10 @@ Input.prototype.setMouseMoveHandler = function(handler) {
   this.mouseMoveHandler = handler;
 }
 
+Input.prototype.setKeyboardPressHandler = function(handler) {
+  this.keyboardPressHandler = handler;
+}
+
 /**
  * Set Current selected object
  */
@@ -240,4 +245,9 @@ Input.prototype.handleMouseUp = function(e) {
 Input.prototype.handleMouseMove = function(e) {
   if(this.objectSelected != null)
     this.mouseMoveHandler(this.engine.objects[this.objectSelected], this.objectSelected, e.clientX - this.intervalX, e.clientY - this.intervalY);
+}
+
+Input.prototype.handleKeyPress = function(e) {
+ if(this.objectSelected != null)
+   this.keyboardPressHandler(e);
 }

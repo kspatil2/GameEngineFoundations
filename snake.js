@@ -11,6 +11,9 @@ SnakeGame.prototype.init = function() {
   this.cw = 40;
   this.create_snake();
   this.create_food();
+
+  this.engine.input.setKeyboardPressHandler(this.keyControls.bind(this));
+
   
 }
 
@@ -25,6 +28,14 @@ SnakeGame.prototype.create_snake = function()
 		this.snake_array.push(current_sprite);
     this.engine.addObject(current_sprite);
 	}
+}
+
+SnakeGame.prototype.keyControls = function(e){
+  var key = e.which;
+  if(key == "37" && this.d != "right") this.d = "left";
+  else if(key == "38" && this.d != "down") this.d = "up";
+  else if(key == "39" && this.d != "left") this.d = "right";
+  else if(key == "40" && this.d != "up") this.d = "down";
 }
 
 SnakeGame.prototype.create_food = function()
