@@ -53,6 +53,19 @@ SnakeGame.prototype.loadContent = function() {
 
 SnakeGame.prototype.update = function() {
   this.engine.update();
+   var nx = this.snake_array[0].X/this.cw;
+  var ny = this.snake_array[0].Y/this.cw;
+
+  if(this.d=="right") nx++;
+  else if(this.d=="left") nx--;
+  else if(this.d=="up" ) ny--;
+  else if(this.d=="down" ) ny++;
+
+  var tail = this.snake_array.pop();
+  tail.X = nx * this.cw;
+  tail.Y = ny * this.cw;
+
+  this.snake_array.unshift(tail);
 }
 
 SnakeGame.prototype.drawLayout = function()
