@@ -1,20 +1,76 @@
 function SnakeGame() {
   this.canvas = document.getElementById("whyupdate");
-  this.context = this.canvas.getContext('2d');
-  
+  this.context = this.canvas.getContext('2d'); 
+}
+
+SnakeGame.prototype.create_levels = function(){
+  var gameLevels = new Array();
+
+  var width = this.canvas.width/this.cw;
+  var height = this.canvas.height/this.cw;
+  //Level 0
+  gameLevels[0] = new Array();
+  //Level 1
+  gameLevels[1] = new Array();
+  gameLevels[2] = new Array();
+  for(var i =0; i<width/2; i++)
+	{
+		var current_sprite = new Sprite(i*this.cw+0.25*this.canvas.width,this.canvas.height/2-this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "wall";
+		gameLevels[1].push(current_sprite);
+  //  this.engine.addObject(current_sprite);
+  }
+  //level 2
+  for(var i =0; i<height/4; i++)
+	{
+		var current_sprite = new Sprite(this.canvas.width/2,i*this.cw+0.15*this.canvas.height, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "wall";
+		gameLevels[2].push(current_sprite);
+   // this.engine.addObject(current_sprite);
+  }
+
+  for(var i =0; i<height/4; i++)
+	{
+		var current_sprite = new Sprite(this.canvas.width/2,i*this.cw+0.60*this.canvas.height, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "wall";
+		gameLevels[2].push(current_sprite);
+   // this.engine.addObject(current_sprite);
+  }
+
+  for(var i =0; i<width/4; i++)
+	{
+		var current_sprite = new Sprite(i*this.cw+0.20*this.canvas.width,this.canvas.height/2-this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "wall";
+		gameLevels[2].push(current_sprite);
+   // this.engine.addObject(current_sprite);
+  }
+  for(var i =0; i<width/4; i++)
+	{
+		var current_sprite = new Sprite(i*this.cw+0.60*this.canvas.width,this.canvas.height/2-this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+    current_sprite.tags.name = "wall";
+		gameLevels[2].push(current_sprite);
+   // this.engine.addObject(current_sprite);
+  }
+
+  return gameLevels;
 }
 
 SnakeGame.prototype.init = function() {
   this.engine = new Engine(this.canvas, this.context);
   this.food = null;
   //Bind game level listeners
+  if(this.restart == true){
+    this.level = 0;
+    this.prev = 0;
+    this.score = 0;
+  }
+  this.restart = false;
   this.d = "right";
-  this.score = 0;
   this.cw = 40;
   this.create_walls();
   this.create_snake();
   this.create_food();
-
+  this.levels = this.create_levels(); 
   this.engine.input.setKeyboardPressHandler(this.keyControls.bind(this));
   this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
   
@@ -27,6 +83,7 @@ SnakeGame.prototype.handleCollission = function(head,sprite2,index1,index2){
     this.ateFood = true;
   }
   else{
+    this.restart = true;
     this.init();
   }
 }
@@ -37,7 +94,7 @@ SnakeGame.prototype.create_snake = function()
 	this.snake_array = [];
 	for(var i =length -1; i>=0; i--)
 	{
-		var current_sprite = new Sprite((i+2)*this.cw,2*this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
+		var current_sprite = new Sprite((i+2)*this.cw,this.cw, this.cw, this.cw, "https://kspatil2.github.io/edited_air.png");
     current_sprite.tags.name = "snake";
 		this.snake_array.push(current_sprite);
     this.engine.addObject(current_sprite);
@@ -69,8 +126,32 @@ SnakeGame.prototype.loadContent = function() {
 	this.init();
 }
 
+SnakeGame.prototype.updateLevel = function(){
+
+  this.restart = false;
+  this.init();
+  for(var i = 0; i < this.levels[this.level].length; i++){
+    this.engine.addObject(this.levels[this.level][i]);
+  }
+}
+
 SnakeGame.prototype.update = function() {
   this.engine.update();
+  if(this.level==undefined){
+    this.level = 0;
+    this.prev = 0;
+    this.score = 0;
+  }
+  this.level = Math.floor(this.score/100);
+  if(this.prev!=this.level){
+    console.log(this.score);
+    if(this.level>=3){
+      this.restart = true;
+      this.init();
+    }
+    this.updateLevel();
+  }
+  this.prev = this.level;
   var nx = this.snake_array[0].X/this.cw;
   var ny = this.snake_array[0].Y/this.cw;
   if(this.d=="right") nx++;
@@ -88,6 +169,7 @@ SnakeGame.prototype.update = function() {
     tail.tags.name = "snake";
     this.engine.addObject(tail);
     this.create_food();
+    this.score+=50;
     this.ateFood = false;
   }
   this.snake_array.unshift(tail);
@@ -168,7 +250,7 @@ SnakeGame.prototype.gameLoop = function() {
 function initGame() {
   var game = new SnakeGame();
   game.loadContent();
-  setInterval(game.gameLoop.bind(game), 100);
+  setInterval(game.gameLoop.bind(game), 200);
 }
 
 initGame();
