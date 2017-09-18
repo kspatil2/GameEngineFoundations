@@ -38,7 +38,7 @@ AlchemyGame.prototype.loadContent = function() {
   this.unitWidth = this.canvas.width * 0.08;
   this.unitHeight = this.canvas.height * 0.18;
 
-  for (var i = 0; i < 9; i++) {
+  for (var i = 0; i < this.elements.length; i++) {
     var startX = this.canvas.width * 0.81;
     var startY = this.canvas.height * 0.01;
     var xOffset = (i<5)? 0: 0.1 * this.canvas.width;
@@ -52,6 +52,7 @@ AlchemyGame.prototype.loadContent = function() {
     picture.tags.isFixed = true;
     this.engine.addObject(picture);
   }
+  return true;
 }
 
 AlchemyGame.prototype.drawLayout = function() {
@@ -82,30 +83,31 @@ AlchemyGame.prototype.drawLayout = function() {
   context.stroke();
 }
 
-AlchemyGame.prototype.imageSelected = function(picture, index, x, y) {
+AlchemyGame.prototype.imageSelected = function(picture, x, y) {
   if(picture.tags.hidden == true) //this has not been unlocked yet. Do nothing
     return;
   
-  console.log(picture.tags.name + " selected");
-  if(picture.tags.isFixed == true) { //fixed picture. create a copy to move and add at the end.
+  console.log("Image selected!");
+  var selectedPictureId = picture.id;
+  if(picture.tags.isFixed == true) { //fixed picture. create a copy to move and add at the end. 
     var newPicture = new Sprite(x, y, this.unitWidth, this.unitHeight, this.sources.get(picture.tags.name));
     newPicture.tags.name = picture.tags.name;
     newPicture.tags.hidden = false;
     newPicture.tags.isFixed = false;
     this.engine.addObject(newPicture);
-    index = this.engine.objectCount() - 1;
+    selectedPictureId = newPicture.id;
   }
-  this.engine.input.setObjectSelected(index);
+  this.engine.input.setObjectSelected(selectedPictureId);
 }
 
-AlchemyGame.prototype.imageDeselected = function(picture, index, x, y) {
-  console.log(picture.tags.name + " deselected");
+AlchemyGame.prototype.imageDeselected = function(picture, x, y) {
+  console.log("Image deselected!");
   var outOfBoundsX = this.canvas.width * 0.8;
   if(x > outOfBoundsX) //image throwaway
-    this.engine.deleteObject(index);
+    this.engine.deleteObject(picture.id);
 }
 
-AlchemyGame.prototype.combineImages = function(i1, i2, i1index, i2index) {
+AlchemyGame.prototype.combineImages = function(i1, i2) {
   if(i1.tags.isFixed == true || i2.tags.isFixed == true)  //dont combine if either of image is fixed
     return;
   var mapKey = i1.tags.name + "," + i2.tags.name;
@@ -114,21 +116,19 @@ AlchemyGame.prototype.combineImages = function(i1, i2, i1index, i2index) {
     var newX = (i1.X + i2.X)/2;
     var newY = (i1.Y + i2.Y)/2;
     var newName = this.combinations.get(mapKey);
-    var sourceIndex = this.elements.indexOf(newName);
+    var sourceId = this.elements.indexOf(newName);
     var newPicture = new Sprite(newX, newY, this.unitWidth, this.unitHeight, this.sources.get(newName));
     newPicture.tags.name = newName;
     newPicture.tags.hidden = false;
     newPicture.tags.isFixed = false;
-    var minIndex = Math.min(i1index, i2index);
-    var maxIndex = Math.max(i1index, i2index);
-    this.engine.objects[sourceIndex].tags.hidden = false;
-    this.engine.deleteObject(maxIndex);
-    this.engine.deleteObject(minIndex);
+    this.engine.getObject(sourceId).tags.hidden = false;
+    this.engine.deleteObject(i1.id);
+    this.engine.deleteObject(i2.id);
     this.engine.addObject(newPicture);
   }
 }
 
-AlchemyGame.prototype.imageMoved = function(picture, index, x, y) {
+AlchemyGame.prototype.imageMoved = function(picture, x, y) {
   picture.X = x;
   picture.Y = y;
 }
@@ -150,7 +150,8 @@ AlchemyGame.prototype.gameLoop = function() {
 
 function initGame() {
   var game = new AlchemyGame();
-  game.loadContent();
+  if(game.loadContent() != true)
+    return;
   setInterval(game.gameLoop.bind(game), 30);
 }
 
