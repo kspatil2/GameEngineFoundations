@@ -13,6 +13,10 @@ How to Execute:
 
 Run index.html using a web browser
 
+Basic Game Play : 
+Eat Jerry mouse to increase the size of the snake and get 25 points. Lava is spoiled food which will shrink the snake and cost 50 points. After every 100 points we upgrade the level to add obstacles. After you complete the 3 levels, the game restarts with 0 points. 
+Whenever, the snake collides with the wall or itself, the game stops. By pressing 'R' the game restarts. The game has been desgined in such a way that the game stops when the snake has actually crossed itself or the wall to avoid confusion.  
+
 
 EVALUATION 
 Correct implementation of a moving snake with links (10%) : 
