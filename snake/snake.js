@@ -277,7 +277,7 @@ Levels.prototype.init_scoring = function() {
 Levels.prototype.refresh_score = function () {
   if (this.highScore != -1 && this.score > this.highScore) {
     this.highScore = this.score;
-    this.engine.storage.setValue("SnakeHighScore", this.highScore);
+    this.engine.storage.setValue("SnakeHighScore", this.highScore.toString());
   }
   this.highScoreLabel.innerHTML = this.highScore == -1? "Unavailable" : this.highScore;
   this.scoreLabel.innerHTML = this.score;
