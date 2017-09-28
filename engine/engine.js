@@ -10,6 +10,8 @@
 function Engine(canvas, context) {
   this.canvas = canvas;
   this.context = context;
+  this.updateHandler = null;
+  this.drawHandler = null;
 
   this.init();
 }
@@ -45,6 +47,7 @@ Engine.prototype.update = function() {
  */
 Engine.prototype.draw = function() {
   this.canvas.width = this.canvas.width;
+  console.log("her;l");
   for (var i = 0; i < this.objects.length; i++) {
     this.objects[i].draw(this.context);
   }
@@ -99,6 +102,22 @@ Engine.prototype.getObjectIndex = function(id) {
  */
 Engine.prototype.objectCount = function() {
   return this.objects.length;
+}
+
+Engine.prototype.setUpdateHandler = function(handler) {
+  this.updateHandler = handler;
+  console.log(this.updateHandler);
+}
+
+Engine.prototype.setDrawHandler = function(handler) {
+  this.drawHandler = handler;
+  console.log(this.drawHandler);
+}
+
+Engine.prototype.gameLoop = function(){
+    console.log(this.updateHandler);
+    this.updateHandler;
+    this.drawHandler;
 }
 
 //---------Sprite------------------
@@ -227,6 +246,7 @@ function Input(engine) {
   this.mouseMoveHandler = null;
   this.keyboardPressHandler = null;
 }
+
 
 /**
  * Set Mouse Down Event Handler

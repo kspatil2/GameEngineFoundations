@@ -7,7 +7,6 @@ SnakeGame.prototype.init = function () {
   this.engine = new Engine(this.canvas, this.context);
 
   this.cellSize = 40;
-
   var levelWidth = this.canvas.width / this.cellSize;
   var levelHeight = this.canvas.height / this.cellSize;
   
@@ -23,6 +22,8 @@ SnakeGame.prototype.init = function () {
   //Bind game level listeners
   this.engine.input.setKeyboardPressHandler(this.keyPressed.bind(this));
   this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
+  this.engine.setUpdateHandler(this.update.bind(this));
+  this.engine.setDrawHandler(this.draw.bind(this));
 }
 
 SnakeGame.prototype.restart = function() {
@@ -135,16 +136,15 @@ SnakeGame.prototype.drawLayout = function () {
 SnakeGame.prototype.draw = function () {
   if(this.pauseGame)
     return;
-  
   this.engine.draw();
   this.drawLayout();
 }
-
+/*
 SnakeGame.prototype.gameLoop = function () {
   this.update();
   this.draw();
 }
-
+*/
 function Levels(engine, width, height, cellSize, source) {
   this.engine = engine;
   this.source = source;
@@ -429,7 +429,7 @@ function initGame() {
   if(game.loadContent() != true)
     return;
   game.init();
-  setInterval(game.gameLoop.bind(game), 200);
+  setInterval(game.engine.gameLoop, 200);
 }
 
 initGame();
