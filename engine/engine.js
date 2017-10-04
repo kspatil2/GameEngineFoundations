@@ -47,7 +47,6 @@ Engine.prototype.update = function() {
  */
 Engine.prototype.draw = function() {
   this.canvas.width = this.canvas.width;
-  console.log("her;l");
   for (var i = 0; i < this.objects.length; i++) {
     this.objects[i].draw(this.context);
   }
@@ -115,9 +114,8 @@ Engine.prototype.setDrawHandler = function(handler) {
 }
 
 Engine.prototype.gameLoop = function(){
-    console.log(this.updateHandler);
-    this.updateHandler;
-    this.drawHandler;
+    this.updateHandler();
+    this.drawHandler();
 }
 
 //---------Sprite------------------
@@ -129,15 +127,14 @@ Engine.prototype.gameLoop = function(){
  * @param {*} height height of Sprite
  * @param {*} src src of Image
  */
-function Sprite(x, y, width, height, src) {
+function Sprite(x, y, width, height, image) {
   this.X = x;
   this.Y = y;
   this.width = width;
   this.height = height;
-  this.image = new Image();
+  this.image = image;
   this.image.width = width;
   this.image.height = height;
-  this.image.src = src;
   this.tags = {};
 }
 

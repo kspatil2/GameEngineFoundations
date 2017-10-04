@@ -84,10 +84,20 @@ SnakeGame.prototype.keyPressed = function (key) {
 
 SnakeGame.prototype.loadContent = function () {
   this.sources = new Map;
-  this.sources.set("snake", "https://kspatil2.github.io/snake_texture.jpg");
-  this.sources.set("food", "https://kspatil2.github.io/jerry.jpg");
-  this.sources.set("wall", "https://kspatil2.github.io/deathstar.jpg");
-  this.sources.set("spoiledFood", "https://kspatil2.github.io/edited_lava.png")
+  var snakeImage = new Image();
+  var foodImage = new Image();
+  var wallImage = new Image();
+  var spoiledFoodImage = new Image();
+
+  snakeImage.src = "https://kspatil2.github.io/snake_texture.jpg";
+  foodImage.src = "https://kspatil2.github.io/jerry.jpg";
+  wallImage.src = "https://kspatil2.github.io/deathstar.jpg";
+  spoiledFoodImage.src = "https://kspatil2.github.io/edited_lava.png";
+
+  this.sources.set("snake", snakeImage);
+  this.sources.set("food", foodImage);
+  this.sources.set("wall", wallImage);
+  this.sources.set("spoiledFood", spoiledFoodImage);
   return true;
 }
 
@@ -429,7 +439,7 @@ function initGame() {
   if(game.loadContent() != true)
     return;
   game.init();
-  setInterval(game.engine.gameLoop, 200);
+  setInterval(game.engine.gameLoop.bind(game.engine), 200);
 }
 
 initGame();

@@ -15,16 +15,37 @@ AlchemyGame.prototype.init = function() {
 AlchemyGame.prototype.loadContent = function() {
   this.init();
   this.elements = ["air", "water", "earth", "fire", "soul", "steam", "lava", "rockDude", "captainPlanet"];
+  
+  var airImage = new Image();
+  var waterImage = new Image();
+  var earthImage = new Image();
+  var fireImage = new Image();
+  var soulImage = new Image();
+  var steamImage = new Image();
+  var lavaImage = new Image();
+  var rockDudeImage = new Image();
+  var captainPlanetImage = new Image();
+  airImage.src = "https://kspatil2.github.io/edited_air.png";
+  waterImage.src = "https://kspatil2.github.io/edited_water.png";
+  earthImage.src = "https://kspatil2.github.io/edited_earth.png";
+  fireImage.src = "https://kspatil2.github.io/edited_Fire.png";
+  soulImage.src = "https://kspatil2.github.io/edited_soul.jpg";
+  steamImage.src = "https://kspatil2.github.io/edited_Steam.png";
+  lavaImage.src = "https://kspatil2.github.io/edited_lava.png";
+  rockDudeImage.src = "https://kspatil2.github.io/edited_RockDude.jpg";
+  captainPlanetImage.src = "https://kspatil2.github.io/edited_CaptainPlanet.jpg";
+
   this.sources = new Map; 
-  this.sources.set("air","https://kspatil2.github.io/edited_air.png");
-  this.sources.set("water","https://kspatil2.github.io/edited_water.png");
-  this.sources.set("earth","https://kspatil2.github.io/edited_earth.png");
-  this.sources.set("fire", "https://kspatil2.github.io/edited_Fire.png");
-  this.sources.set("soul", "https://kspatil2.github.io/edited_soul.jpg");
-  this.sources.set("steam", "https://kspatil2.github.io/edited_Steam.png");
-  this.sources.set("lava", "https://kspatil2.github.io/edited_lava.png");
-  this.sources.set("rockDude", "https://kspatil2.github.io/edited_RockDude.jpg");
-  this.sources.set("captainPlanet", "https://kspatil2.github.io/edited_CaptainPlanet.jpg");
+
+  this.sources.set("air",airImage);
+  this.sources.set("water",waterImage);
+  this.sources.set("earth",earthImage);
+  this.sources.set("fire", fireImage);
+  this.sources.set("soul", soulImage);
+  this.sources.set("steam", steamImage);
+  this.sources.set("lava", lavaImage);
+  this.sources.set("rockDude", rockDudeImage);
+  this.sources.set("captainPlanet", captainPlanetImage);
   this.combinations = new Map;
   this.combinations.set("water,air", "steam");
   this.combinations.set("earth,fire", "lava");
