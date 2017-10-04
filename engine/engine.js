@@ -10,6 +10,8 @@
 function Engine(canvas, context) {
   this.canvas = canvas;
   this.context = context;
+  this.updateHandler = null;
+  this.drawHandler = null;
 
   this.init();
 }
@@ -101,6 +103,21 @@ Engine.prototype.objectCount = function() {
   return this.objects.length;
 }
 
+Engine.prototype.setUpdateHandler = function(handler) {
+  this.updateHandler = handler;
+  console.log(this.updateHandler);
+}
+
+Engine.prototype.setDrawHandler = function(handler) {
+  this.drawHandler = handler;
+  console.log(this.drawHandler);
+}
+
+Engine.prototype.gameLoop = function(){
+    this.updateHandler();
+    this.drawHandler();
+}
+
 //---------Sprite------------------
 /**
  * @class Sprite Class
@@ -110,15 +127,14 @@ Engine.prototype.objectCount = function() {
  * @param {*} height height of Sprite
  * @param {*} src src of Image
  */
-function Sprite(x, y, width, height, src) {
+function Sprite(x, y, width, height, image) {
   this.X = x;
   this.Y = y;
   this.width = width;
   this.height = height;
-  this.image = new Image();
+  this.image = image;
   this.image.width = width;
   this.image.height = height;
-  this.image.src = src;
   this.tags = {};
 }
 
@@ -227,6 +243,7 @@ function Input(engine) {
   this.mouseMoveHandler = null;
   this.keyboardPressHandler = null;
 }
+
 
 /**
  * Set Mouse Down Event Handler
