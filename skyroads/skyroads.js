@@ -50,6 +50,33 @@ var HighScore = 0;
 var display_context;
 var timeNode;
 
+// get the JSON file from the passed URL
+function getJSONFile(url,descr) {
+    try {
+        if ((typeof(url) !== "string") || (typeof(descr) !== "string"))
+            throw "getJSONFile: parameter not a string";
+        else {
+            var httpReq = new XMLHttpRequest(); // a new http request
+            httpReq.open("GET",url,false); // init the request
+            httpReq.send(null); // send the request
+            var startTime = Date.now();
+            while ((httpReq.status !== 200) && (httpReq.readyState !== XMLHttpRequest.DONE)) {
+                if ((Date.now()-startTime) > 3000)
+                    break;
+            } // until its loaded or we time out after three seconds
+            if ((httpReq.status !== 200) || (httpReq.readyState !== XMLHttpRequest.DONE))
+                throw "Unable to open "+descr+" file!";
+            else
+                return JSON.parse(httpReq.response); 
+        } // end if good params
+    } // end try    
+    
+    catch(e) {
+        console.log(e);
+        return(String.null);
+    }
+} // end get input spheres
+
 var sphere;
 function UpdateScoreAndShit()
 {
@@ -512,7 +539,9 @@ function main() {
     } // end onload callback
     initSound();
 
-    var engine = new Engine( webgl_canvas, INPUT_TRIANGLES_URL, INPUT_SPHERES_URL);
+    inputTriangles = getJSONFile(INPUT_TRIANGLES_URL,"triangles"); // read in the triangle data
+    inputSpheres = getJSONFile(INPUT_SPHERES_URL,"spheres"); // read in the sphere dat 
+    var engine = new Engine( webgl_canvas, inputTriangles , inputSpheres );
 
     setInterval(engine.gameLoop3D.bind(engine),20 );
   //setupWebGL(image_canvas, webgl_canvas); // set up the webGL environment
