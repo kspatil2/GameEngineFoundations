@@ -1,0 +1,34 @@
+#WebGLCanvas {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
+}
+
+#ImageCanvas {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 0;
+}
+
+#TextCanvas {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 20;
+}
+
+#mission
+{
+    position: absolute;
+    left: 0px;
+    top: 510px;
+    z-index: 20;
+}
+#status
+{
+    position: absolute;
+    left: 512px;
+    z-index: 20;
+}
