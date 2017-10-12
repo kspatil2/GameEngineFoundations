@@ -23,8 +23,10 @@ function Engine(canvas, context, gameType) {
     // TODO : change naming of this function to accomodate both 2d and 3d
     // Parameters : webglCanvas, inputTrianglesURL, inputSpheresURL
     // Also for 3D games, there is no init yet. Everything initializd in Graphics Constructor
-    this.graphics = new Graphics( canvas, context, gameType);
-
+    this.webglCanvas = canvas;
+    this.inputTriangles = context;
+    this.inputSpheres = gameType;
+    this.graphics = new Graphics( this.webglCanvas, this.inputTriangles, this.inputSpheres);
   }
 }
 

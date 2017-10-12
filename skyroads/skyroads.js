@@ -572,13 +572,13 @@ function handleLoadedTexture(texture)
 var sound =[];
 function initSound()
 {
-    sound.push(new Audio("level1.mp3"));
-    sound.push(new Audio("level2.mp3"));
-	sound.push(new Audio("level3.mp3"));
-	sound.push(new Audio("level4.mp3"));
-	sound.push(new Audio("level5.mp3"));
-	sound.push(new Audio("tryagain.mp3"));
-	sound.push(new Audio("jump.wav"));
+    sound.push(new Audio("sound/level1.mp3"));
+    sound.push(new Audio("sound/level2.mp3"));
+	sound.push(new Audio("sound/level3.mp3"));
+	sound.push(new Audio("sound/level4.mp3"));
+	sound.push(new Audio("sound/level5.mp3"));
+	sound.push(new Audio("sound/tryagain.mp3"));
+	sound.push(new Audio("sound/jump.wav"));
 }
 
 function playSound(id,flag)

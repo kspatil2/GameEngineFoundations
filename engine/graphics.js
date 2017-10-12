@@ -26,8 +26,6 @@ var pvmMatrixULoc; // where to put project model view matrix for vertex shader
 var inputTriangles = [];
 var inputSpheres = [];
 
-
-
 // get the JSON file from the passed URL
 function getJSONFile(url,descr) {
     try {
@@ -159,21 +157,6 @@ function handleKeyDown(event) {
 
 
 
-
-function Graphics( webglCanvas, inputTrianglesURL, inputSpheresURL) 
-{
-    this.webgl_canvas = webglCanvas;
-    inputTriangles = getJSONFile(inputTrianglesURL,"triangles"); // read in the triangle data
-    inputSpheres = getJSONFile(inputSpheresURL,"spheres"); // read in the sphere dat 
-    this.init();
-}
-
-Graphics.prototype.init = function()
-{
-    this.setupWebGL( this.webgl_canvas);
-    this.loadModels(); // load in the models from tri file
-    this.setupShaders(); // setup the webGL shaders
-}
 
 
 // set up the webGL environment
@@ -553,15 +536,6 @@ Graphics.prototype.setupShaders = function() {
 } // end setup shaders
 
 
-
-
-
-
-
-
-
-
-
 /////// INSIDE RENDER MODEL SHIT
 // construct the model transform matrix, based on model state
 // render the loaded model
@@ -715,3 +689,21 @@ function renderModels() {
  
     } // end for each sphere
 } // end render model
+
+
+function Graphics( webglCanvas, inputTrianglesURL, inputSpheresURL) 
+{
+    this.webgl_canvas = webglCanvas;
+    inputTriangles = getJSONFile(inputTrianglesURL,"triangles"); // read in the triangle data
+    console.log(inputTriangles);
+    inputSpheres = getJSONFile(inputSpheresURL,"spheres"); // read in the sphere dat 
+    this.init();
+}
+
+Graphics.prototype.init = function()
+{
+    this.setupWebGL( this.webgl_canvas);
+    this.loadModels(); // load in the models from tri file
+    this.setupShaders(); // setup the webGL shaders
+}
+
