@@ -657,10 +657,6 @@ function renderModels() {
 
         // draw a transformed instance of the sphere
         gl.drawElements(gl.TRIANGLES,triSetSizes[triSetSizes.length-1],gl.UNSIGNED_SHORT,0); // render
-        
-        UpdateScoreAndShit();
- 
- 
     } // end for each sphere
 } // end render model
 

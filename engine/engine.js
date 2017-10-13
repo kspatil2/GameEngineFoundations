@@ -20,6 +20,8 @@ function Engine(canvas, context, gameType) {
   else
   {
     this.game_type = "3D";
+    this.updateHandler = null;
+    this.drawHandler = null;
     // TODO : change naming of this function to accomodate both 2d and 3d
     // Parameters : webglCanvas, inputTrianglesURL, inputSpheresURL
     // Also for 3D games, there is no init yet. Everything initializd in Graphics Constructor
@@ -60,9 +62,15 @@ Engine.prototype.update = function() {
  * Draw Method of the game engine class
  */
 Engine.prototype.draw = function() {
+  if(this.game_type == '2D'){
   this.canvas.width = this.canvas.width;
-  for (var i = 0; i < this.objects.length; i++) {
-    this.objects[i].draw(this.context);
+    for (var i = 0; i < this.objects.length; i++) {
+      this.objects[i].draw(this.context);
+    }
+  }
+  else
+  {
+    renderModels();
   }
 }
 
@@ -130,15 +138,9 @@ Engine.prototype.setDrawHandler = function(handler) {
 Engine.prototype.gameLoop = function(){
     this.updateHandler();
     this.drawHandler();
-}
-
-
-Engine.prototype.gameLoop3D = function(){
-  // UpdateScoreAndShit over here
   
-  renderModels();
-
 }
+
 
 
 //---------Sprite------------------

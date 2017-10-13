@@ -80,6 +80,9 @@ function getJSONFile(url,descr) {
 var sphere;
 function UpdateScoreAndShit()
 {
+    if(sphere == undefined || sphere == null)
+        return;
+
     var sphere_center = vec3.create(), sphere_bottom = vec3.create(); sphere_front = vec3.create();sphere_left = vec3.create();sphere_right = vec3.create();       
     sphere_center = vec3.add(sphere_center,sphere.translation,vec3.fromValues(sphere.x,sphere.y,sphere.z));        
     sphere_bottom = vec3.add(sphere_bottom,sphere.translation,vec3.fromValues(sphere.x, -sphere.r,sphere.z));
@@ -541,18 +544,19 @@ function main() {
 
     inputTriangles = getJSONFile(INPUT_TRIANGLES_URL,"triangles"); // read in the triangle data
     inputSpheres = getJSONFile(INPUT_SPHERES_URL,"spheres"); // read in the sphere dat 
-    var engine = new Engine( webgl_canvas, inputTriangles , inputSpheres );
+    this.engine = new Engine( webgl_canvas, inputTriangles , inputSpheres );
 
-    setInterval(engine.gameLoop3D.bind(engine),20 );
-  //setupWebGL(image_canvas, webgl_canvas); // set up the webGL environment
-  //loadModels(INPUT_SPHERES_URL, INPUT_TRIANGLES_URL); // load in the models from tri file
-  //setupShaders(); // setup the webGL shaders
-  //renderModels(); // draw the triangles using webGL
-   // Clear the 2D canvas
+    this.engine.setUpdateHandler(this.UpdateScoreAndShit.bind(this));
+    this.engine.setDrawHandler(this.draw.bind(this));
+   
+    setInterval(this.engine.gameLoop.bind(this.engine),20 );
+  
     
 } // end main
 
-
+function draw(){
+    this.engine.draw();
+}
 
 function initTexture(texture_path,whichSet) 
 {
