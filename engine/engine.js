@@ -28,7 +28,6 @@ function Engine(canvas, context, gameType) {
     this.inputSpheres = gameType;
     this.graphics = new Graphics( this.webglCanvas, this.inputTriangles, this.inputSpheres);
   }
-}
 
 
 Engine.prototype.init = function(){
@@ -133,12 +132,14 @@ Engine.prototype.gameLoop = function(){
     this.drawHandler();
 }
 
+
 Engine.prototype.gameLoop3D = function(){
   // UpdateScoreAndShit over here
   
   renderModels();
 
 }
+
 
 //---------Sprite------------------
 /**
