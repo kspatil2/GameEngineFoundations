@@ -28,7 +28,7 @@ function Engine(canvas, context, gameType) {
     this.inputSpheres = gameType;
     this.graphics = new Graphics( this.webglCanvas, this.inputTriangles, this.inputSpheres);
   }
-
+}
 
 Engine.prototype.init = function(){
   this.objects = new Array();           //Game objects(sprites)
