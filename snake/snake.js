@@ -4,7 +4,7 @@ function SnakeGame() {
 }
 
 SnakeGame.prototype.init = function () {
-  this.engine = new Engine(this.canvas, this.context);
+  this.engine = new Engine(this.canvas, this.context, "2D");
 
   this.cellSize = 40;
   var levelWidth = this.canvas.width / this.cellSize;

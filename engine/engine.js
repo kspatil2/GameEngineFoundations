@@ -7,14 +7,28 @@
  * @param {*} canvas Canvas element from the HTML File
  * @param {*} context Drawing Context
  */
-function Engine(canvas, context) {
-  this.canvas = canvas;
-  this.context = context;
-  this.updateHandler = null;
-  this.drawHandler = null;
+function Engine(canvas, context, gameType) {
+  if(gameType === "2D")
+  {
+    this.game_type = "2D";
+    this.canvas = canvas;
+    this.context = context;
+    this.updateHandler = null;
+    this.drawHandler = null;
+    this.init();
+  }
+  else
+  {
+    this.game_type = "3D";
+    // TODO : change naming of this function to accomodate both 2d and 3d
+    // Parameters : webglCanvas, inputTrianglesURL, inputSpheresURL
+    // Also for 3D games, there is no init yet. Everything initializd in Graphics Constructor
+    this.webglCanvas = canvas;
+    this.inputTriangles = context;
+    this.inputSpheres = gameType;
+    this.graphics = new Graphics( this.webglCanvas, this.inputTriangles, this.inputSpheres);
+  }
 
-  this.init();
-}
 
 Engine.prototype.init = function(){
   this.objects = new Array();           //Game objects(sprites)
@@ -117,6 +131,15 @@ Engine.prototype.gameLoop = function(){
     this.updateHandler();
     this.drawHandler();
 }
+
+
+Engine.prototype.gameLoop3D = function(){
+  // UpdateScoreAndShit over here
+  
+  renderModels();
+
+}
+
 
 //---------Sprite------------------
 /**

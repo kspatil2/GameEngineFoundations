@@ -1,7 +1,7 @@
 function AlchemyGame() {
   this.canvas = document.getElementById("whyupdate");
   this.context = this.canvas.getContext('2d');
-  this.engine = new Engine(this.canvas, this.context);
+  this.engine = new Engine(this.canvas, this.context, "2D");
 }
 
 AlchemyGame.prototype.init = function() {
