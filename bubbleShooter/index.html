@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Snake</title>
+</head>
+<style>
+  .contentWrapper {
+    width: 57%;
+    margin: 0 auto 0 auto;
+    padding: 0 1em 0 1em;
+  }
+
+  .left{
+    float: left;
+  }
+
+  .right{
+    float:right;
+  }
+
+  .text-right{
+    text-align: right;
+  }
+
+  #highScoreWrapper{
+    width: 42%;
+  }
+
+  #scoreWrapper{
+    width: 25%;
+    padding-right: 1.2em;
+  }
+
+  #levelWrapper{
+    width: 25%;
+  }
+</style>
+
+<body>
+  <div style="width:100%">
+    <div class="contentWrapper">
+      <div id="highScoreWrapper" class="left">
+        <p>High Score: <span id="highScore"></span></p>
+      </div>
+      <div id="levelWrapper" class="left">
+        <p>Level <span id="level"></span></p>
+      </div>
+      <div id="scoreWrapper" class="right">
+        <p class="text-right">Current Score: <span id="currentScore"></span></p>
+      </div>
+      <canvas id="whyupdate" width="800" height="640">
+        Canvas not supported
+      </canvas>
+    </div>
+    <div class="contentWrapper">
+      <div class="left">
+        <p><span style="font-weight: bold;">Controls:</span> Direction Keys for movement and 'R' for restart</p>
+        <p><span style="font-weight: bold;">Scoring:</span> Jerry (normal food): +25 points, Lava (spoiled food): -50 points.</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="./../engine/engine.js"></script>
+  <script type="text/javascript" src="bubbleshooter.js"></script>
+</body>
+
+</html>
