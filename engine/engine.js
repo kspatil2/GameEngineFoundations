@@ -349,9 +349,9 @@ Input.prototype.setMovedObject = function(id) {
  * call handler if an object was released 
  */
 Input.prototype.handleMouseUp = function(e) {
-  if(this.objectSelectedId != null && this.mouseUpHandler != null) {
+  if(/*this.objectSelectedId != null&&*/ this.mouseUpHandler != null) {
     var objectSelected = this.engine.getObject(this.objectSelectedId);
-    if(objectSelected != null)
+    //if(objectSelected != null)
       this.mouseUpHandler(objectSelected, e.clientX, e.clientY);
     this.engine.collision.movedObjectId = this.objectSelectedId;
     this.setObjectSelected(null);

@@ -8,10 +8,15 @@ BubbleShooter.prototype.init = function () {
     this.cellSize = 15;
     var levelWidth = this.canvas.width / this.cellSize;
     var levelHeight = this.canvas.height / this.cellSize;
-    this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, [this.spriteStyle["red"],this.spriteStyle["blue"],this.spriteStyle["orange"],this.spriteStyle["green"]]);
+    var colors = [this.spriteStyle["red"],this.spriteStyle["blue"],this.spriteStyle["orange"],this.spriteStyle["green"]];
+    this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, colors);
     this.levels.addLevelObjectsToEngine(this.levels.current_level);
-
-    this.engine.input.setMouseMoveHandler(this.mouseMove.bind(this));
+    this.Shooter = new Shooter(colors,levelHeight,levelWidth,this.cellSize, this.engine);
+    this.Shooter.loadQueue();
+    this.Shooter_Y = (levelHeight-1)*this.cellSize+(this.cellSize/2);
+    this.Shooter_X = Math.floor(levelWidth/2)*this.cellSize+(this.cellSize/2);
+    this.Shooter.addObjectstoEngine();
+    this.engine.input.setMouseUpHandler(this.mouseUp.bind(this));
     this.engine.input.setMouseDownHandler(this.mousePressed.bind(this));
     this.engine.collision.setCollisionHandler(this.handleCollision.bind(this));
     this.engine.setUpdateHandler(this.update.bind(this));
@@ -22,14 +27,111 @@ BubbleShooter.prototype.init = function () {
     this.pauseGame = false;
   }
 
-  BubbleShooter.prototype.mouseMove = function(selectedImage, x , y) {
-
+  BubbleShooter.prototype.mouseUp = function(selectedImage, x , y) {
+    x = x - this.context.canvas.offsetLeft;
+    y = y - this.context.canvas.offsetTop;
+    if(y<this.Shooter_Y&&y>0&&x>0&&x<this.canvas.width){
+      console.log("Setting velocity" , x , y, this.Shooter_X, this.Shooter_Y)
+      var speed = 5;
+      var xV = (x - this.Shooter_X);
+      var yV = (y - this.Shooter_Y);
+      var mag = Math.sqrt(xV * xV + yV * yV);
+      xV = xV / mag;
+      yV = yV / mag;
+      this.Shooter.queue[0].x_velocity = xV * speed;
+      this.Shooter.queue[0].y_velocity = yV * speed;
+      console.log(this.Shooter.queue[0].x_velocity)
+      console.log(this.Shooter.queue[0].y_velocity)
+    }
   }
   BubbleShooter.prototype.mousePressed = function() {
-    
   }
-  BubbleShooter.prototype.handleCollision = function() {
+  BubbleShooter.prototype.handleCollision = function(shooter, collidedObject) {
+    console.log("Collided")
+    var j;
+    var i = Math.floor(collidedObject.Y / this.cellSize);
+    if(i%2) 
+      j = Math.floor(collidedObject.X / this.cellSize);
+    else 
+      j = Math.floor((collidedObject.X + (this.cellSize/2)) / this.cellSize);
     
+    if(shooter.x_velocity/shooter.y_velocity < -1.732){
+      j = j-1;
+    }
+    else if(shooter.x_velocity/shooter.y_velocity < 0){
+      if(i%2==0)
+        j = j;
+      else
+        j=j-1; 
+      i++;
+    }
+    else if(shooter.x_velocity/shooter.y_velocity < 1.732){
+      if(i%2==0)
+        j = j+1; 
+      i++;
+    }
+    else
+      j++;
+    this.levels.gameLevels[this.levels.current_level][i][j] = shooter;
+    shooter.x_velocity = 0;
+    shooter.y_velocity = 0;
+    shooter.X = j * this.cellSize - ((i)%2) * (this.cellSize/2);
+    shooter.Y = i * this.cellSize;
+    this.Shooter.replace();
+
+  }
+
+  function Shooter(colors,height, width, cellSize, engine) {
+    this.queue = new Array();
+    this.colors = colors;
+    this.engine = engine;
+    this.height = height;
+    this.width = width;
+    this.cellSize = cellSize;
+  }
+
+  Shooter.prototype.loadQueue =function() {
+    var img = this.colors[Math.floor(Math.random()*4)];
+    var x = Math.floor((this.width/2))*this.cellSize;
+    var y = (this.height-1)*this.cellSize;
+    var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+    this.queue.push(current_sprite);
+    for(var i = 1;i < 4; i++ ){
+      var img = this.colors[Math.floor(Math.random()*4)];
+      var x = (4-i)*this.cellSize;
+      var y = (this.height-1)*this.cellSize;
+      var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+      this.queue.push(current_sprite);
+    }
+  }
+  Shooter.prototype.addObjectstoEngine = function() {
+    for(var i = 0; i < this.queue.length; i++){
+
+      this.engine.addObject(this.queue[i]); 
+    }
+  }
+  Shooter.prototype.replace = function(){
+    this.queue.shift();
+    console.log(this.queue.length);
+    this.queue[0].X = Math.floor((this.width/2))*this.cellSize;
+    for(var i=1;i<3;i++){
+      this.queue[i].X+=this.cellSize;
+    }
+    var img = this.colors[Math.floor(Math.random()*4)];
+    var x = this.cellSize;
+    var y = (this.height-1)*this.cellSize;
+    var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+    this.queue.push(current_sprite);
+    this.engine.addObject(current_sprite);
+
+  }
+
+  Shooter.prototype.update = function() {
+    if(this.queue[0].x_velocity && this.queue[0].y_velocity) {
+      this.engine.input.setMovedObject(this.queue[0].id);
+      this.queue[0].X += this.queue[0].x_velocity;
+      this.queue[0].Y += this.queue[0].y_velocity;
+    }
   }
 
   BubbleShooter.prototype.loadContent = function() {
@@ -82,7 +184,7 @@ BubbleShooter.prototype.init = function () {
     
     this.engine.update();
     //Update Logic
-    // 
+    this.Shooter.update();
   }
 
   BubbleShooter.prototype.draw = function() {
@@ -121,27 +223,32 @@ BubbleShooter.prototype.init = function () {
     colors[2]="blue";
     colors[3]="orange";
     
-    for (var i = 0; i < height/3; i++) {
+    for (var i = 0; i < height; i++) {
+        this.gameLevels[0][i]=new Array();
         for(var j = 0; j < width; j++){
-           
-            if(i%2==0){
-                var x = (j*cellSize);
-                var y = i*cellSize;
-                var img = this.source[Math.floor(Math.random()*4)];
-                
-                var current_sprite = new Sprite(x, y, cellSize, cellSize, img);
-                current_sprite.tags.name = name;
-                this.gameLevels[0].push(current_sprite);
+            if(i < height/3) {           
+              if(i%2==0){
+                  var x = (j*cellSize);
+                  var y = i*cellSize;
+                  var img = this.source[Math.floor(Math.random()*4)];
+                  
+                  var current_sprite = new Sprite(x, y, cellSize, cellSize, img);
+                  current_sprite.tags.name = name;
+                  this.gameLevels[0][i].push(current_sprite);
+              }
+              else{
+                  if(j==0)
+                      continue;
+                  var x = (j*cellSize)-(cellSize/2);
+                  var y = i*cellSize;
+                  var img = this.source[Math.floor(Math.random()*4)];
+                  var current_sprite = new Sprite(x, y, cellSize, cellSize, img);
+                  current_sprite.tags.name = name;
+                  this.gameLevels[0][i].push(current_sprite);
+              }
             }
-            else{
-                if(j==0)
-                    continue;
-                var x = (j*cellSize)-(cellSize/2);
-                var y = i*cellSize;
-                var img = this.source[Math.floor(Math.random()*4)];
-                var current_sprite = new Sprite(x, y, cellSize, cellSize, img);
-                current_sprite.tags.name = name;
-                this.gameLevels[0].push(current_sprite);
+            else {
+              this.gameLevels[0][i].push(null);
             }
         }     
     }
@@ -151,7 +258,10 @@ BubbleShooter.prototype.init = function () {
 
   Levels.prototype.addLevelObjectsToEngine = function(level) {
     for(var i = 0; i < this.gameLevels[level].length; i++) {
-      this.engine.addObject(this.gameLevels[level][i]);
+      for(var j = 0; j< this.gameLevels[level][i].length; j++){
+        if(this.gameLevels[level][i][j])
+          this.engine.addObject(this.gameLevels[level][i][j]);
+      }
     }
   }
 
@@ -160,7 +270,7 @@ BubbleShooter.prototype.init = function () {
     if(game.loadContent() != true)
       return;
     game.init();
-    setInterval(game.engine.gameLoop.bind(game.engine), 200);
+    setInterval(game.engine.gameLoop.bind(game.engine), 10);
   }
   
   initGame();
