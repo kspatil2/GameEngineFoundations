@@ -1,22 +1,22 @@
 function SnakeGame() {
   this.canvas = document.getElementById("whyupdate");
   this.context = this.canvas.getContext('2d');
+  this.engine = new Engine(this.canvas, this.context, "2D");
 }
 
 SnakeGame.prototype.init = function () {
-  this.engine = new Engine(this.canvas, this.context, "2D");
 
   this.cellSize = 40;
   var levelWidth = this.canvas.width / this.cellSize;
   var levelHeight = this.canvas.height / this.cellSize;
   
-  this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, this.sources.get("wall"));
+  this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["wall"]);
   this.levels.addBoundaryObjectsToEngine();
   this.levels.addLevelObjectsToEngine(this.levels.current_level);
   
-  this.food = new Food(this.engine, levelWidth, levelHeight, this.cellSize, this.sources.get("food"), this.sources.get("spoiledFood"));
+  this.food = new Food(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["food"], this.spriteStyle["spoiledFood"]);
 
-  this.snake = new SnakeLinks(this.engine, this.sources.get("snake"), 5, this.cellSize);
+  this.snake = new SnakeLinks(this.engine, this.spriteStyle["snake"], 5, this.cellSize);
   this.snake.addSnakeLinksToEngine();
 
   //Bind game level listeners
@@ -83,21 +83,16 @@ SnakeGame.prototype.keyPressed = function (key) {
 }
 
 SnakeGame.prototype.loadContent = function () {
-  this.sources = new Map;
-  var snakeImage = new Image();
-  var foodImage = new Image();
-  var wallImage = new Image();
-  var spoiledFoodImage = new Image();
+  if(this.engine.loadSpriteSheet("spritesheet.png") != true)
+    return false;
+  
+  this.spriteStyle = {
+    "snake": {x: 300, y: 300, width: 300, height: 300},
+    "food": {x: 0, y: 300, width: 300, height: 300},
+    "wall": {x: 0, y: 0, width: 300, height: 300},
+    "spoiledFood": {x: 300, y: 0, width: 300, height: 300}
+  };
 
-  snakeImage.src = "https://kspatil2.github.io/snake_texture.jpg";
-  foodImage.src = "https://kspatil2.github.io/jerry.jpg";
-  wallImage.src = "https://kspatil2.github.io/deathstar.jpg";
-  spoiledFoodImage.src = "https://kspatil2.github.io/edited_lava.png";
-
-  this.sources.set("snake", snakeImage);
-  this.sources.set("food", foodImage);
-  this.sources.set("wall", wallImage);
-  this.sources.set("spoiledFood", spoiledFoodImage);
   return true;
 }
 
@@ -155,9 +150,9 @@ SnakeGame.prototype.gameLoop = function () {
   this.draw();
 }
 */
-function Levels(engine, width, height, cellSize, source) {
+function Levels(engine, width, height, cellSize, spriteStyle) {
   this.engine = engine;
-  this.source = source;
+  this.spriteStyle = spriteStyle;
   this.create_boundary_walls(height, width, cellSize);
   this.create_levels(height, width, cellSize);
   this.init();
@@ -174,27 +169,27 @@ Levels.prototype.create_boundary_walls = function (height, width, cellSize) {
   var name = "wall";
   for (var i = 0; i < width; i++) {
     var x = i * cellSize;
-    var current_sprite = new Sprite(x, 0, cellSize, cellSize, this.source);
+    var current_sprite = new Sprite(x, 0, cellSize, cellSize, this.spriteStyle);
     current_sprite.tags.name = name;
     this.boundary.push(current_sprite);
   }
   for (var i = 1; i < height; i++) {
     var x = width * cellSize - cellSize;
     var y = i * cellSize;
-    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.source);
+    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.spriteStyle);
     current_sprite.tags.name = name;
     this.boundary.push(current_sprite);
   }
   for (var i = 1; i < height; i++) {
     var y = i * cellSize;
-    var current_sprite = new Sprite(0, y, cellSize, cellSize, this.source);
+    var current_sprite = new Sprite(0, y, cellSize, cellSize, this.spriteStyle);
     current_sprite.tags.name = name;
     this.boundary.push(current_sprite);
   }
   for (var i = 1; i < width; i++) {
     var x = i * cellSize;
     var y = height * cellSize - cellSize;
-    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.source);
+    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.spriteStyle);
     current_sprite.tags.name = name;
     this.boundary.push(current_sprite);
   }
@@ -214,7 +209,7 @@ Levels.prototype.create_levels = function (height, width, cellSize) {
   for (var i = 0; i < width / 2; i++) {
     var x = (i + Math.round(0.25 * width)) * cellSize;
     var y = (height / 2) * cellSize;
-    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.source);
+    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.spriteStyle);
     current_sprite.tags.name = name;
     this.gameLevels[1].push(current_sprite);
   }
@@ -222,7 +217,7 @@ Levels.prototype.create_levels = function (height, width, cellSize) {
   for (var i = 0; i < height / 4; i++) {
     var x = cellSize * (width / 2);
     var y = (i + Math.round(0.15 * height)) * cellSize;
-    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.source);
+    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.spriteStyle);
     current_sprite.tags.name = name;
     this.gameLevels[2].push(current_sprite);
   }
@@ -230,7 +225,7 @@ Levels.prototype.create_levels = function (height, width, cellSize) {
   for (var i = 0; i < height / 4; i++) {
     var x = cellSize * (width / 2);
     var y = (i + Math.round(0.60 * height)) * cellSize;
-    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.source);
+    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.spriteStyle);
     current_sprite.tags.name = name;
     this.gameLevels[2].push(current_sprite);
   }
@@ -238,14 +233,14 @@ Levels.prototype.create_levels = function (height, width, cellSize) {
   for (var i = 0; i < width / 4; i++) {
     var x = (i + Math.round(0.20 * width)) * cellSize;
     var y = (height / 2 - 1) * cellSize;
-    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.source);
+    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.spriteStyle);
     current_sprite.tags.name = "wall";
     this.gameLevels[2].push(current_sprite);
   }
   for (var i = 0; i < width / 4; i++) {
     var x = (i + Math.round(0.60 * width)) * cellSize;
     var y = (height / 2 - 1) * cellSize;
-    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.source);
+    var current_sprite = new Sprite(x, y, cellSize, cellSize, this.spriteStyle);
     current_sprite.tags.name = "wall";
     this.gameLevels[2].push(current_sprite);
   }
@@ -311,9 +306,9 @@ Levels.prototype.update = function() {
   this.current_level = new_level;
 }
 
-function SnakeLinks(engine, source, initialLength, cellSize) {
+function SnakeLinks(engine, spriteStyle, initialLength, cellSize) {
   this.engine = engine;
-  this.source = source;
+  this.spriteStyle = spriteStyle;
   this.cellSize = cellSize;
   this.initialLength = initialLength;
   this.init();
@@ -330,7 +325,7 @@ SnakeLinks.prototype.create_snake = function (length) {
   this.snakeLinksArray = [];
   for (var i = length - 1; i >= 0; i--) {
     var x = (i + 1) * this.cellSize;
-    var current_sprite = new Sprite(x, this.cellSize, this.cellSize, this.cellSize, this.source);
+    var current_sprite = new Sprite(x, this.cellSize, this.cellSize, this.cellSize, this.spriteStyle);
     current_sprite.tags.name = "snake";
     this.snakeLinksArray.push(current_sprite);
   }
@@ -352,7 +347,7 @@ SnakeLinks.prototype.update = function() {
   var tail = this.snakeLinksArray[this.snakeLinksArray.length - 1];
   if (this.ateFood == true) {
     //we ate normal food. so add tail to the last link
-    tail = new Sprite(nx * this.cellSize, ny * this.cellSize, this.cellSize, this.cellSize, this.source);
+    tail = new Sprite(nx * this.cellSize, ny * this.cellSize, this.cellSize, this.cellSize, this.spriteStyle);
     tail.tags.name = "snake";
     this.engine.addObject(tail);
     this.ateFood = false;
@@ -372,13 +367,13 @@ SnakeLinks.prototype.update = function() {
   }
 }
 
-function Food(engine, width, height, cellSize, source, spoiledSource) {
+function Food(engine, width, height, cellSize, spriteStyle, spoiledSpriteStyle) {
   this.engine = engine;
   this.width = width;
   this.height = height;
   this.cellSize = cellSize;
-  this.source = source;
-  this.spoiledSource = spoiledSource;
+  this.spriteStyle = spriteStyle;
+  this.spoiledSpriteStyle = spoiledSpriteStyle;
   this.init();
 }
 
@@ -390,7 +385,7 @@ Food.prototype.init = function() {
   this.update();
 }
 
-Food.prototype.create_food = function (food, source, name) {
+Food.prototype.create_food = function (food, spriteStyle, name) {
   var x,y;
   var unique_xy = false;
   while(unique_xy == false)
@@ -405,7 +400,7 @@ Food.prototype.create_food = function (food, source, name) {
   }
 
   if (food == undefined) {
-    food = new Sprite(this.cellSize * x, this.cellSize * y, this.cellSize, this.cellSize, source);
+    food = new Sprite(this.cellSize * x, this.cellSize * y, this.cellSize, this.cellSize, spriteStyle);
     food.tags.name = name;
     this.engine.addObject(food);
   }
@@ -416,12 +411,12 @@ Food.prototype.create_food = function (food, source, name) {
 
 Food.prototype.update = function() {
   if(this.createNewFood == true) {
-    this.food = this.create_food(this.food, this.source, "food");
+    this.food = this.create_food(this.food, this.spriteStyle, "food");
     this.spoiledFoodTimeLeft = 10;
     this.createNewFood = false;
   }
   if(this.createNewSpoiledFood == true) {
-    this.spoiledFood = this.create_food(this.spoiledFood, this.spoiledSource, "spoiledFood");
+    this.spoiledFood = this.create_food(this.spoiledFood, this.spoiledSpriteStyle, "spoiledFood");
     this.spoiledFoodTimeLeft = 10;
     this.createNewSpoiledFood = false;
   }

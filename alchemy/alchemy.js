@@ -15,37 +15,22 @@ AlchemyGame.prototype.init = function() {
 AlchemyGame.prototype.loadContent = function() {
   this.init();
   this.elements = ["air", "water", "earth", "fire", "soul", "steam", "lava", "rockDude", "captainPlanet"];
-  
-  var airImage = new Image();
-  var waterImage = new Image();
-  var earthImage = new Image();
-  var fireImage = new Image();
-  var soulImage = new Image();
-  var steamImage = new Image();
-  var lavaImage = new Image();
-  var rockDudeImage = new Image();
-  var captainPlanetImage = new Image();
-  airImage.src = "https://kspatil2.github.io/edited_air.png";
-  waterImage.src = "https://kspatil2.github.io/edited_water.png";
-  earthImage.src = "https://kspatil2.github.io/edited_earth.png";
-  fireImage.src = "https://kspatil2.github.io/edited_Fire.png";
-  soulImage.src = "https://kspatil2.github.io/edited_soul.jpg";
-  steamImage.src = "https://kspatil2.github.io/edited_Steam.png";
-  lavaImage.src = "https://kspatil2.github.io/edited_lava.png";
-  rockDudeImage.src = "https://kspatil2.github.io/edited_RockDude.jpg";
-  captainPlanetImage.src = "https://kspatil2.github.io/edited_CaptainPlanet.jpg";
 
-  this.sources = new Map; 
+  if(this.engine.loadSpriteSheet("spritesheet.png") != true)
+    return false;
 
-  this.sources.set("air",airImage);
-  this.sources.set("water",waterImage);
-  this.sources.set("earth",earthImage);
-  this.sources.set("fire", fireImage);
-  this.sources.set("soul", soulImage);
-  this.sources.set("steam", steamImage);
-  this.sources.set("lava", lavaImage);
-  this.sources.set("rockDude", rockDudeImage);
-  this.sources.set("captainPlanet", captainPlanetImage);
+  this.spriteStyle = {
+    "air": {x: 230, y: 280, width: 230, height: 280},
+    "water": {x: 0, y: 560, width: 230, height: 280},
+    "earth": {x: 460, y: 280, width: 230, height: 280},
+    "fire": {x: 230, y: 0, width: 230, height: 280},
+    "soul": {x: 690, y: 280, width: 230, height: 280},
+    "steam": {x: 0, y: 280, width: 230, height: 280},
+    "lava": {x: 690, y: 0, width: 230, height: 280},
+    "rockDude": {x: 460, y: 0, width: 230, height: 280},
+    "captainPlanet": {x: 0, y: 0, width: 230, height: 280}
+  };
+
   this.combinations = new Map;
   this.combinations.set("water,air", "steam");
   this.combinations.set("earth,fire", "lava");
@@ -67,7 +52,7 @@ AlchemyGame.prototype.loadContent = function() {
     var hidden = (i < 5)? false: true;
     startX += xOffset;
     startY += yOffset;
-    var picture = new Sprite(startX, startY, this.unitWidth, this.unitHeight, this.sources.get(this.elements[i]));
+    var picture = new Sprite(startX, startY, this.unitWidth, this.unitHeight, this.spriteStyle[this.elements[i]]);
     picture.tags.name = this.elements[i];
     picture.tags.hidden = hidden;
     picture.tags.isFixed = true;
@@ -111,7 +96,7 @@ AlchemyGame.prototype.imageSelected = function(picture, x, y) {
   console.log("Image selected!");
   var selectedPictureId = picture.id;
   if(picture.tags.isFixed == true) { //fixed picture. create a copy to move and add at the end. 
-    var newPicture = new Sprite(x, y, this.unitWidth, this.unitHeight, this.sources.get(picture.tags.name));
+    var newPicture = new Sprite(x, y, this.unitWidth, this.unitHeight, this.spriteStyle[picture.tags.name]);
     newPicture.tags.name = picture.tags.name;
     newPicture.tags.hidden = false;
     newPicture.tags.isFixed = false;
@@ -138,7 +123,7 @@ AlchemyGame.prototype.combineImages = function(i1, i2) {
     var newY = (i1.Y + i2.Y)/2;
     var newName = this.combinations.get(mapKey);
     var sourceId = this.elements.indexOf(newName);
-    var newPicture = new Sprite(newX, newY, this.unitWidth, this.unitHeight, this.sources.get(newName));
+    var newPicture = new Sprite(newX, newY, this.unitWidth, this.unitHeight, this.spriteStyle[newName]);
     newPicture.tags.name = newName;
     newPicture.tags.hidden = false;
     newPicture.tags.isFixed = false;

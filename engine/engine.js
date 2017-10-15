@@ -65,7 +65,7 @@ Engine.prototype.draw = function() {
   if(this.game_type == '2D'){
   this.canvas.width = this.canvas.width;
     for (var i = 0; i < this.objects.length; i++) {
-      this.objects[i].draw(this.context);
+      this.objects[i].draw(this.context, this.spriteSheet);
     }
   }
   else
@@ -152,14 +152,12 @@ Engine.prototype.gameLoop = function(){
  * @param {*} height height of Sprite
  * @param {*} src src of Image
  */
-function Sprite(x, y, width, height, image) {
+function Sprite(x, y, width, height, spriteStyle) {
   this.X = x;
   this.Y = y;
   this.width = width;
   this.height = height;
-  this.image = image;
-  this.image.width = width;
-  this.image.height = height;
+  this.spriteStyle = spriteStyle;
   this.tags = {};
 }
 
@@ -167,9 +165,10 @@ function Sprite(x, y, width, height, image) {
 /**
  * Function to draw sprite if it is not hidden 
  */
-Sprite.prototype.draw = function(context) {
+Sprite.prototype.draw = function(context, spriteSheet) {
   if(this.tags.hidden != true) {
-    context.drawImage(this.image, this.X, this.Y, this.image.width, this.image.height);
+    //context.drawImage(this.image, this.X, this.Y, this.image.width, this.image.height);
+    context.drawImage(spriteSheet, this.spriteStyle.x, this.spriteStyle.y, this.spriteStyle.width, this.spriteStyle.height, this.X, this.Y, this.width, this.height);
     //draw a red box around selected object
     if(this.tags.selected == true) {
       context.beginPath();
@@ -178,6 +177,18 @@ Sprite.prototype.draw = function(context) {
       context.rect(this.X, this.Y, this.width, this.height);
       context.stroke();
     }
+  }
+}
+
+Engine.prototype.loadSpriteSheet = function(url) {
+  try {
+    this.spriteSheet = new Image();
+    this.spriteSheet.src = url;
+    return true;
+  }
+  catch (e) {
+    console.log("Failed to load spritesheet!");
+    return false;
   }
 }
 
@@ -356,7 +367,7 @@ Input.prototype.handleMouseMove = function(e) {
   if(this.objectSelectedId != null && this.mouseMoveHandler != null) {
     var objectSelected = this.engine.getObject(this.objectSelectedId);
     if(objectSelected != null)
-      this.mouseMoveHandler(objectSelected, e.clientX - this.intervalX, e.clientY - this.intervalY);
+        this.mouseMoveHandler(objectSelected, e.clientX - (this.intervalX == null? 0: this.intervalX), e.clientY - (this.intervalY == null? 0: this.intervalY));
   }
 }
 
