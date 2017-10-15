@@ -1,15 +1,14 @@
 function BubbleShooter() {
     this.canvas = document.getElementById("whyupdate");
     this.context = this.canvas.getContext('2d');
+    this.engine = new Engine(this.canvas, this.context, "2D");
 }
 
 BubbleShooter.prototype.init = function () {
-    this.engine = new Engine(this.canvas, this.context, "2D");
-  
     this.cellSize = 15;
     var levelWidth = this.canvas.width / this.cellSize;
     var levelHeight = this.canvas.height / this.cellSize;
-    this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, [this.sources.get("red"),this.sources.get("yellow"),this.sources.get("green"),this.sources.get("blue")]);
+    this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, [this.spriteStyle["red"],this.spriteStyle["blue"],this.spriteStyle["orange"],this.spriteStyle["green"]]);
     this.levels.addLevelObjectsToEngine(this.levels.current_level);
 
     this.engine.input.setMouseMoveHandler(this.mouseMove.bind(this));
@@ -23,7 +22,7 @@ BubbleShooter.prototype.init = function () {
     this.pauseGame = false;
   }
 
-  BubbleShooter.prototype.mouseMove = function() {
+  BubbleShooter.prototype.mouseMove = function(selectedImage, x , y) {
 
   }
   BubbleShooter.prototype.mousePressed = function() {
@@ -34,21 +33,22 @@ BubbleShooter.prototype.init = function () {
   }
 
   BubbleShooter.prototype.loadContent = function() {
-      this.sources = new Map();
-      var red = new Image();
-      var green = new Image();
-      var yellow = new Image();
-      var blue = new Image();
-      red.src = "https://kspatil2.github.io/snake_texture.jpg";
-      green.src = "https://kspatil2.github.io/jerry.jpg";
-      yellow.src = "https://kspatil2.github.io/deathstar.jpg";
-      blue.src = "https://kspatil2.github.io/edited_lava.png";
-    
-      this.sources.set("red", red);
-      this.sources.set("green", green);
-      this.sources.set("yellow", yellow);
-      this.sources.set("blue", blue);
-      return true;
+    if(this.engine.loadSpriteSheet("spritesheet.png") != true)
+    return false;
+  
+  this.spriteStyle = {
+    "eplosion1": {x: 0, y: 0, width: 70, height: 70},
+    "explosion2": {x: 70, y: 0, width: 70, height: 70},
+    "explosion3": {x: 140, y: 0, width: 70, height: 70},
+    "explosion4": {x: 210, y: 0, width: 70, height: 70},
+    "explosion5": {x: 280, y: 0, width: 70, height: 70},
+    "blue": {x: 350, y: 0, width: 70, height: 70},
+    "green": {x: 420, y: 0, width: 70, height: 70},
+    "orange": {x: 490, y: 0, width: 70, height: 70},
+    "red": {x: 560, y: 0, width: 70, height: 70}
+  };
+
+  return true;
   }
 
   BubbleShooter.prototype.drawLayout = function() {
@@ -119,9 +119,7 @@ BubbleShooter.prototype.init = function () {
     colors[0]="red";
     colors[1]="green";
     colors[2]="blue";
-    colors[3]="yellow";
-    
-   console.log(this.source);
+    colors[3]="orange";
     
     for (var i = 0; i < height/3; i++) {
         for(var j = 0; j < width; j++){
