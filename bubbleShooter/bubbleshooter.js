@@ -304,9 +304,9 @@ Levels.prototype.getI = function (X, Y) {
 }
 Levels.prototype.getJ = function (X, Y) {
   if (Math.floor(Y / this.cellSize) % 2 == 0)
-    return (X / this.cellSize);
+    return Math.floor(X / this.cellSize);
   else
-    return ((X - (this.cellSize / 2)) / this.cellSize);
+    return Math.floor((X - (this.cellSize / 2)) / this.cellSize);
 }
 
 Levels.prototype.create_levels = function (height, width) {
