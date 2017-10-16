@@ -35,10 +35,12 @@ function Engine(canvas, context, gameType) {
 Engine.prototype.init = function(){
   this.objects = new Array();           //Game objects(sprites)
   this.objectIdGenerator = 0;           //Unique id for each game object.
+  this.particleSystem = new Array();   // Particle System
 
   this.input = new Input(this);         //Input handler system
   this.collision = new Collision(this); //Collision handler system
   this.storage = new Storage(this);
+  this.physics = new Physics(this);
 
   //Bind engine event listeners
   this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
@@ -55,6 +57,7 @@ Engine.prototype.resetObjects = function() {
  * Update Method of the Game Engine class
  */
 Engine.prototype.update = function() {
+  this.physics.update();
   this.collision.update();
 }
 
@@ -92,8 +95,22 @@ Engine.prototype.deleteObject = function(id) {
   if(this.collision.movedObjectId == id)
     this.collision.movedObjectId = null;
   var index = this.getObjectIndex(id);
-  if(index != null)
+  if(index != null) {
+    this.particleSystem.push(this.objects[index]);
     this.objects.splice(index, 1);
+  }
+} 
+  
+/**
+* Method to get a reuable object from the pool (Particle System)
+*/
+Engine.prototype.getReusableObject = function(){
+  if(this.particleSystem.length > 0){
+    var obj = this.particleSystem[0];
+    this.particleSystem.shift();
+    return obj;
+  }
+  return null;
 }
 
 /**
@@ -392,4 +409,46 @@ Storage.prototype.getValue = function(key) {
     return localStorage.getItem(key) == null ? 0 : localStorage.getItem(key);
   }
   return null;
+}
+
+//---------Physics-------------------
+function Physics(engine) {
+  this.engine = engine;
+  this.outOfBoundsHandler = null;
+}
+
+Physics.prototype.setOutOfBoundsHandler = function(handler) {
+  this.outOfBoundsHandler = handler
+}
+
+Physics.prototype.update = function() {
+  for(var i = 0; i < this.engine.objects.length; i++) {
+    if(this.engine.objects[i].physics) {
+      var obj = this.engine.objects[i];
+      if(obj.physics.x_velocity != 0 || obj.physics.y_velocity != 0) {
+        this.engine.input.setMovedObject(obj.id);
+        obj.X += obj.physics.x_velocity;
+        obj.Y += obj.physics.y_velocity;
+        if(obj.X < 0 || (obj.X + 1.5 * obj.width) > this.engine.canvas.width) {
+          if(this.outOfBoundsHandler != null)
+            this.outOfBoundsHandler("X", obj);
+        }
+        if(obj.Y < 0 || (obj.Y + obj.height) > this.engine.canvas.height)
+          if(this.outOfBoundsHandler != null)
+            this.outOfBoundsHandler("Y", obj);
+      }
+    }
+  }
+}
+
+Physics.prototype.initPhysics = function() {
+  var physicsObj = {
+    x_velocity: 0,
+    y_velocity: 0
+  };
+  return physicsObj;
+}
+
+Physics.prototype.getVelocityTan = function(obj) {
+  return obj.x_velocity / obj.y_velocity;
 }

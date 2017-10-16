@@ -47,6 +47,7 @@ BubbleShooter.prototype.init = function () {
   this.engine.collision.setCollisionHandler(this.handleCollision.bind(this));
   this.engine.setUpdateHandler(this.update.bind(this));
   this.engine.setDrawHandler(this.draw.bind(this));
+  this.engine.physics.setOutOfBoundsHandler(this.Shooter.handleOutOfBounds.bind(this));
 }
 
 
@@ -56,8 +57,11 @@ BubbleShooter.prototype.restart = function () {
 
 BubbleShooter.prototype.mouseUp = function (selectedImage, x, y) {
   //change state to fire bubble on click
-  if(this.gameState == "play")
+  if(this.gameState == "play") {
     this.gameState = "fire";
+    this.Shooter.queue[0].physics.x_velocity = this.head_x_direction;
+    this.Shooter.queue[0].physics.y_velocity = this.head_y_direction;
+  }
 }
 
 BubbleShooter.prototype.mouseMove = function (objectMoved, x, y) {
@@ -72,10 +76,8 @@ BubbleShooter.prototype.mouseMove = function (objectMoved, x, y) {
     var mag = Math.sqrt(xV * xV + yV * yV);
     xV = xV / mag;
     yV = yV / mag;
-    this.Shooter.queue[0].x_velocity = xV * speed;
-    this.Shooter.queue[0].y_velocity = yV * speed;
-    this.head_x_velocity = xV * speed;
-    this.head_y_velocity = yV * speed;
+    this.head_x_direction = xV * speed;
+    this.head_y_direction = yV * speed;
   }
 }
 
@@ -108,8 +110,8 @@ BubbleShooter.prototype.handleCollision = function (shooter, collidedObject) {
     i++;
   }
   this.levels.gameLevels[this.levels.current_level][i][j] = shooter;
-  shooter.x_velocity = 0;
-  shooter.y_velocity = 0;
+  shooter.physics.x_velocity = 0;
+  shooter.physics.y_velocity = 0;
   shooter.X = this.levels.getX(i, j);
   shooter.Y = this.levels.getY(i, j);
 }
@@ -147,7 +149,7 @@ BubbleShooter.prototype.drawShooterHead = function () {
   context.beginPath();
 
   context.moveTo(this.Shooter_X, this.Shooter_Y);
-  context.lineTo(this.Shooter_X + this.head_x_velocity * len, this.Shooter_Y + this.head_y_velocity * len);
+  context.lineTo(this.Shooter_X + this.head_x_direction * len, this.Shooter_Y + this.head_y_direction * len);
   context.stroke();
 
   context.beginPath();
@@ -167,12 +169,6 @@ BubbleShooter.prototype.update = function () {
       break;
     //Fire: User shot a bubble
     case "fire":
-      this.Shooter.update();
-      if (this.Shooter.queue[0].Y == 0) {
-        this.levels.gameLevels[this.levels.current_level][0][Math.floor(this.levels.getJ(this.Shooter.queue[0].X, this.Shooter.queue[0].Y))] = this.Shooter.queue[0];
-        this.Shooter.queue[0].X = this.levels.getX(0, Math.floor(this.levels.getJ(this.Shooter.queue[0].X, this.Shooter.queue[0].Y)))
-        this.gameState = "initBreak";
-      }
       break;
     //initBreak: Calculate if bubbles need to be bursted
     case "initBreak":
@@ -193,6 +189,11 @@ BubbleShooter.prototype.update = function () {
   }
   // Refresh the score
   this.levels.refresh_score();
+  // Check game completion
+  if(this.levels.checkGameCompletion()) {
+    this.pauseGame = true;
+    alert("Game Over! Your score is " + this.levels.score);
+  }
 }
 
 BubbleShooter.prototype.draw = function () {
@@ -210,7 +211,7 @@ function Shooter(colors, height, width, cellSize, engine, game) {
   this.height = height;
   this.width = width;
   this.cellSize = cellSize;
-  this.game = game
+  this.game = game;
 }
 
 Shooter.prototype.loadQueue = function () {
@@ -220,6 +221,7 @@ Shooter.prototype.loadQueue = function () {
   var y = (this.height - 1) * this.cellSize;
   var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
   current_sprite.tags.color = index;
+  current_sprite.physics = this.engine.physics.initPhysics();;
   this.queue.push(current_sprite);
   for (var i = 1; i < 4; i++) {
     var index = Math.floor(Math.random() * 4);
@@ -228,6 +230,7 @@ Shooter.prototype.loadQueue = function () {
     var y = (this.height - 1) * this.cellSize;
     var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
     current_sprite.tags.color = index;
+    current_sprite.physics = this.engine.physics.initPhysics();
     this.queue.push(current_sprite);
   }
 }
@@ -239,8 +242,6 @@ Shooter.prototype.addObjectstoEngine = function () {
 }
 
 Shooter.prototype.replace = function () {
-  this.queue[1].x_velocity = this.game.head_x_velocity;//this.queue[0].x_velocity;
-  this.queue[1].y_velocity = this.game.head_y_velocity;//this.queue[0].y_velocity;
   this.queue.shift();
   this.queue[0].X = Math.floor((this.width / 2)) * this.cellSize;
   for (var i = 1; i < 3; i++) {
@@ -250,28 +251,39 @@ Shooter.prototype.replace = function () {
   var img = this.colors[index];
   var x = this.cellSize;
   var y = (this.height - 1) * this.cellSize;
-  var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+  var current_sprite = this.engine.getReusableObject()
+  if(current_sprite == null)
+    current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+  else {
+    // Set the properties of the object from the reusable pool
+    current_sprite.X = x;
+    current_sprite.Y = y;
+    current_sprite.width = this.cellSize;
+    current_sprite.height = this.cellSize;
+    current_sprite.spriteStyle = img;
+  }
   current_sprite.tags.color = index;
+  current_sprite.physics = this.engine.physics.initPhysics();;
   this.queue.push(current_sprite);
   this.engine.addObject(current_sprite);
 }
 
-Shooter.prototype.update = function () {
-  if (this.queue[0].x_velocity && this.queue[0].y_velocity) {
-    this.engine.input.setMovedObject(this.queue[0].id);
 
-    if (this.queue[0].X < 0 || this.queue[0].X > ((this.width - 1) * this.cellSize)) {
-      this.queue[0].x_velocity *= -1;
-    }
-    this.queue[0].X += this.queue[0].x_velocity;
-    this.queue[0].Y += this.queue[0].y_velocity;
-    if (this.queue[0].Y <= 0) {
-      this.queue[0].Y = 0;
-      this.queue[0].x_velocity = 0;
-      this.queue[0].y_velocity = 0;
+Shooter.prototype.handleOutOfBounds = function(axis, obj) {
+  if(axis == "X") {
+    obj.physics.x_velocity *= -1;
+  }
+  if(axis == "Y") {
+    if(obj.Y < 0) {
+      obj.Y = 0;
+      obj.physics.x_velocity = 0;
+      obj.physics.y_velocity = 0;
+      var shooter = this.Shooter;
+      this.levels.gameLevels[this.levels.current_level][0][this.levels.getJ(shooter.queue[0].X, shooter.queue[0].Y)] = shooter.queue[0];
+      shooter.queue[0].X = this.levels.getX(0, this.levels.getJ(shooter.queue[0].X, shooter.queue[0].Y))
+      this.gameState = "initBreak";
     }
   }
-  else this.game.gameState = "play";
 }
 
 function Levels(engine, width, height, cellSize, source, game) {
@@ -432,7 +444,8 @@ Levels.prototype.updateBreak = function () {
     return;
   }
   for (var i = 0; i < this.deletedItems.length; i++) {
-    this.game.engine.getObject(this.deletedItems[i]).spriteStyle = this.game.spriteStyle["explosion"+Math.floor(this.explosionState)];
+    if(this.explosionState < 6)
+      this.game.engine.getObject(this.deletedItems[i]).spriteStyle = this.game.spriteStyle["explosion"+Math.floor(this.explosionState)];
   }
   this.explosionState+=0.1;
 }
@@ -491,6 +504,17 @@ Levels.prototype.updateFall = function () {
     this.game.engine.getObject(this.fallingIds[i]).spriteStyle = this.game.spriteStyle["explosion"+Math.floor(this.explosionState)];
   }
   this.explosionState+=0.1;
+}
+
+Levels.prototype.checkGameCompletion = function() {
+  for (var i = 0; i < this.gameLevels[this.current_level].length; i++) {
+    for (var j = 0; j < this.gameLevels[this.current_level][i].length; j++) {
+      if (this.gameLevels[this.current_level][i][j] != null) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 Levels.prototype.init_scoring = function () {
