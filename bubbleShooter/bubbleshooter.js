@@ -50,11 +50,9 @@ BubbleShooter.prototype.init = function () {
     console.log("Collided")
     var j;
     var i = Math.floor(collidedObject.Y / this.cellSize);
-    if(i%2) 
-      j = Math.floor(collidedObject.X / this.cellSize);
-    else 
-      j = Math.floor((collidedObject.X + (this.cellSize/2)) / this.cellSize);
-    
+    i = this.levels.getI(collidedObject.X,collidedObject.Y);
+    j = this.levels.getJ(collidedObject.X,collidedObject.Y);
+    /*
     if(shooter.x_velocity/shooter.y_velocity < -1.732){
       j = j-1;
     }
@@ -72,11 +70,22 @@ BubbleShooter.prototype.init = function () {
     }
     else
       j++;
+      */
+    if(shooter.x_velocity>0){
+      if(i%2==0)
+        j--;
+    }
+    else{
+      if(i%2==1){
+        j++;
+      }
+    }
+    i++;
     this.levels.gameLevels[this.levels.current_level][i][j] = shooter;
     shooter.x_velocity = 0;
     shooter.y_velocity = 0;
-    shooter.X = j * this.cellSize - ((i)%2) * (this.cellSize/2);
-    shooter.Y = i * this.cellSize;
+    shooter.X = this.levels.getX(i,j);
+    shooter.Y = this.levels.getY(i,j);
     this.Shooter.replace();
 
   }
@@ -197,7 +206,8 @@ BubbleShooter.prototype.init = function () {
   function Levels(engine, width, height, cellSize, source) {
     this.engine = engine;
     this.source = source;
-    this.create_levels(height, width, cellSize);
+    this.cellSize = cellSize
+    this.create_levels(height, width);
     this.init();
   }
 
@@ -207,7 +217,26 @@ BubbleShooter.prototype.init = function () {
    // this.init_scoring();
   }
 
-  Levels.prototype.create_levels = function (height, width, cellSize) {
+  Levels.prototype.getX = function(i,j){
+    if(i%2==0)
+      return j*this.cellSize;
+    else
+      return j*this.cellSize + (this.cellSize/2);  
+  }
+  Levels.prototype.getY = function(i,j){
+    return (i*this.cellSize);
+  }
+  Levels.prototype.getI = function(X,Y){
+    return Math.floor(Y/this.cellSize);
+  }
+  Levels.prototype.getJ = function(X,Y){
+    if(Math.floor(Y/this.cellSize)%2==0)
+      return (X/this.cellSize);
+    else
+      return  ((X-(this.cellSize/2))/this.cellSize);
+  }
+
+  Levels.prototype.create_levels = function (height, width) {
     this.gameLevels = new Array();
   
     //Level 0
@@ -228,21 +257,21 @@ BubbleShooter.prototype.init = function () {
         for(var j = 0; j < width; j++){
             if(i < height/3) {           
               if(i%2==0){
-                  var x = (j*cellSize);
-                  var y = i*cellSize;
+                  var x = this.getX(i,j);
+                  var y = this.getY(i,j);
                   var img = this.source[Math.floor(Math.random()*4)];
                   
-                  var current_sprite = new Sprite(x, y, cellSize, cellSize, img);
+                  var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
                   current_sprite.tags.name = name;
                   this.gameLevels[0][i].push(current_sprite);
               }
               else{
-                  if(j==0)
+                  if(j==width-1)
                       continue;
-                  var x = (j*cellSize)-(cellSize/2);
-                  var y = i*cellSize;
+                  var x = this.getX(i,j);
+                  var y = this.getY(i,j);
                   var img = this.source[Math.floor(Math.random()*4)];
-                  var current_sprite = new Sprite(x, y, cellSize, cellSize, img);
+                  var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
                   current_sprite.tags.name = name;
                   this.gameLevels[0][i].push(current_sprite);
               }
