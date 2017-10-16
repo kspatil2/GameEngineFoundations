@@ -6,6 +6,7 @@ function BubbleShooter() {
 
 BubbleShooter.prototype.init = function () {
     this.cellSize = 15;
+    this.score = 0;
     var levelWidth = this.canvas.width / this.cellSize;
     var levelHeight = this.canvas.height / this.cellSize;
     var colors = [this.spriteStyle["red"],this.spriteStyle["blue"],this.spriteStyle["orange"],this.spriteStyle["green"]];
@@ -55,7 +56,7 @@ BubbleShooter.prototype.init = function () {
     
     if(shooter.x_velocity/shooter.y_velocity < -1.732){
       j = j-1;
-      if(this.levels.gameLevels[0][i][j]!=null)
+      if(this.levels.gameLevels[this.levels.current_level][i][j]!=null)
         i++;
     }
     else if(shooter.x_velocity/shooter.y_velocity < 0){
@@ -70,8 +71,12 @@ BubbleShooter.prototype.init = function () {
     }
     else{
       j++;
-      if(this.levels.gameLevels[0][i][j]!=null)
+      }
+      console.log(this.levels.gameLevels[this.levels.current_level][i][j]);
+      while(this.levels.gameLevels[this.levels.current_level][i][j]!=null){
         i++;
+        console.log(this.levels.gameLevels[this.levels.current_level][i][j]);
+     
     }
       
     /* 
