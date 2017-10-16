@@ -176,7 +176,7 @@ BubbleShooter.prototype.loadContent = function () {
     return false;
 
   this.spriteStyle = {
-    "eplosion1": { x: 0, y: 0, width: 70, height: 70 },
+    "explosion1": { x: 0, y: 0, width: 70, height: 70 },
     "explosion2": { x: 70, y: 0, width: 70, height: 70 },
     "explosion3": { x: 140, y: 0, width: 70, height: 70 },
     "explosion4": { x: 210, y: 0, width: 70, height: 70 },
@@ -256,8 +256,12 @@ BubbleShooter.prototype.update = function () {
     case "updateBreak":
       this.levels.updateBreak();
       break;
+    case "initFall":
+      this.levels.initFall();
+      break;
     case "updateFall":
       this.levels.updateFall();
+      break;
   }
 }
 
@@ -406,10 +410,8 @@ Levels.prototype.initBreak = function () {
     this.deletedItems = [];
     this.initVisited();
     var total = this.checkSurroundingsForSameColor(si, sj, this.game.Shooter.queue[0].tags.color, true);
-    for (var i = 0; i < this.deletedItems.length; i++) {
-      this.game.engine.deleteObject(this.deletedItems[i])
-    }
-    this.game.gameState = "updateFall";
+    this.explosionState = 1;
+    this.game.gameState = "updateBreak";
   } else {
     this.game.gameState = "play"
     this.game.Shooter.replace();
@@ -417,6 +419,18 @@ Levels.prototype.initBreak = function () {
 }
 
 Levels.prototype.updateBreak = function () {
+  if(this.explosionState >= 6) {
+    for (var i = 0; i < this.deletedItems.length; i++) {
+      this.game.engine.deleteObject(this.deletedItems[i])
+    }
+    this.game.gameState = "initFall";
+    this.explosionState = 1;
+    return;
+  }
+  for (var i = 0; i < this.deletedItems.length; i++) {
+    this.game.engine.getObject(this.deletedItems[i]).spriteStyle = this.game.spriteStyle["explosion"+Math.floor(this.explosionState)];
+  }
+  this.explosionState+=0.1;
 }
 
 Levels.prototype.checkIfStuckToTop = function (i, j) {
@@ -434,7 +448,7 @@ Levels.prototype.checkIfStuckToTop = function (i, j) {
   return 0;
 }
 
-Levels.prototype.updateFall = function () {
+Levels.prototype.initFall = function () {
   this.initVisited();
   for (var j = 0; j < this.gameLevels[this.current_level][0].length; j++) {
     if (this.gameLevels[this.current_level][0][j]) {
@@ -443,20 +457,30 @@ Levels.prototype.updateFall = function () {
       }
     }
   }
-  var fallingIds = [];
+  this.fallingIds = [];
   for (var i = 0; i < this.gameLevels[this.current_level].length; i++) {
     for (var j = 0; j < this.gameLevels[this.current_level][i].length; j++) {
       if (this.gameLevels[this.current_level][i][j] && this.gameLevels[this.current_level][i][j].tags.visited == false) {
-        fallingIds.push(this.gameLevels[this.current_level][i][j].id);
+        this.fallingIds.push(this.gameLevels[this.current_level][i][j].id);
         this.gameLevels[this.current_level][i][j] = null;
       }
     }
   }
-  for (var i = 0; i < fallingIds.length; i++) {
-    this.game.engine.deleteObject(fallingIds[i]);
+  this.game.gameState = "updateFall";
+}
+Levels.prototype.updateFall = function () {
+  if(this.explosionState >= 6) {
+    for (var i = 0; i < this.fallingIds.length; i++) {
+      this.game.engine.deleteObject(this.fallingIds[i]);
+    }
+    this.game.gameState = "play";
+    this.game.Shooter.replace();
+    return;
   }
-  this.game.gameState = "play";
-  this.game.Shooter.replace();
+  for (var i = 0; i < this.fallingIds.length; i++) {
+    this.game.engine.getObject(this.fallingIds[i]).spriteStyle = this.game.spriteStyle["explosion"+Math.floor(this.explosionState)];
+  }
+  this.explosionState+=0.1;
 }
 
 function initGame() {
@@ -464,7 +488,7 @@ function initGame() {
   if (game.loadContent() != true)
     return;
   game.init();
-  setInterval(game.engine.gameLoop.bind(game.engine), 1);
+  setInterval(game.engine.gameLoop.bind(game.engine), 10);
 }
 
 initGame();
