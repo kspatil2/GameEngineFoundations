@@ -279,9 +279,10 @@ Shooter.prototype.handleOutOfBounds = function(axis, obj) {
       obj.Y = 0;
       obj.physics.x_velocity = 0;
       obj.physics.y_velocity = 0;
-      var shooter = this.Shooter;
-      this.levels.gameLevels[this.levels.current_level][0][this.levels.getJ(shooter.queue[0].X, shooter.queue[0].Y)] = shooter.queue[0];
-      shooter.queue[0].X = this.levels.getX(0, this.levels.getJ(shooter.queue[0].X, shooter.queue[0].Y))
+      while(this.levels.gameLevels[this.levels.current_level][0][this.levels.getJ(obj.X, obj.Y)] != null) {
+        obj.X -= obj.width;
+      }this.levels.gameLevels[this.levels.current_level][0][this.levels.getJ(obj.X, obj.Y)] = obj;
+      obj.X = this.levels.getX(0, this.levels.getJ(obj.X, obj.Y))
       this.gameState = "initBreak";
     }
   }
@@ -339,7 +340,6 @@ Levels.prototype.create_levels = function (height, width) {
   colors[1] = "blue";
   colors[2] = "orange";
   colors[3] = "green";
-
   for (var i = 0; i < height; i++) {
     this.gameLevels[0][i] = new Array();
     for (var j = 0; j < width; j++) {
