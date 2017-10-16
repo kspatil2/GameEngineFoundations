@@ -364,9 +364,9 @@ Input.prototype.handleMouseUp = function(e) {
  * call handler if an object was dragged 
  */
 Input.prototype.handleMouseMove = function(e) {
-  if(this.objectSelectedId != null && this.mouseMoveHandler != null) {
+  if(/*this.objectSelectedId != null &&*/ this.mouseMoveHandler != null) {
     var objectSelected = this.engine.getObject(this.objectSelectedId);
-    if(objectSelected != null)
+    //if(objectSelected != null)
         this.mouseMoveHandler(objectSelected, e.clientX - (this.intervalX == null? 0: this.intervalX), e.clientY - (this.intervalY == null? 0: this.intervalY));
   }
 }
