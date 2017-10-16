@@ -154,6 +154,12 @@ BubbleShooter.prototype.init = function () {
       if(this.queue[0].X<0 || this.queue[0].X > ((this.width-1)*this.cellSize)){
         this.queue[0].x_velocity*=-1;
       }
+      if(this.queue[0].Y<=0)
+      {
+        this.queue[0].Y=0;
+        this.queue[0].x_velocity=0;
+        this.queue[0].y_velocity=0;
+      }
 
       this.queue[0].X += this.queue[0].x_velocity;
       this.queue[0].Y += this.queue[0].y_velocity;
@@ -212,6 +218,10 @@ BubbleShooter.prototype.init = function () {
     this.engine.update();
     //Update Logic
     this.Shooter.update();
+    if(this.Shooter.queue[0].Y==0){
+      this.levels.gameLevels[this.current_level][0][this.levels.getJ(this.Shooter.queue[0].X,this.Shooter.queue[0].Y)] = this.Shooter.gameLevels[0];
+      this.Shooter.replace();
+    }
   }
 
   BubbleShooter.prototype.draw = function() {
