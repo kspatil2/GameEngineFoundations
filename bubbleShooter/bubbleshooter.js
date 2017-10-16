@@ -263,6 +263,8 @@ BubbleShooter.prototype.update = function () {
       this.levels.updateFall();
       break;
   }
+  // Refresh the score
+  this.levels.refresh_score();
 }
 
 BubbleShooter.prototype.draw = function () {
@@ -285,7 +287,7 @@ function Levels(engine, width, height, cellSize, source, game) {
 Levels.prototype.init = function () {
   this.score = 0;
   this.current_level = 0;
-  // this.init_scoring();
+  this.init_scoring();
 }
 
 Levels.prototype.getX = function (i, j) {
@@ -354,7 +356,6 @@ Levels.prototype.create_levels = function (height, width) {
       }
     }
   }
-
   //Other levels to be created
 }
 
@@ -422,6 +423,7 @@ Levels.prototype.updateBreak = function () {
   if(this.explosionState >= 6) {
     for (var i = 0; i < this.deletedItems.length; i++) {
       this.game.engine.deleteObject(this.deletedItems[i])
+      this.score += 1;
     }
     this.game.gameState = "initFall";
     this.explosionState = 1;
@@ -481,6 +483,33 @@ Levels.prototype.updateFall = function () {
     this.game.engine.getObject(this.fallingIds[i]).spriteStyle = this.game.spriteStyle["explosion"+Math.floor(this.explosionState)];
   }
   this.explosionState+=0.1;
+}
+
+Levels.prototype.init_scoring = function () {
+  this.highScoreLabel = document.getElementById("highScore");
+  this.levelLabel = document.getElementById("level");
+  this.scoreLabel = document.getElementById("currentScore");
+  var persistentHighScore = this.engine.storage.getValue("BubbleHighScore");
+  if (persistentHighScore !== null)
+    if (persistentHighScore == 'undefined')
+      this.highScore = 0;
+    else
+      this.highScore = parseInt(persistentHighScore, 10);
+  else
+    this.highScore = -1;
+
+  this.refresh_score();
+}
+
+// Refresh Score
+Levels.prototype.refresh_score = function () {
+  if (this.highScore != -1 && this.score > this.highScore) {
+    this.highScore = this.score;
+    this.engine.storage.setValue("BubbleHighScore", this.highScore.toString());
+  }
+  this.highScoreLabel.innerHTML = this.highScore == -1 ? "Unavailable" : this.highScore;
+  this.scoreLabel.innerHTML = this.score;
+  this.levelLabel.innerHTML = this.current_level + 1; // level number is zero based
 }
 
 function initGame() {
