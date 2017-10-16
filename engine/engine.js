@@ -389,7 +389,7 @@ Storage.prototype.setValue = function(key, value) {
 
 Storage.prototype.getValue = function(key) {
   if (typeof (Storage) !== "undefined") {
-    return localStorage.getItem(key);
+    return localStorage.getItem(key) == null ? 0 : localStorage.getItem(key);
   }
   return null;
 }
