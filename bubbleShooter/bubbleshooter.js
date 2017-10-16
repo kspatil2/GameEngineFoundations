@@ -32,7 +32,7 @@ BubbleShooter.prototype.init = function () {
     y = y - this.context.canvas.offsetTop;
     if(y<this.Shooter_Y&&y>0&&x>0&&x<this.canvas.width){
       console.log("Setting velocity" , x , y, this.Shooter_X, this.Shooter_Y)
-      var speed = 5;
+      var speed = 10;
       var xV = (x - this.Shooter_X);
       var yV = (y - this.Shooter_Y);
       var mag = Math.sqrt(xV * xV + yV * yV);
@@ -55,6 +55,8 @@ BubbleShooter.prototype.init = function () {
     
     if(shooter.x_velocity/shooter.y_velocity < -1.732){
       j = j-1;
+      if(this.levels.gameLevels[0][i][j]!=null)
+        i++;
     }
     else if(shooter.x_velocity/shooter.y_velocity < 0){
       if(i%2==0)
@@ -66,8 +68,11 @@ BubbleShooter.prototype.init = function () {
         j++;
       i++;
     }
-    else
+    else{
       j++;
+      if(this.levels.gameLevels[0][i][j]!=null)
+        i++;
+    }
       
     /* 
     if(shooter.x_velocity>0){
@@ -81,6 +86,8 @@ BubbleShooter.prototype.init = function () {
     }
     i++;
     */
+
+
     this.levels.gameLevels[this.levels.current_level][i][j] = shooter;
     shooter.x_velocity = 0;
     shooter.y_velocity = 0;
@@ -138,8 +145,14 @@ BubbleShooter.prototype.init = function () {
   Shooter.prototype.update = function() {
     if(this.queue[0].x_velocity && this.queue[0].y_velocity) {
       this.engine.input.setMovedObject(this.queue[0].id);
+
+      if(this.queue[0].X<0 || this.queue[0].X > ((this.width-1)*this.cellSize)){
+        this.queue[0].x_velocity*=-1;
+      }
+
       this.queue[0].X += this.queue[0].x_velocity;
       this.queue[0].Y += this.queue[0].y_velocity;
+      
     }
   }
 
@@ -299,7 +312,7 @@ BubbleShooter.prototype.init = function () {
     if(game.loadContent() != true)
       return;
     game.init();
-    setInterval(game.engine.gameLoop.bind(game.engine), 10);
+    setInterval(game.engine.gameLoop.bind(game.engine), 1);
   }
   
   initGame();
