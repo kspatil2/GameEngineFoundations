@@ -52,25 +52,24 @@ BubbleShooter.prototype.init = function () {
     var i = Math.floor(collidedObject.Y / this.cellSize);
     i = this.levels.getI(collidedObject.X,collidedObject.Y);
     j = this.levels.getJ(collidedObject.X,collidedObject.Y);
-    /*
+    
     if(shooter.x_velocity/shooter.y_velocity < -1.732){
       j = j-1;
     }
     else if(shooter.x_velocity/shooter.y_velocity < 0){
       if(i%2==0)
-        j = j;
-      else
-        j=j-1; 
+        j--; 
       i++;
     }
     else if(shooter.x_velocity/shooter.y_velocity < 1.732){
-      if(i%2==0)
-        j = j+1; 
+      if(i%2==1)
+        j++;
       i++;
     }
     else
       j++;
-      */
+      
+    /* 
     if(shooter.x_velocity>0){
       if(i%2==0)
         j--;
@@ -81,6 +80,7 @@ BubbleShooter.prototype.init = function () {
       }
     }
     i++;
+    */
     this.levels.gameLevels[this.levels.current_level][i][j] = shooter;
     shooter.x_velocity = 0;
     shooter.y_velocity = 0;
