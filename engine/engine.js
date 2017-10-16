@@ -38,7 +38,7 @@ Engine.prototype.init = function(){
 
   this.input = new Input(this);         //Input handler system
   this.collision = new Collision(this); //Collision handler system
-  this.storage = new Storage(this);
+  this.storage = new GameStorage(this);
 
   //Bind engine event listeners
   this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
@@ -127,12 +127,10 @@ Engine.prototype.objectCount = function() {
 
 Engine.prototype.setUpdateHandler = function(handler) {
   this.updateHandler = handler;
-  console.log(this.updateHandler);
 }
 
 Engine.prototype.setDrawHandler = function(handler) {
   this.drawHandler = handler;
-  console.log(this.drawHandler);
 }
 
 Engine.prototype.gameLoop = function(){
@@ -377,19 +375,19 @@ Input.prototype.handleKeyPress = function(e) {
 }
 
 //---------Storage-------------------
-function Storage(engine) {
+function GameStorage(engine) {
   this.engine = engine;
 }
 
-Storage.prototype.setValue = function(key, value) {
+GameStorage.prototype.setValue = function(key, value) {
   if (typeof (Storage) !== "undefined") {
     localStorage.setItem(key, value);
   }
 }
 
-Storage.prototype.getValue = function(key) {
+GameStorage.prototype.getValue = function(key) {
   if (typeof (Storage) !== "undefined") {
-    return localStorage.getItem(key);
+    return localStorage.getItem(key) !== null ? localStorage.getItem(key) : 0;
   }
   return null;
 }

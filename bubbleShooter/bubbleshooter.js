@@ -33,7 +33,6 @@ BubbleShooter.prototype.mouseUp = function (selectedImage, x, y) {
   x = x - this.context.canvas.offsetLeft;
   y = y - this.context.canvas.offsetTop;
   if (y < this.Shooter_Y && y > 0 && x > 0 && x < this.canvas.width) {
-    console.log("Setting velocity", x, y, this.Shooter_X, this.Shooter_Y)
     var speed = 10;
     var xV = (x - this.Shooter_X);
     var yV = (y - this.Shooter_Y);
@@ -42,15 +41,14 @@ BubbleShooter.prototype.mouseUp = function (selectedImage, x, y) {
     yV = yV / mag;
     this.Shooter.queue[0].x_velocity = xV * speed;
     this.Shooter.queue[0].y_velocity = yV * speed;
-    console.log(this.Shooter.queue[0].x_velocity)
-    console.log(this.Shooter.queue[0].y_velocity)
   }
 }
 BubbleShooter.prototype.mousePressed = function () {
 }
+
 BubbleShooter.prototype.handleCollision = function (shooter, collidedObject) {
   this.gameState = "initBreak";
-  console.log("Collided")
+  console.log("Collision occured!");
   var j;
   var i = Math.floor(collidedObject.Y / this.cellSize);
   i = this.levels.getI(collidedObject.X, collidedObject.Y);
@@ -74,11 +72,9 @@ BubbleShooter.prototype.handleCollision = function (shooter, collidedObject) {
   else {
     j++;
   }
-  console.log(this.levels.gameLevels[this.levels.current_level][i][j]);
+  
   while (this.levels.gameLevels[this.levels.current_level][i][j] != null) {
     i++;
-    console.log(this.levels.gameLevels[this.levels.current_level][i][j]);
-
   }
 
   /* 
@@ -160,9 +156,13 @@ Shooter.prototype.update = function () {
       this.queue[0].x_velocity *= -1;
     }
     if (this.queue[0].Y <= 0) {
-      this.queue[0].Y = 0;
       this.queue[0].x_velocity = 0;
       this.queue[0].y_velocity = 0;
+
+      // Update the x and y positions of the shooter
+      //var col = this.levels.getJ(this.queue[0].X, 0);
+      //this.queue[0].X = this.levels.getX(0, col);
+      this.queue[0].Y = 0;
     }
 
     this.queue[0].X += this.queue[0].x_velocity;
@@ -243,6 +243,9 @@ BubbleShooter.prototype.update = function () {
         this.Shooter.replace();
       }
   }
+
+  // Refresh the score
+  this.levels.refresh_score();
 }
 
 BubbleShooter.prototype.draw = function () {
@@ -264,7 +267,7 @@ function Levels(engine, width, height, cellSize, source, game) {
 Levels.prototype.init = function () {
   this.score = 0;
   this.current_level = 0;
-  // this.init_scoring();
+  this.init_scoring();
 }
 
 Levels.prototype.getX = function (i, j) {
@@ -281,9 +284,9 @@ Levels.prototype.getI = function (X, Y) {
 }
 Levels.prototype.getJ = function (X, Y) {
   if (Math.floor(Y / this.cellSize) % 2 == 0)
-    return (X / this.cellSize);
+    return Math.floor(X / this.cellSize);
   else
-    return ((X - (this.cellSize / 2)) / this.cellSize);
+    return Math.floor((X - (this.cellSize / 2)) / this.cellSize);
 }
 
 Levels.prototype.create_levels = function (height, width) {
@@ -384,6 +387,7 @@ Levels.prototype.initVisited = function () {
 Levels.prototype.initBreak = function () {
   var si = this.getI(this.game.Shooter.queue[0].X, this.game.Shooter.queue[0].Y);
   var sj = this.getJ(this.game.Shooter.queue[0].X, this.game.Shooter.queue[0].Y);
+  console.log("Shooter i & j = " + si + ", " + sj);
   this.initVisited();
   var total = this.checkSurroundingsForSameColor(si, sj, this.game.Shooter.queue[0].tags.color, false);
   console.log(total);
@@ -394,11 +398,12 @@ Levels.prototype.initBreak = function () {
     var total = this.checkSurroundingsForSameColor(si, sj, this.game.Shooter.queue[0].tags.color, true);
     console.log(this.deletedItems);
     for (var i = 0; i < this.deletedItems.length; i++) {
+      this.score += 1;
       this.game.engine.deleteObject(this.deletedItems[i])
     }
     this.game.gameState = "updateFall";
   } else {
-    this.game.gameState = "play"
+    this.game.gameState = "play";
     this.game.Shooter.replace();
   }
 }
@@ -436,10 +441,39 @@ Levels.prototype.updateFall = function () {
     }
   }
   for (var i = 0; i < fallingIds.length; i++) {
+    this.score += 1;
     this.game.engine.deleteObject(fallingIds[i]);
   }
-  this.game.gameState = "play"
+  this.game.gameState = "play";
   this.game.Shooter.replace();
+}
+
+// Initialize scoring
+Levels.prototype.init_scoring = function () {
+  this.highScoreLabel = document.getElementById("highScore");
+  this.levelLabel = document.getElementById("level");
+  this.scoreLabel = document.getElementById("currentScore");
+  var persistentHighScore = this.engine.storage.getValue("BubbleHighScore");
+  if (persistentHighScore !== null)
+    if (persistentHighScore == 'undefined')
+      this.highScore = 0;
+    else
+      this.highScore = parseInt(persistentHighScore, 10);
+  else
+    this.highScore = -1;
+
+  this.refresh_score();
+}
+
+// Refresh Score
+Levels.prototype.refresh_score = function () {
+  if (this.highScore != -1 && this.score > this.highScore) {
+    this.highScore = this.score;
+    this.engine.storage.setValue("BubbleHighScore", this.highScore.toString());
+  }
+  this.highScoreLabel.innerHTML = this.highScore == -1 ? "Unavailable" : this.highScore;
+  this.scoreLabel.innerHTML = this.score;
+  this.levelLabel.innerHTML = this.current_level + 1; // level number is zero based
 }
 
 function initGame() {
