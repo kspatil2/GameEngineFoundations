@@ -411,7 +411,11 @@ Levels.prototype.checkIfStuckToTop = function (i, j) {
     && this.gameLevels[this.current_level][i][j] && this.gameLevels[this.current_level][i][j].tags.visited != true) {
     this.gameLevels[this.current_level][i][j].tags.visited = true;
     var o = (i % 2) ? 1 : -1;
+    this.checkIfStuckToTop(i, j - 1);
+    this.checkIfStuckToTop(i, j + 1);
     this.checkIfStuckToTop(i + 1, j);
+    this.checkIfStuckToTop(i - 1, j);
+    this.checkIfStuckToTop(i - 1, j + o);
     this.checkIfStuckToTop(i + 1, j + o);
   }
   return 0;
