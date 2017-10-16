@@ -6,10 +6,12 @@ function BubbleShooter() {
 
 BubbleShooter.prototype.init = function () {
     this.cellSize = 15;
+    this.score = 0;
     var levelWidth = this.canvas.width / this.cellSize;
     var levelHeight = this.canvas.height / this.cellSize;
+    this.gameState = "play";
     var colors = [this.spriteStyle["red"],this.spriteStyle["blue"],this.spriteStyle["orange"],this.spriteStyle["green"]];
-    this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, colors);
+    this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, colors, this);
     this.levels.addLevelObjectsToEngine(this.levels.current_level);
     this.Shooter = new Shooter(colors,levelHeight,levelWidth,this.cellSize, this.engine);
     this.Shooter.loadQueue();
@@ -47,30 +49,39 @@ BubbleShooter.prototype.init = function () {
   BubbleShooter.prototype.mousePressed = function() {
   }
   BubbleShooter.prototype.handleCollision = function(shooter, collidedObject) {
-    console.log("Collided")
+    this.gameState = "initBreak";
+        console.log("Collided")
     var j;
     var i = Math.floor(collidedObject.Y / this.cellSize);
     i = this.levels.getI(collidedObject.X,collidedObject.Y);
     j = this.levels.getJ(collidedObject.X,collidedObject.Y);
-    /*
+    
     if(shooter.x_velocity/shooter.y_velocity < -1.732){
       j = j-1;
+      if(this.levels.gameLevels[this.levels.current_level][i][j]!=null)
+        i++;
     }
     else if(shooter.x_velocity/shooter.y_velocity < 0){
       if(i%2==0)
-        j = j;
-      else
-        j=j-1; 
+        j--; 
       i++;
     }
     else if(shooter.x_velocity/shooter.y_velocity < 1.732){
-      if(i%2==0)
-        j = j+1; 
+      if(i%2==1)
+        j++;
       i++;
     }
-    else
+    else{
       j++;
-      */
+      }
+      console.log(this.levels.gameLevels[this.levels.current_level][i][j]);
+      while(this.levels.gameLevels[this.levels.current_level][i][j]!=null){
+        i++;
+        console.log(this.levels.gameLevels[this.levels.current_level][i][j]);
+     
+    }
+      
+    /* 
     if(shooter.x_velocity>0){
       if(i%2==0)
         j--;
@@ -81,13 +92,14 @@ BubbleShooter.prototype.init = function () {
       }
     }
     i++;
+    */
+
+
     this.levels.gameLevels[this.levels.current_level][i][j] = shooter;
     shooter.x_velocity = 0;
     shooter.y_velocity = 0;
     shooter.X = this.levels.getX(i,j);
     shooter.Y = this.levels.getY(i,j);
-    this.Shooter.replace();
-
   }
 
   function Shooter(colors,height, width, cellSize, engine) {
@@ -100,16 +112,20 @@ BubbleShooter.prototype.init = function () {
   }
 
   Shooter.prototype.loadQueue =function() {
-    var img = this.colors[Math.floor(Math.random()*4)];
+    var index = Math.floor(Math.random()*4);
+    var img = this.colors[index];
     var x = Math.floor((this.width/2))*this.cellSize;
     var y = (this.height-1)*this.cellSize;
     var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+    current_sprite.tags.color = index;
     this.queue.push(current_sprite);
     for(var i = 1;i < 4; i++ ){
-      var img = this.colors[Math.floor(Math.random()*4)];
+    var index = Math.floor(Math.random()*4);
+      var img = this.colors[index];
       var x = (4-i)*this.cellSize;
       var y = (this.height-1)*this.cellSize;
       var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+      current_sprite.tags.color = index;
       this.queue.push(current_sprite);
     }
   }
@@ -121,15 +137,16 @@ BubbleShooter.prototype.init = function () {
   }
   Shooter.prototype.replace = function(){
     this.queue.shift();
-    console.log(this.queue.length);
     this.queue[0].X = Math.floor((this.width/2))*this.cellSize;
     for(var i=1;i<3;i++){
       this.queue[i].X+=this.cellSize;
     }
-    var img = this.colors[Math.floor(Math.random()*4)];
+    var index = Math.floor(Math.random()*4);
+    var img = this.colors[index];
     var x = this.cellSize;
     var y = (this.height-1)*this.cellSize;
     var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+    current_sprite.tags.color = index;
     this.queue.push(current_sprite);
     this.engine.addObject(current_sprite);
 
@@ -138,8 +155,20 @@ BubbleShooter.prototype.init = function () {
   Shooter.prototype.update = function() {
     if(this.queue[0].x_velocity && this.queue[0].y_velocity) {
       this.engine.input.setMovedObject(this.queue[0].id);
+
+      if(this.queue[0].X<0 || this.queue[0].X > ((this.width-1)*this.cellSize)){
+        this.queue[0].x_velocity*=-1;
+      }
+      if(this.queue[0].Y<=0)
+      {
+        this.queue[0].Y=0;
+        this.queue[0].x_velocity=0;
+        this.queue[0].y_velocity=0;
+      }
+
       this.queue[0].X += this.queue[0].x_velocity;
       this.queue[0].Y += this.queue[0].y_velocity;
+      
     }
   }
 
@@ -193,7 +222,23 @@ BubbleShooter.prototype.init = function () {
     
     this.engine.update();
     //Update Logic
-    this.Shooter.update();
+    switch(this.gameState) {
+      case "play": 
+        this.Shooter.update();
+        if(this.Shooter.queue[0].Y==0){
+          this.levels.gameLevels[this.levels.current_level][0][this.levels.getJ(this.Shooter.queue[0].X,this.Shooter.queue[0].Y)] = this.Shooter.queue[0];
+          this.Shooter.replace();
+        }
+        break;
+      case "initBreak":
+        this.levels.initBreak();
+        break;
+      case "updateBreak":
+        this.levels.updateBreak();
+        break;
+      case "updateFall":
+        this.levels.updateFall();
+    }
   }
 
   BubbleShooter.prototype.draw = function() {
@@ -203,10 +248,11 @@ BubbleShooter.prototype.init = function () {
     this.drawLayout();
   }
 
-  function Levels(engine, width, height, cellSize, source) {
+  function Levels(engine, width, height, cellSize, source, game) {
     this.engine = engine;
     this.source = source;
-    this.cellSize = cellSize
+    this.cellSize = cellSize;
+    this.game = game;
     this.create_levels(height, width);
     this.init();
   }
@@ -248,21 +294,22 @@ BubbleShooter.prototype.init = function () {
   
     var colors = new Array();
     colors[0]="red";
-    colors[1]="green";
-    colors[2]="blue";
-    colors[3]="orange";
+    colors[1]="blue";
+    colors[2]="orange";
+    colors[3]="green";
     
     for (var i = 0; i < height; i++) {
         this.gameLevels[0][i]=new Array();
         for(var j = 0; j < width; j++){
-            if(i < height/3) {           
+            if(i < height/10) {           
               if(i%2==0){
                   var x = this.getX(i,j);
                   var y = this.getY(i,j);
-                  var img = this.source[Math.floor(Math.random()*4)];
+                  var index = Math.floor(Math.random()*4);
+                  var img = this.source[index];
                   
                   var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
-                  current_sprite.tags.name = name;
+                  current_sprite.tags.color = index;
                   this.gameLevels[0][i].push(current_sprite);
               }
               else{
@@ -270,9 +317,10 @@ BubbleShooter.prototype.init = function () {
                       continue;
                   var x = this.getX(i,j);
                   var y = this.getY(i,j);
-                  var img = this.source[Math.floor(Math.random()*4)];
+                  var index = Math.floor(Math.random()*4);
+                  var img = this.source[index];
                   var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
-                  current_sprite.tags.name = name;
+                  current_sprite.tags.color = index;
                   this.gameLevels[0][i].push(current_sprite);
               }
             }
@@ -292,6 +340,102 @@ BubbleShooter.prototype.init = function () {
           this.engine.addObject(this.gameLevels[level][i][j]);
       }
     }
+  }
+
+  Levels.prototype.checkSurroundingsForSameColor = function(i, j, color, shouldDelete) {
+    if(i >= 0 && j >= 0 && i < this.gameLevels[this.current_level].length && j < this.gameLevels[this.current_level][i].length
+    && this.gameLevels[this.current_level][i][j] && this.gameLevels[this.current_level][i][j].tags.visited != true) {
+      this.gameLevels[this.current_level][i][j].tags.visited = true;
+      if(this.gameLevels[this.current_level][i][j].tags.color == color) {
+        console.log("Visited ", i, j)
+        if(/*count < 3*/ true) {
+          var t = (i % 2)? 1 : -1;
+          if(shouldDelete) {
+            this.deletedItems.push(this.gameLevels[this.current_level][i][j].id);
+            this.gameLevels[this.current_level][i][j] = null;
+          }
+          return 1 +
+          this.checkSurroundingsForSameColor(i, j - 1, color, shouldDelete) +
+          this.checkSurroundingsForSameColor(i, j + 1, color, shouldDelete) +
+          this.checkSurroundingsForSameColor(i - 1, j, color, shouldDelete) +
+          this.checkSurroundingsForSameColor(i + 1, j, color, shouldDelete) +
+          this.checkSurroundingsForSameColor(i - 1, j + t, color, shouldDelete) +
+          this.checkSurroundingsForSameColor(i + 1, j + t, color, shouldDelete);
+        }
+      }
+    }
+    return 0;
+  }
+
+  Levels.prototype.initVisited = function() {
+    for(var i = 0; i < this.gameLevels[this.current_level].length; i++) {
+      for(var j = 0; j < this.gameLevels[this.current_level][i].length; j++) {
+        if(this.gameLevels[this.current_level][i][j]) {
+          this.gameLevels[this.current_level][i][j].tags.visited = false;
+        }
+      }
+    }
+  }
+
+  Levels.prototype.initBreak = function () {
+    var si = this.getI(this.game.Shooter.queue[0].X, this.game.Shooter.queue[0].Y);
+    var sj = this.getJ(this.game.Shooter.queue[0].X, this.game.Shooter.queue[0].Y);
+    this.initVisited();
+    var total = this.checkSurroundingsForSameColor(si, sj, this.game.Shooter.queue[0].tags.color, false);
+    console.log(total);
+    if (total >= 3) {
+      console.log("Break")
+      this.deletedItems = [];
+      this.initVisited();
+      var total = this.checkSurroundingsForSameColor(si, sj, this.game.Shooter.queue[0].tags.color, true);
+      console.log(this.deletedItems);
+      for(var i = 0; i < this.deletedItems.length; i++) {
+        this.game.engine.deleteObject(this.deletedItems[i])
+      }
+      this.game.gameState = "updateFall";
+    } else {
+      this.game.gameState = "play"
+      this.game.Shooter.replace();
+    }
+  }
+
+  Levels.prototype.updateBreak = function () {
+  }
+
+  Levels.prototype.checkIfStuckToTop = function(i, j) {
+    if(i >= 0 && j >= 0 && i < this.gameLevels[this.current_level].length && j < this.gameLevels[this.current_level][i].length
+    && this.gameLevels[this.current_level][i][j] && this.gameLevels[this.current_level][i][j].tags.visited != true) {
+      this.gameLevels[this.current_level][i][j].tags.visited = true;
+      var o = (i%2)? 1: -1;
+      this.checkIfStuckToTop(i + 1, j);
+      this.checkIfStuckToTop(i + 1, j + o);
+    }
+    return 0;
+  }
+
+  Levels.prototype.updateFall = function () {
+    this.initVisited();
+    for(var j = 0; j < this.gameLevels[this.current_level][0].length; j++) {
+      if(this.gameLevels[this.current_level][0][j]) {
+        if(this.gameLevels[this.current_level][0][j].tags.visited != true) {
+          this.checkIfStuckToTop(0, j);
+        }
+      }
+    }
+    var fallingIds = [];
+    for(var i = 0; i < this.gameLevels[this.current_level].length; i++) {
+      for(var j = 0; j < this.gameLevels[this.current_level][i].length; j++) {
+        if(this.gameLevels[this.current_level][i][j] && this.gameLevels[this.current_level][i][j].tags.visited == false) {
+          fallingIds.push(this.gameLevels[this.current_level][i][j].id);
+          this.gameLevels[this.current_level][i][j] = null;
+        }
+      }
+    }
+    for(var i = 0; i < fallingIds.length; i++) {
+      this.game.engine.deleteObject(fallingIds[i]);
+    }
+    this.game.gameState = "play"
+    this.game.Shooter.replace();
   }
 
   function initGame() {
