@@ -88,17 +88,18 @@ BubbleShooter.prototype.handleCollision = function (shooter, collidedObject) {
   i = this.levels.getI(collidedObject.X, collidedObject.Y);
   j = this.levels.getJ(collidedObject.X, collidedObject.Y);
 
-  if (shooter.x_velocity / shooter.y_velocity < -1.732) {
+  var tanValue = this.engine.physics.getVelocityTan(shooter.physics);
+  if (tanValue < -1.732) {
     j = j - 1;
     if (this.levels.gameLevels[this.levels.current_level][i][j] != null)
       i++;
   }
-  else if (shooter.x_velocity / shooter.y_velocity < 0) {
+  else if (tanValue < 0) {
     if (i % 2 == 0)
       j--;
     i++;
   }
-  else if (shooter.x_velocity / shooter.y_velocity < 1.732) {
+  else if (tanValue < 1.732) {
     if (i % 2 == 1)
       j++;
     i++;
