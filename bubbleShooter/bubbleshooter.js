@@ -34,7 +34,7 @@ BubbleShooter.prototype.init = function () {
     y = y - this.context.canvas.offsetTop;
     if(y<this.Shooter_Y&&y>0&&x>0&&x<this.canvas.width){
       console.log("Setting velocity" , x , y, this.Shooter_X, this.Shooter_Y)
-      var speed = 5;
+      var speed = 10;
       var xV = (x - this.Shooter_X);
       var yV = (y - this.Shooter_Y);
       var mag = Math.sqrt(xV * xV + yV * yV);
@@ -238,6 +238,10 @@ BubbleShooter.prototype.init = function () {
         break;
       case "updateFall":
         this.levels.updateFall();
+    this.Shooter.update();
+    if(this.Shooter.queue[0].Y==0){
+      this.levels.gameLevels[this.current_level][0][this.levels.getJ(this.Shooter.queue[0].X,this.Shooter.queue[0].Y)] = this.Shooter.gameLevels[0];
+      this.Shooter.replace();
     }
   }
 
@@ -443,7 +447,7 @@ BubbleShooter.prototype.init = function () {
     if(game.loadContent() != true)
       return;
     game.init();
-    setInterval(game.engine.gameLoop.bind(game.engine), 10);
+    setInterval(game.engine.gameLoop.bind(game.engine), 1);
   }
   
   initGame();
