@@ -33,3 +33,5 @@ Spoiled food that stays on the level for some amount of time. When eaten this ca
 High-score list or the last high-score from the current session (session and persistent storage)
 COMPLETED. (Done using Local Storage of the browser. Should check if the current browser has local storage enabled.)
 
+DEMO
+[Demo](https://kspatil2.github.io/GameEngineFoundations/)
