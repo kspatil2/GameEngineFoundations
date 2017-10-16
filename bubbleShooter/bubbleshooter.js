@@ -4,6 +4,27 @@ function BubbleShooter() {
   this.engine = new Engine(this.canvas, this.context, "2D");
 }
 
+//load Spritesheet onto engine
+BubbleShooter.prototype.loadContent = function () {
+  if (this.engine.loadSpriteSheet("spritesheet.png") != true)
+    return false;
+
+  this.spriteStyle = {
+    "explosion1": { x: 0, y: 0, width: 70, height: 70 },
+    "explosion2": { x: 70, y: 0, width: 70, height: 70 },
+    "explosion3": { x: 140, y: 0, width: 70, height: 70 },
+    "explosion4": { x: 210, y: 0, width: 70, height: 70 },
+    "explosion5": { x: 280, y: 0, width: 70, height: 70 },
+    "blue": { x: 350, y: 0, width: 70, height: 70 },
+    "green": { x: 420, y: 0, width: 70, height: 70 },
+    "orange": { x: 490, y: 0, width: 70, height: 70 },
+    "red": { x: 560, y: 0, width: 70, height: 70 }
+  };
+
+  return true;
+}
+
+//initialize game
 BubbleShooter.prototype.init = function () {
   this.cellSize = 15;
   this.score = 0;
@@ -11,13 +32,16 @@ BubbleShooter.prototype.init = function () {
   var levelHeight = this.canvas.height / this.cellSize;
   this.gameState = "play";
   var colors = [this.spriteStyle["red"], this.spriteStyle["blue"], this.spriteStyle["orange"], this.spriteStyle["green"]];
+
   this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, colors, this);
   this.levels.addLevelObjectsToEngine(this.levels.current_level);
+  
   this.Shooter = new Shooter(colors, levelHeight, levelWidth, this.cellSize, this.engine, this);
   this.Shooter.loadQueue();
   this.Shooter_Y = (levelHeight - 1) * this.cellSize + (this.cellSize / 2);
   this.Shooter_X = Math.floor(levelWidth / 2) * this.cellSize + (this.cellSize / 2);
   this.Shooter.addObjectstoEngine();
+  
   this.engine.input.setMouseUpHandler(this.mouseUp.bind(this));
   this.engine.input.setMouseMoveHandler(this.mouseMove.bind(this));
   this.engine.collision.setCollisionHandler(this.handleCollision.bind(this));
@@ -25,25 +49,15 @@ BubbleShooter.prototype.init = function () {
   this.engine.setDrawHandler(this.draw.bind(this));
 }
 
+
 BubbleShooter.prototype.restart = function () {
   this.pauseGame = false;
 }
 
 BubbleShooter.prototype.mouseUp = function (selectedImage, x, y) {
+  //change state to fire bubble on click
   if(this.gameState == "play")
-    this.gameState = "bounce";
-  // x = x - this.context.canvas.offsetLeft;
-  // y = y - this.context.canvas.offsetTop;
-  // if (y < this.Shooter_Y && y > 0 && x > 0 && x < this.canvas.width) {
-  //   var speed = 10;
-  //   var xV = (x - this.Shooter_X);
-  //   var yV = (y - this.Shooter_Y);
-  //   var mag = Math.sqrt(xV * xV + yV * yV);
-  //   xV = xV / mag;
-  //   yV = yV / mag;
-  //   this.Shooter.queue[0].x_velocity = xV * speed;
-  //   this.Shooter.queue[0].y_velocity = yV * speed;
-  // }
+    this.gameState = "fire";
 }
 
 BubbleShooter.prototype.mouseMove = function (objectMoved, x, y) {
@@ -100,96 +114,6 @@ BubbleShooter.prototype.handleCollision = function (shooter, collidedObject) {
   shooter.Y = this.levels.getY(i, j);
 }
 
-function Shooter(colors, height, width, cellSize, engine, game) {
-  this.queue = new Array();
-  this.colors = colors;
-  this.engine = engine;
-  this.height = height;
-  this.width = width;
-  this.cellSize = cellSize;
-  this.game = game
-}
-
-Shooter.prototype.loadQueue = function () {
-  var index = Math.floor(Math.random() * 4);
-  var img = this.colors[index];
-  var x = Math.floor((this.width / 2)) * this.cellSize;
-  var y = (this.height - 1) * this.cellSize;
-  var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
-  current_sprite.tags.color = index;
-  this.queue.push(current_sprite);
-  for (var i = 1; i < 4; i++) {
-    var index = Math.floor(Math.random() * 4);
-    var img = this.colors[index];
-    var x = (4 - i) * this.cellSize;
-    var y = (this.height - 1) * this.cellSize;
-    var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
-    current_sprite.tags.color = index;
-    this.queue.push(current_sprite);
-  }
-}
-Shooter.prototype.addObjectstoEngine = function () {
-  for (var i = 0; i < this.queue.length; i++) {
-
-    this.engine.addObject(this.queue[i]);
-  }
-}
-Shooter.prototype.replace = function () {
-  this.queue[1].x_velocity = this.queue[0].x_velocity;
-  this.queue[1].y_velocity = this.queue[0].y_velocity;
-  this.queue.shift();
-  this.queue[0].X = Math.floor((this.width / 2)) * this.cellSize;
-  for (var i = 1; i < 3; i++) {
-    this.queue[i].X += this.cellSize;
-  }
-  var index = Math.floor(Math.random() * 4);
-  var img = this.colors[index];
-  var x = this.cellSize;
-  var y = (this.height - 1) * this.cellSize;
-  var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
-  current_sprite.tags.color = index;
-  this.queue.push(current_sprite);
-  this.engine.addObject(current_sprite);
-
-}
-
-Shooter.prototype.update = function () {
-  if (this.queue[0].x_velocity && this.queue[0].y_velocity) {
-    this.engine.input.setMovedObject(this.queue[0].id);
-
-    if (this.queue[0].X < 0 || this.queue[0].X > ((this.width - 1) * this.cellSize)) {
-      this.queue[0].x_velocity *= -1;
-    }
-    this.queue[0].X += this.queue[0].x_velocity;
-    this.queue[0].Y += this.queue[0].y_velocity;
-    if (this.queue[0].Y <= 0) {
-      this.queue[0].Y = 0;
-      this.queue[0].x_velocity = 0;
-      this.queue[0].y_velocity = 0;
-    }
-  }
-  else this.game.gameState = "play";
-}
-
-BubbleShooter.prototype.loadContent = function () {
-  if (this.engine.loadSpriteSheet("spritesheet.png") != true)
-    return false;
-
-  this.spriteStyle = {
-    "explosion1": { x: 0, y: 0, width: 70, height: 70 },
-    "explosion2": { x: 70, y: 0, width: 70, height: 70 },
-    "explosion3": { x: 140, y: 0, width: 70, height: 70 },
-    "explosion4": { x: 210, y: 0, width: 70, height: 70 },
-    "explosion5": { x: 280, y: 0, width: 70, height: 70 },
-    "blue": { x: 350, y: 0, width: 70, height: 70 },
-    "green": { x: 420, y: 0, width: 70, height: 70 },
-    "orange": { x: 490, y: 0, width: 70, height: 70 },
-    "red": { x: 560, y: 0, width: 70, height: 70 }
-  };
-
-  return true;
-}
-
 BubbleShooter.prototype.drawLayout = function () {
   var context = this.context;
   var canvas = this.canvas;
@@ -237,28 +161,32 @@ BubbleShooter.prototype.update = function () {
 
   this.engine.update();
   //Update Logic
-  //console.log(this.gameState)
   switch (this.gameState) {
+    //Play: Waiting for user to shoot a bubble
     case "play":
       break;
-    case "bounce":
+    //Fire: User shot a bubble
+    case "fire":
       this.Shooter.update();
       if (this.Shooter.queue[0].Y == 0) {
         this.levels.gameLevels[this.levels.current_level][0][Math.floor(this.levels.getJ(this.Shooter.queue[0].X, this.Shooter.queue[0].Y))] = this.Shooter.queue[0];
         this.Shooter.queue[0].X = this.levels.getX(0, Math.floor(this.levels.getJ(this.Shooter.queue[0].X, this.Shooter.queue[0].Y)))
-        this.Shooter.replace();
         this.gameState = "initBreak";
       }
       break;
+    //initBreak: Calculate if bubbles need to be bursted
     case "initBreak":
       this.levels.initBreak();
       break;
+    //updateBreak: Burst bubbles of the same color
     case "updateBreak":
       this.levels.updateBreak();
       break;
+    //initBreak: Calculate if bubbles are attached or hanging without support
     case "initFall":
       this.levels.initFall();
       break;
+    //updateFall: Burst bubbles of that are dangling without support
     case "updateFall":
       this.levels.updateFall();
       break;
@@ -273,6 +201,77 @@ BubbleShooter.prototype.draw = function () {
   this.engine.draw();
   this.drawLayout();
   this.drawShooterHead();
+}
+
+function Shooter(colors, height, width, cellSize, engine, game) {
+  this.queue = new Array();
+  this.colors = colors;
+  this.engine = engine;
+  this.height = height;
+  this.width = width;
+  this.cellSize = cellSize;
+  this.game = game
+}
+
+Shooter.prototype.loadQueue = function () {
+  var index = Math.floor(Math.random() * 4);
+  var img = this.colors[index];
+  var x = Math.floor((this.width / 2)) * this.cellSize;
+  var y = (this.height - 1) * this.cellSize;
+  var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+  current_sprite.tags.color = index;
+  this.queue.push(current_sprite);
+  for (var i = 1; i < 4; i++) {
+    var index = Math.floor(Math.random() * 4);
+    var img = this.colors[index];
+    var x = (4 - i) * this.cellSize;
+    var y = (this.height - 1) * this.cellSize;
+    var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+    current_sprite.tags.color = index;
+    this.queue.push(current_sprite);
+  }
+}
+
+Shooter.prototype.addObjectstoEngine = function () {
+  for (var i = 0; i < this.queue.length; i++) {
+    this.engine.addObject(this.queue[i]);
+  }
+}
+
+Shooter.prototype.replace = function () {
+  this.queue[1].x_velocity = this.game.head_x_velocity;//this.queue[0].x_velocity;
+  this.queue[1].y_velocity = this.game.head_y_velocity;//this.queue[0].y_velocity;
+  this.queue.shift();
+  this.queue[0].X = Math.floor((this.width / 2)) * this.cellSize;
+  for (var i = 1; i < 3; i++) {
+    this.queue[i].X += this.cellSize;
+  }
+  var index = Math.floor(Math.random() * 4);
+  var img = this.colors[index];
+  var x = this.cellSize;
+  var y = (this.height - 1) * this.cellSize;
+  var current_sprite = new Sprite(x, y, this.cellSize, this.cellSize, img);
+  current_sprite.tags.color = index;
+  this.queue.push(current_sprite);
+  this.engine.addObject(current_sprite);
+}
+
+Shooter.prototype.update = function () {
+  if (this.queue[0].x_velocity && this.queue[0].y_velocity) {
+    this.engine.input.setMovedObject(this.queue[0].id);
+
+    if (this.queue[0].X < 0 || this.queue[0].X > ((this.width - 1) * this.cellSize)) {
+      this.queue[0].x_velocity *= -1;
+    }
+    this.queue[0].X += this.queue[0].x_velocity;
+    this.queue[0].Y += this.queue[0].y_velocity;
+    if (this.queue[0].Y <= 0) {
+      this.queue[0].Y = 0;
+      this.queue[0].x_velocity = 0;
+      this.queue[0].y_velocity = 0;
+    }
+  }
+  else this.game.gameState = "play";
 }
 
 function Levels(engine, width, height, cellSize, source, game) {
@@ -296,12 +295,15 @@ Levels.prototype.getX = function (i, j) {
   else
     return j * this.cellSize + (this.cellSize / 2);
 }
+
 Levels.prototype.getY = function (i, j) {
   return (i * this.cellSize);
 }
+
 Levels.prototype.getI = function (X, Y) {
   return Math.floor(Y / this.cellSize);
 }
+
 Levels.prototype.getJ = function (X, Y) {
   if (Math.floor(Y / this.cellSize) % 2 == 0)
     return Math.floor(X / this.cellSize);
@@ -368,6 +370,16 @@ Levels.prototype.addLevelObjectsToEngine = function (level) {
   }
 }
 
+Levels.prototype.initVisited = function () {
+  for (var i = 0; i < this.gameLevels[this.current_level].length; i++) {
+    for (var j = 0; j < this.gameLevels[this.current_level][i].length; j++) {
+      if (this.gameLevels[this.current_level][i][j]) {
+        this.gameLevels[this.current_level][i][j].tags.visited = false;
+      }
+    }
+  }
+}
+
 Levels.prototype.checkSurroundingsForSameColor = function (i, j, color, shouldDelete) {
   if (i >= 0 && j >= 0 && i < this.gameLevels[this.current_level].length && j < this.gameLevels[this.current_level][i].length
     && this.gameLevels[this.current_level][i][j] && this.gameLevels[this.current_level][i][j].tags.visited != true) {
@@ -390,16 +402,6 @@ Levels.prototype.checkSurroundingsForSameColor = function (i, j, color, shouldDe
     }
   }
   return 0;
-}
-
-Levels.prototype.initVisited = function () {
-  for (var i = 0; i < this.gameLevels[this.current_level].length; i++) {
-    for (var j = 0; j < this.gameLevels[this.current_level][i].length; j++) {
-      if (this.gameLevels[this.current_level][i][j]) {
-        this.gameLevels[this.current_level][i][j].tags.visited = false;
-      }
-    }
-  }
 }
 
 Levels.prototype.initBreak = function () {
@@ -468,8 +470,14 @@ Levels.prototype.initFall = function () {
       }
     }
   }
-  this.game.gameState = "updateFall";
+  if(this.fallingIds.length == 0) {
+    this.game.gameState = "play";
+    this.game.Shooter.replace();
+  }
+  else
+    this.game.gameState = "updateFall";
 }
+
 Levels.prototype.updateFall = function () {
   if(this.explosionState >= 6) {
     for (var i = 0; i < this.fallingIds.length; i++) {
