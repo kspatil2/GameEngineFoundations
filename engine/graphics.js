@@ -4,7 +4,7 @@ var lightDiffuse = vec3.fromValues(1,1,1); // default light diffuse emission
 var lightSpecular = vec3.fromValues(1,1,1); // default light specular emission
 
 
-var numTriangleSets = 0; // how many triangle sets in input scene
+//var numTriangleSets = 0; // how many triangle sets in input scene
 var vertexBuffers = []; // this contains vertex coordinate lists by set, in triples
 var normalBuffers = []; // this contains normal component lists by set, in triples
 var triSetSizes = []; // this contains the size of each triangle set
@@ -23,9 +23,19 @@ var specularULoc; // where to put specular reflecivity for fragment shader
 var shininessULoc; // where to put specular exponent for fragment shader
 var mMatrixULoc; // where to put model matrix for vertex shader
 var pvmMatrixULoc; // where to put project model view matrix for vertex shader
-var inputTriangles = [];
-var inputSpheres = [];
+//var inputTriangles = [];
+//var inputSpheres = [];
+var defaultEye = vec3.fromValues(0.5,0.8,-1); // default eye position in world space
+var defaultCenter = vec3.fromValues(0.5,0.8,0.5); // default view direction in world space
+var defaultUp = vec3.fromValues(0,1,0); // default view up vector
+var lightPosition = vec3.fromValues(20,300,75); // default light position
+var defaultlightPosition = vec3.fromValues(0.5,4,0.4); // default light position
+var rotateTheta = Math.PI/50; // how much to rotate models by with each key press
 
+/* webgl and geometry data */
+var gl = null; // the all powerful gl object. It's all here folks!
+var textureBuffers = [];
+var numSpheres = 0; // how many spheres in the input scene
 
 // does stuff when keys are pressed
 function handleKeyDown(event) {
@@ -134,11 +144,11 @@ function handleKeyDown(event) {
 
 
 // set up the webGL environment
-Graphics.prototype.setupWebGL = function( webGLCanvas) 
+Graphics.prototype.setupWebGL = function( ) 
 {
     console.log("setupWebGL");
     // create a webgl canvas and set it up
-    gl = webGLCanvas.getContext("webgl"); // get a webgl object from it
+    gl = this.engine.webglCanvas.getContext("webgl"); // get a webgl object from it
     try {
       if (gl == null) {
         throw "unable to create gl context -- is your browser gl ready?";
@@ -159,6 +169,8 @@ Graphics.prototype.setupWebGL = function( webGLCanvas)
 Graphics.prototype.loadModels = function() {
     
     console.log("loadModels");
+    //console.log("load models :"+ this.engine.inputTriangles);
+
     // make a sphere with radius 1 at the origin, with numLongSteps longitudes. 
     // Returns verts, tris and normals.
     function makeSphere(numLongSteps) {
@@ -223,7 +235,7 @@ Graphics.prototype.loadModels = function() {
     
 
     try {
-        if (inputTriangles == String.null)
+        if (this.engine.inputTriangles == String.null)
             throw "Unable to load triangles file!";
         else {
             var whichSetVert; // index of vertex in current triangle set
@@ -236,65 +248,66 @@ Graphics.prototype.loadModels = function() {
             var minCorner = vec3.fromValues(Number.MAX_VALUE,Number.MAX_VALUE,Number.MAX_VALUE); // other corner
         
             // process each triangle set to load webgl vertex and triangle buffers
-            numTriangleSets = inputTriangles.length; // remember how many tri sets
+            numTriangleSets = this.engine.inputTriangles.length; // remember how many tri sets
+            //console.log("Load models :"+ numTriangleSets);
             for (var whichSet=0; whichSet<numTriangleSets; whichSet++) { // for each tri set
                 
                 // set up hilighting, modeling translation and rotation
-                inputTriangles[whichSet].center = vec3.fromValues(0,0,0);  // center point of tri set
-                inputTriangles[whichSet].on = false; // not highlighted
-                inputTriangles[whichSet].translation = vec3.fromValues(0,0,0); // no translation
-                inputTriangles[whichSet].xAxis = vec3.fromValues(1,0,0); // model X axis
-                inputTriangles[whichSet].yAxis = vec3.fromValues(0,1,0); // model Y axis 
+                this.engine.inputTriangles[whichSet].center = vec3.fromValues(0,0,0);  // center point of tri set
+                this.engine.inputTriangles[whichSet].on = false; // not highlighted
+                this.engine.inputTriangles[whichSet].translation = vec3.fromValues(0,0,0); // no translation
+                this.engine.inputTriangles[whichSet].xAxis = vec3.fromValues(1,0,0); // model X axis
+                this.engine.inputTriangles[whichSet].yAxis = vec3.fromValues(0,1,0); // model Y axis 
 
-                initTexture(inputTriangles[whichSet].material.texture,whichSet);    
+                this.engine.textures.initTexture(this.engine.inputTriangles[whichSet].material.texture,whichSet);    
                 // set up the vertex and normal arrays, define model center and axes
-                inputTriangles[whichSet].glVertices = []; // flat coord list for webgl
-                inputTriangles[whichSet].glNormals = []; // flat normal list for webgl
+                this.engine.inputTriangles[whichSet].glVertices = []; // flat coord list for webgl
+                this.engine.inputTriangles[whichSet].glNormals = []; // flat normal list for webgl
 
-                inputTriangles[whichSet].textureCoords = []; //
+                this.engine.inputTriangles[whichSet].textureCoords = []; //
 
-                var numVerts = inputTriangles[whichSet].vertices.length; // num vertices in tri set
+                var numVerts = this.engine.inputTriangles[whichSet].vertices.length; // num vertices in tri set
                 for (whichSetVert=0; whichSetVert<numVerts; whichSetVert++) { // verts in set
-                    vtxToAdd = inputTriangles[whichSet].vertices[whichSetVert]; // get vertex to add
-                    texToAdd = inputTriangles[whichSet].uvs[whichSetVert];
-                    normToAdd = inputTriangles[whichSet].normals[whichSetVert]; // get normal to add
-                    inputTriangles[whichSet].textureCoords.push(texToAdd[0],texToAdd[1]);
-                    inputTriangles[whichSet].glVertices.push(vtxToAdd[0],vtxToAdd[1],vtxToAdd[2]); // put coords in set coord list
-                    inputTriangles[whichSet].glNormals.push(normToAdd[0],normToAdd[1],normToAdd[2]); // put normal in set coord list
+                    vtxToAdd = this.engine.inputTriangles[whichSet].vertices[whichSetVert]; // get vertex to add
+                    texToAdd = this.engine.inputTriangles[whichSet].uvs[whichSetVert];
+                    normToAdd = this.engine.inputTriangles[whichSet].normals[whichSetVert]; // get normal to add
+                    this.engine.inputTriangles[whichSet].textureCoords.push(texToAdd[0],texToAdd[1]);
+                    this.engine.inputTriangles[whichSet].glVertices.push(vtxToAdd[0],vtxToAdd[1],vtxToAdd[2]); // put coords in set coord list
+                    this.engine.inputTriangles[whichSet].glNormals.push(normToAdd[0],normToAdd[1],normToAdd[2]); // put normal in set coord list
                     vec3.max(maxCorner,maxCorner,vtxToAdd); // update world bounding box corner maxima
                     vec3.min(minCorner,minCorner,vtxToAdd); // update world bounding box corner minima
-                    vec3.add(inputTriangles[whichSet].center,inputTriangles[whichSet].center,vtxToAdd); // add to ctr sum
+                    vec3.add(this.engine.inputTriangles[whichSet].center,this.engine.inputTriangles[whichSet].center,vtxToAdd); // add to ctr sum
                 } // end for vertices in set
-                vec3.scale(inputTriangles[whichSet].center,inputTriangles[whichSet].center,1/numVerts); // avg ctr sum
+                vec3.scale(this.engine.inputTriangles[whichSet].center,this.engine.inputTriangles[whichSet].center,1/numVerts); // avg ctr sum
 
                 // send the vertex coords and normals to webGL
                 vertexBuffers[whichSet] = gl.createBuffer(); // init empty webgl set vertex coord buffer
                 gl.bindBuffer(gl.ARRAY_BUFFER,vertexBuffers[whichSet]); // activate that buffer
-                gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(inputTriangles[whichSet].glVertices),gl.STATIC_DRAW); // data in
+                gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(this.engine.inputTriangles[whichSet].glVertices),gl.STATIC_DRAW); // data in
                 normalBuffers[whichSet] = gl.createBuffer(); // init empty webgl set normal component buffer
                 gl.bindBuffer(gl.ARRAY_BUFFER,normalBuffers[whichSet]); // activate that buffer
-                gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(inputTriangles[whichSet].glNormals),gl.STATIC_DRAW); // data in
+                gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(this.engine.inputTriangles[whichSet].glNormals),gl.STATIC_DRAW); // data in
                 textureBuffers[whichSet] = gl.createBuffer(); // init empty webgl set normal component buffer
                 gl.bindBuffer(gl.ARRAY_BUFFER,textureBuffers[whichSet]); // activate that buffer
-                gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(inputTriangles[whichSet].textureCoords),gl.STATIC_DRAW); // data in
+                gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(this.engine.inputTriangles[whichSet].textureCoords),gl.STATIC_DRAW); // data in
             
                 // set up the triangle index array, adjusting indices across sets
-                inputTriangles[whichSet].glTriangles = []; // flat index list for webgl
-                triSetSizes[whichSet] = inputTriangles[whichSet].triangles.length; // number of tris in this set
+                this.engine.inputTriangles[whichSet].glTriangles = []; // flat index list for webgl
+                triSetSizes[whichSet] = this.engine.inputTriangles[whichSet].triangles.length; // number of tris in this set
                 for (whichSetTri=0; whichSetTri<triSetSizes[whichSet]; whichSetTri++) {
-                    triToAdd = inputTriangles[whichSet].triangles[whichSetTri]; // get tri to add
-                    inputTriangles[whichSet].glTriangles.push(triToAdd[0],triToAdd[1],triToAdd[2]); // put indices in set list
+                    triToAdd = this.engine.inputTriangles[whichSet].triangles[whichSetTri]; // get tri to add
+                    this.engine.inputTriangles[whichSet].glTriangles.push(triToAdd[0],triToAdd[1],triToAdd[2]); // put indices in set list
                 } // end for triangles in set
 
                 // send the triangle indices to webGL
                 triangleBuffers.push(gl.createBuffer()); // init empty triangle index buffer
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, triangleBuffers[whichSet]); // activate that buffer
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(inputTriangles[whichSet].glTriangles),gl.STATIC_DRAW); // data in
+                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(this.engine.inputTriangles[whichSet].glTriangles),gl.STATIC_DRAW); // data in
 
             } // end for each triangle set 
         
 
-            if (inputSpheres == String.null)
+            if (this.engine.inputSpheres == String.null)
                 throw "Unable to load spheres file!";
             else {
                 
@@ -302,11 +315,11 @@ Graphics.prototype.loadModels = function() {
                 var sphere; // current sphere
                 var temp = vec3.create(); // an intermediate vec3
                 var minXYZ = vec3.create(), maxXYZ = vec3.create();  // min/max xyz from sphere
-                numSpheres = inputSpheres.length; // remember how many spheres
+                numSpheres = this.engine.inputSpheres.length; // remember how many spheres
                 for (var whichSphere=0; whichSphere<numSpheres; whichSphere++) {
-                    sphere = inputSpheres[whichSphere];
+                    sphere = this.engine.inputSpheres[whichSphere];
                     sphere.on = false; // spheres begin without highlight
-                    initSphereTexture(sphere.texture,whichSphere);
+                    this.engine.textures.initSphereTexture(sphere.texture,whichSphere);
                     console.log(sphere.texture);
                     sphere.translation = vec3.fromValues(0,0,0); // spheres begin without translation
                     sphere.xAxis = vec3.fromValues(1,0,0); // sphere X axis
@@ -347,7 +360,7 @@ Graphics.prototype.loadModels = function() {
         console.log(e);
     } // end catch
 
-    playSound("level1",true);
+    
 } // end load models
 
 
@@ -556,8 +569,8 @@ function renderModels() {
     // render each triangle set
     var currSet, setMaterial; // the tri set and its material properties
     for (var whichTriSet=0; whichTriSet<numTriangleSets; whichTriSet++) {
-        currSet = inputTriangles[whichTriSet];
-        
+        currSet = this.engine.inputTriangles[whichTriSet];
+
         // make model transform, add to view project
         makeModelTransform(currSet);
         mat4.multiply(hpvmMatrix,hpvMatrix,mMatrix); // handedness * project * view * model
@@ -582,12 +595,12 @@ function renderModels() {
         gl.bindBuffer(gl.ARRAY_BUFFER,textureBuffers[whichTriSet]); // activate
         gl.vertexAttribPointer(textureCoordAttribute,2,gl.FLOAT,false,0,0); // feed
 
-        gl.uniform1f(alphaUniform, inputTriangles[whichTriSet].material.alpha);
+        gl.uniform1f(alphaUniform, this.engine.inputTriangles[whichTriSet].material.alpha);
         // console.log(inputTriangles[whichTriSet].material.texture);
-        if(inputTriangles[whichTriSet].material.texture)
+        if(this.engine.inputTriangles[whichTriSet].material.texture)
         {
             gl.activeTexture(gl.TEXTURE0);
-            gl.bindTexture(gl.TEXTURE_2D, kpTexture[whichTriSet]);
+            gl.bindTexture(gl.TEXTURE_2D, this.engine.textures.triangleTexture[whichTriSet]);
             gl.uniform1i(samplerUniform, 0);
             gl.uniform1i(isTextureUniform, 1);
         }
@@ -613,7 +626,7 @@ function renderModels() {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,triangleBuffers[triangleBuffers.length-1]); // activate tri buffer
     
     for (var whichSphere=0; whichSphere<numSpheres; whichSphere++) {
-        sphere = inputSpheres[whichSphere];
+         var sphere = this.engine.inputSpheres[whichSphere];
         
         // define model transform, premult with pvmMatrix, feed to shader
         makeModelTransform(sphere);
@@ -625,7 +638,7 @@ function renderModels() {
         if(sphere.texture)
         {
             gl.activeTexture(gl.TEXTURE0);
-            gl.bindTexture(gl.TEXTURE_2D, skpTexture[whichSphere]);
+            gl.bindTexture(gl.TEXTURE_2D, this.engine.textures.sphereTexture[whichSphere]);
             gl.uniform1i(samplerUniform, 0)            
             gl.uniform1i(isTextureUniform, 1);
         }
@@ -661,6 +674,24 @@ function renderModels() {
 } // end render model
 
 
+
+
+
+function Graphics( engine)
+{
+    this.engine = engine;
+    //console.log("Graphics constructor :"+ this.engine.inputTriangles);
+    this.init();
+}
+
+Graphics.prototype.init= function()
+{
+    this.setupWebGL();
+    this.loadModels();
+    this.setupShaders();
+
+}
+/*
 function Graphics( webglCanvas, engineInputTriangles, engineInputSpheres) 
 {
     this.webgl_canvas = webglCanvas;
@@ -675,4 +706,4 @@ Graphics.prototype.init = function()
     this.loadModels(); // load in the models from tri file
     this.setupShaders(); // setup the webGL shaders
 }
-
+*/

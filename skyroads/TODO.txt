@@ -1,2 +1,6 @@
-Add LoadSounds along with LoadImages function in LoadContent
+LoadImages function in LoadContent
+Seperate texture loading from graphics
+Seperate lighting from graphics and add light position input from the games
+Keyboard handling from game and not in graphics
 Add file for JSON_IO operations 
+REfactor sounds to take different sound for different games.

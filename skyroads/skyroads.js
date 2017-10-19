@@ -1,19 +1,19 @@
 /* GLOBAL CONSTANTS AND VARIABLES */
 const INPUT_TRIANGLES_URL ="https://kspatil2.github.io/till4.json";
 const INPUT_SPHERES_URL = "https://kspatil2.github.io/spaceship1.json"; // spheres file loc
-var defaultEye = vec3.fromValues(0.5,0.8,-1); // default eye position in world space
+/*var defaultEye = vec3.fromValues(0.5,0.8,-1); // default eye position in world space
 var defaultCenter = vec3.fromValues(0.5,0.8,0.5); // default view direction in world space
 var defaultUp = vec3.fromValues(0,1,0); // default view up vector
 var lightPosition = vec3.fromValues(20,300,75); // default light position
 var defaultlightPosition = vec3.fromValues(0.5,4,0.4); // default light position
 var rotateTheta = Math.PI/50; // how much to rotate models by with each key press
-
+*/
 /* webgl and geometry data */
-var gl = null; // the all powerful gl object. It's all here folks!
+///var gl = null; // the all powerful gl object. It's all here folks!
 var inputTriangles = []; // the triangle data as loaded from input files
 var inputSpheres = []; // the sphere data as loaded from input files
-var numSpheres = 0; // how many spheres in the input scene
-textureBuffers = [];
+
+
 var viewDelta = 0; // how much to displace view with each key press
 
 /* interaction variables */
@@ -77,9 +77,10 @@ function getJSONFile(url,descr) {
     }
 } // end get input spheres
 
-var sphere;
+
 function UpdateScoreAndShit()
 {
+    var sphere = inputSpheres[0];
     if(sphere == undefined || sphere == null)
         return;
 
@@ -540,12 +541,15 @@ function main() {
         var iw = bkgdImage.width, ih = bkgdImage.height;
         imageContext.drawImage(bkgdImage,0,0,iw,ih,0,0,cw,ch);   
     } // end onload callback
-    initSound();
-
+    
+    
     inputTriangles = getJSONFile(INPUT_TRIANGLES_URL,"triangles"); // read in the triangle data
     inputSpheres = getJSONFile(INPUT_SPHERES_URL,"spheres"); // read in the sphere dat 
     this.engine = new Engine( webgl_canvas, inputTriangles , inputSpheres );
 
+    this.engine.sound.initSound();
+    this.engine.sound.playSound("level1",true);
+    
     this.engine.setUpdateHandler(this.UpdateScoreAndShit.bind(this));
     this.engine.setDrawHandler(this.draw.bind(this));
    
@@ -558,86 +562,5 @@ function draw(){
     this.engine.draw();
 }
 
-function initTexture(texture_path,whichSet) 
-{
-    kpTexture[whichSet] = gl.createTexture();
-    kpTexture[whichSet].image = new Image();    
-    kpTexture[whichSet].image.crossOrigin = ''; 
-    kpTexture[whichSet].image.onload = function () 
-    {
-        handleLoadedTexture(kpTexture[whichSet])
-    }
-    if(texture_path)
-        kpTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
-    console.log("Hello : ",texture_path);
-}
 
-function initSphereTexture(texture_path,whichSet) 
-{
-    skpTexture[whichSet] = gl.createTexture();
-    skpTexture[whichSet].image = new Image();    
-    skpTexture[whichSet].image.crossOrigin = ''; 
-    skpTexture[whichSet].image.onload = function () 
-    {
-        handleLoadedTexture(skpTexture[whichSet])
-    }
-    if(texture_path)
-        skpTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
-    console.log(texture_path);
-}
 
-var kpTexture = [];
-var skpTexture = [];
-function handleLoadedTexture(texture) 
-{
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-
-    // var texture = gl.createTexture();
-    // gl.bindTexture(gl.TEXTURE_2D, texture);
-    
-}
-var sound =[];
-function initSound()
-{
-    sound.push(new Audio("sound/level1.mp3"));
-    sound.push(new Audio("sound/level2.mp3"));
-	sound.push(new Audio("sound/level3.mp3"));
-	sound.push(new Audio("sound/level4.mp3"));
-	sound.push(new Audio("sound/level5.mp3"));
-	sound.push(new Audio("sound/tryagain.mp3"));
-	sound.push(new Audio("sound/jump.wav"));
-}
-
-function playSound(id,flag)
-{
-    switch(id)
-    {
-        case "level1": sound[0].loop = flag; sound[0].play(); break;
-        case "level2": sound[1].loop = flag; sound[1].play(); break;
-		case "level3": sound[2].loop = flag; sound[2].play(); break;
-		case "level4": sound[3].loop = flag; sound[3].play(); break;
-		case "level5": sound[4].loop = flag; sound[4].play(); break;
-		case "tryagain": sound[5].play();
-		case "jump": sound[6].play();
-    }
-
-}
-
-//stop
-function stopSound(id)
-{
-    switch(id)
-    {
-        case "level1": sound[0].pause();sound.currentTime=0 ; break;
-		case "level2": sound[1].pause();sound.currentTime=0 ; break;
-		case "level3": sound[2].pause();sound.currentTime=0 ; break;
-		case "level4": sound[3].pause();sound.currentTime=0 ; break;
-		case "level5": sound[4].pause();sound.currentTime=0 ; break;        
-    }    
-}

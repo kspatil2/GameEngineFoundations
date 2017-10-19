@@ -28,25 +28,36 @@ function Engine(canvas, context, gameType) {
     this.webglCanvas = canvas;
     this.inputTriangles = context;
     this.inputSpheres = gameType;
-    this.graphics = new Graphics( this.webglCanvas, this.inputTriangles, this.inputSpheres);
+    //console.log("Engine constructor :"+ this.inputTriangles);
+    this.init();
   }
 }
 
 Engine.prototype.init = function(){
-  this.objects = new Array();           //Game objects(sprites)
-  this.objectIdGenerator = 0;           //Unique id for each game object.
-  this.particleSystem = new Array();   // Particle System
+  if(this.game_type == "2D")
+  {
+    this.objects = new Array();           //Game objects(sprites)
+    this.objectIdGenerator = 0;           //Unique id for each game object.
+    this.particleSystem = new Array();   // Particle System
+  
+    this.input = new Input(this);         //Input handler system
+    this.collision = new Collision(this); //Collision handler system
+    this.storage = new Storage(this);
+    this.physics = new Physics(this);
+    
 
-  this.input = new Input(this);         //Input handler system
-  this.collision = new Collision(this); //Collision handler system
-  this.storage = new Storage(this);
-  this.physics = new Physics(this);
-
-  //Bind engine event listeners
-  this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
-  this.canvas.onmouseup = this.input.handleMouseUp.bind(this.input);
-  this.canvas.onmousemove = this.input.handleMouseMove.bind(this.input);
-  document.addEventListener("keydown", this.input.handleKeyPress.bind(this.input));
+    //Bind engine event listeners
+    this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
+    this.canvas.onmouseup = this.input.handleMouseUp.bind(this.input);
+    this.canvas.onmousemove = this.input.handleMouseMove.bind(this.input);
+    document.addEventListener("keydown", this.input.handleKeyPress.bind(this.input));
+  }
+  else
+  {
+    this.textures = new Textures(this);
+    this.graphics = new Graphics( this );
+    this.sound = new Sound(this);
+  }
 }
 
 Engine.prototype.resetObjects = function() {
@@ -451,4 +462,99 @@ Physics.prototype.initPhysics = function() {
 
 Physics.prototype.getVelocityTan = function(obj) {
   return obj.x_velocity / obj.y_velocity;
+}
+
+//---------Textures-------------------
+function Textures(engine) {
+  this.engine = engine;
+  this.triangleTexture = [];
+  this.sphereTexture = [];
+}
+
+Textures.prototype.initTexture = function(texture_path,whichSet) 
+{
+  
+   this.triangleTexture[whichSet] = gl.createTexture();
+   this.triangleTexture[whichSet].image = new Image();    
+   this.triangleTexture[whichSet].image.crossOrigin = ''; 
+   
+   this.triangleTexture[whichSet].image.onload = function () 
+   {
+    console.log("gl : "+ this.triangleTexture[whichSet]);
+        this.handleLoadedTexture(this.triangleTexture[whichSet]);
+   }
+    if(texture_path)
+      this.triangleTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
+    console.log("Hello : ",texture_path);
+}
+
+Textures.prototype.initSphereTexture = function(texture_path,whichSet) 
+{
+  this.sphereTexture[whichSet] = gl.createTexture();
+  this.sphereTexture[whichSet].image = new Image();    
+  this.sphereTexture[whichSet].image.crossOrigin = ''; 
+  this.sphereTexture[whichSet].image.onload = function () 
+   {
+       this.handleLoadedTexture(this.sphereTexture[whichSet]);  
+   }
+    if(texture_path)
+    this.sphereTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
+    console.log(texture_path);
+}
+
+Textures.prototype.handleLoadedTexture = function(texture) 
+{
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+}
+
+
+//---------Sound-------------------
+function Sound(engine) {
+  this.engine = engine;
+  this.soundArray = [];
+}
+
+Sound.prototype.initSound = function()
+{
+  this.soundArray.push(new Audio("sound/level1.mp3"));
+  this.soundArray.push(new Audio("sound/level2.mp3"));
+	this.soundArray.push(new Audio("sound/level3.mp3"));
+	this.soundArray.push(new Audio("sound/level4.mp3"));
+	this.soundArray.push(new Audio("sound/level5.mp3"));
+	this.soundArray.push(new Audio("sound/tryagain.mp3"));
+	this.soundArray.push(new Audio("sound/jump.wav"));
+}
+
+Sound.prototype.playSound = function(id,flag)
+{
+    switch(id)
+    {
+      case "level1": this.soundArray[0].loop = flag; this.soundArray[0].play(); break;
+      case "level2": this.soundArray[1].loop = flag; this.soundArray[1].play(); break;
+		  case "level3": this.soundArray[2].loop = flag; this.soundArray[2].play(); break;
+		  case "level4": this.soundArray[3].loop = flag; this.soundArray[3].play(); break;
+		  case "level5": this.soundArray[4].loop = flag; this.soundArray[4].play(); break;
+		  case "tryagain": this.soundArray[5].play();
+		  case "jump": this.soundArray[6].play();
+    }
+
+}
+
+//stop
+Sound.prototype.stopSound = function(id)
+{
+    switch(id)
+    {
+        case "level1": this.soundArray[0].pause();this.soundArray.currentTime=0 ; break;
+		case "level2": this.soundArray[1].pause();this.soundArray.currentTime=0 ; break;
+		case "level3": this.soundArray[2].pause();this.soundArray.currentTime=0 ; break;
+		case "level4": this.soundArray[3].pause();this.soundArray.currentTime=0 ; break;
+		case "level5": this.soundArray[4].pause();this.soundArray.currentTime=0 ; break;        
+    }    
 }
