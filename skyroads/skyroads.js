@@ -47,7 +47,6 @@ var HighScore = 0;
 
 // ASSIGNMENT HELPER FUNCTIONS
 
-var display_context;
 var timeNode;
 
 // get the JSON file from the passed URL
@@ -78,12 +77,12 @@ function getJSONFile(url,descr) {
 } // end get input spheres
 
 
-function UpdateScoreAndShit()
+Skyroads.prototype.UpdateScoreAndShit = function()
 {
     var sphere = inputSpheres[0];
     if(sphere == undefined || sphere == null)
         return;
-
+    
     var sphere_center = vec3.create(), sphere_bottom = vec3.create(); sphere_front = vec3.create();sphere_left = vec3.create();sphere_right = vec3.create();       
     sphere_center = vec3.add(sphere_center,sphere.translation,vec3.fromValues(sphere.x,sphere.y,sphere.z));        
     sphere_bottom = vec3.add(sphere_bottom,sphere.translation,vec3.fromValues(sphere.x, -sphere.r,sphere.z));
@@ -182,8 +181,8 @@ function UpdateScoreAndShit()
         var sidetemp = vec3.create(), temp2 = vec3.create();
         if(left == 1 && right==0)
         {
-            console.log("going left");
-             console.log(side_surface);
+          //  console.log("going left");
+          //   console.log(side_surface);
             vec3.add(sidetemp,sphere.translation,vec3.scale(temp,viewRight,v));
             temp2 = vec3.add(sphere_left,sidetemp,vec3.fromValues(sphere.x-sphere.r,sphere.y,sphere.z));        
             // console.log(sidetemp[0]);
@@ -194,8 +193,8 @@ function UpdateScoreAndShit()
         }
         else if(right==1 && left ==0)
         {
-            console.log("going right");
-             console.log(side_surface);
+           // console.log("going right");
+           //  console.log(side_surface);
             vec3.add(sidetemp,sphere.translation,vec3.scale(temp,viewRight,-v));   
             // console.log(sidetemp[0]);
             temp2 = vec3.add(sphere_right,sidetemp,vec3.fromValues(sphere.x+sphere.r,sphere.y,sphere.z));        
@@ -255,15 +254,15 @@ function UpdateScoreAndShit()
     
     var vel_now = velocity*100;
     var current_level = level_completed+1;
-    display_context.clearRect(0, 0, display_context.canvas.width, display_context.canvas.height);
-    display_context.font = '15pt Calibri';
-    display_context.fillStyle = 'white';
-    display_context.fillText("Score :"+display_score, 5, 20);
-    display_context.fillText("HighScore :"+HighScore,330,20);
-    display_context.fillText("Velocity :"+vel_now.toFixed(2),5,40);
-    display_context.fillText("Level :"+current_level,210,480);
-    display_context.fillText("Oxygen : "+oxygen_level.toFixed(0),2,60);
-    display_context.fillText("Fuel : "+fuel_level.toFixed(0),2,80);
+    this.displayContext.clearRect(0, 0, this.displayContext.canvas.width, this.displayContext.canvas.height);
+    this.displayContext.font = '15pt Calibri';
+    this.displayContext.fillStyle = 'white';
+    this.displayContext.fillText("Score :"+display_score, 5, 20);
+    this.displayContext.fillText("HighScore :"+HighScore,330,20);
+    this.displayContext.fillText("Velocity :"+vel_now.toFixed(2),5,40);
+    this.displayContext.fillText("Level :"+current_level,210,480);
+    this.displayContext.fillText("Oxygen : "+oxygen_level.toFixed(0),2,60);
+    this.displayContext.fillText("Fuel : "+fuel_level.toFixed(0),2,80);
 
     if(oxygen_level < 0 || fuel_level < 0)
     {
@@ -329,9 +328,9 @@ function UpdateScoreAndShit()
         {
             current_score = current_score+score; 
             level_completed=level_completed+1; // add +1 till 10
-            stopSound("level"+sound_count);
+            this.engine.sound.stopSound("level"+sound_count);
             sound_count = sound_count+1;
-            playSound("level"+sound_count,true);
+            this.engine.sound.playSound("level"+sound_count,true);
             // console.log(level_completed);
             var offset = vec3.fromValues(20,0,0);
             if(level_completed<NUMBER_OF_LEVELS)
@@ -351,7 +350,7 @@ function UpdateScoreAndShit()
         }   
         else
         {
-            playSound("tryagain",true);
+            this.engine.sound.playSound("tryagain",true);
             restart_level(sphere);
             restart=0;
             future_collision=0;
@@ -519,48 +518,161 @@ function restart_level(sphere)
 /* MAIN -- HERE is where execution begins after window load */
 
 function main() {
-  
-    // Set up keys
-    document.onkeydown = handleKeyDown; // call this when key pressed
-	
-    // look up the text canvas.
-    var textCanvas = document.getElementById("TextCanvas");
+    var game = new Skyroads();
+    if(game.loadContent() != true)
+      return;
+    game.init();
+    setInterval(game.engine.gameLoop.bind(game.engine), 20);
+  } // end main
+
+function Skyroads() {
+    // this.canvas = document.getElementById("whyupdate");
+    // this.context = this.canvas.getContext('2d');
+
+    this.textCanvas = document.getElementById("TextCanvas");
     timeNode = document.createTextNode("");
-    textCanvas.appendChild(timeNode);
-    // make a 2D context for it
-    display_context = textCanvas.getContext("2d");
+    this.textCanvas.appendChild(timeNode);
+    this.displayContext = this.textCanvas.getContext("2d");
 
-    var image_canvas = document.getElementById("ImageCanvas"); // create a 2d canvas
-    var webgl_canvas = document.getElementById("WebGLCanvas"); // create a webgl canvas
+    this.imageCanvas = document.getElementById("ImageCanvas"); // create a 2d canvas
+    this.webglCanvas = document.getElementById("WebGLCanvas"); // create a webgl canvas
 
-    var cw = image_canvas.width, ch = image_canvas.height; 
-    imageContext = image_canvas.getContext("2d"); 
-    var bkgdImage = new Image(); 
-    bkgdImage.src = "https://ncsucgclass.github.io/prog3/stars.jpg";
-    bkgdImage.onload = function(){
-        var iw = bkgdImage.width, ih = bkgdImage.height;
-        imageContext.drawImage(bkgdImage,0,0,iw,ih,0,0,cw,ch);   
-    } // end onload callback
-    
-    
     inputTriangles = getJSONFile(INPUT_TRIANGLES_URL,"triangles"); // read in the triangle data
     inputSpheres = getJSONFile(INPUT_SPHERES_URL,"spheres"); // read in the sphere dat 
-    this.engine = new Engine( webgl_canvas, inputTriangles , inputSpheres );
+    this.engine = new Engine( this.webglCanvas, inputTriangles , inputSpheres );
 
+  }
+  
+Skyroads.prototype.loadContent = function () {
+
+    // Set background image 
+    var cw = this.imageCanvas.width, ch = this.imageCanvas.height;
+    imageContext = this.imageCanvas.getContext("2d");
+    var bkgdImage = new Image();
+    bkgdImage.src = "https://ncsucgclass.github.io/prog3/stars.jpg";
+    bkgdImage.onload = function () {
+        var iw = bkgdImage.width, ih = bkgdImage.height;
+        imageContext.drawImage(bkgdImage, 0, 0, iw, ih, 0, 0, cw, ch);
+    } // end onload callback
+
+    return true;
+}
+
+Skyroads.prototype.init = function () {
+ 
     this.engine.sound.initSound();
-    this.engine.sound.playSound("level1",true);
-    
+ 
+    //Bind game level listeners
+    this.engine.input.setKeyboardPressHandler(this.keyPressed.bind(this));
+    //this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
+    this.engine.setDrawHandler(this.draw.bind(this));
     this.engine.setUpdateHandler(this.UpdateScoreAndShit.bind(this));
     this.engine.setDrawHandler(this.draw.bind(this));
-   
-    setInterval(this.engine.gameLoop.bind(this.engine),20 );
-  
+    this.engine.sound.playSound("level1",true);
+}
     
-} // end main
 
-function draw(){
+Skyroads.prototype.draw = function(){
     this.engine.draw();
 }
 
+Skyroads.prototype.keyPressed = function(event) {
+    
+//    console.log("Accepting input");
+    // const modelEnum = {TRIANGLES: "triangles", SPHERE: "sphere"}; // enumerated model type
+    // const dirEnum = {NEGATIVE: -1, POSITIVE: 1}; // enumerated rotation direction
+    
+    // function highlightModel(modelType,whichModel) {
+    //     handleKeyDown.modelOn = inputSpheres[0];
+    //     if (handleKeyDown.modelOn != null)
+    //         handleKeyDown.modelOn.on = false;
+    //     handleKeyDown.whichOn = whichModel;
+    //     if (modelType == modelEnum.TRIANGLES)
+    //         handleKeyDown.modelOn = inputTriangles[whichModel]; 
+    //     else
+    //         handleKeyDown.modelOn = inputSpheres[whichModel]; 
+    //     handleKeyDown.modelOn.on = true; 
+    // } // end highlight model
+    
+    // function translateModel(offset, currModel) {
+    //     // if (handleKeyDown.modelOn != null)
+    //             vec3.add(handleKeyDown.modelOn.translation,handleKeyDown.modelOn.translation,offset);   
+    // } // end translate model
+
+    // function rotateModel(axis,direction) {
+    //     if (handleKeyDown.modelOn != null) {
+    //         var newRotation = mat4.create();
+
+    //         mat4.fromRotation(newRotation,direction*rotateTheta,axis); // get a rotation matrix around passed axis
+    //         vec3.transformMat4(handleKeyDown.modelOn.xAxis,handleKeyDown.modelOn.xAxis,newRotation); // rotate model x axis tip
+    //         vec3.transformMat4(handleKeyDown.modelOn.yAxis,handleKeyDown.modelOn.yAxis,newRotation); // rotate model y axis tip
+    //     } // end if there is a highlighted model
+    // } // end rotate model
+    
+    // // set up needed view params
+    // var lookAt = vec3.create(), viewRight = vec3.create(), temp = vec3.create(); // lookat, right & temp vectors
+    // lookAt = vec3.normalize(lookAt,vec3.subtract(temp,Center,Eye)); // get lookat vector
+    // viewRight = vec3.normalize(viewRight,vec3.cross(temp,lookAt,Up)); // get view right vector
+    
+    // // highlight static variables
+    // handleKeyDown.whichOn = handleKeyDown.whichOn == undefined ? -1 : handleKeyDown.whichOn; // nothing selected initially
+    // handleKeyDown.modelOn = handleKeyDown.modelOn == undefined ? null : handleKeyDown.modelOn; // nothing selected initially
+
+    // // spaceship highlighted
+    // highlightModel(modelEnum.SPHERE,(handleKeyDown.whichOn > 0) ? handleKeyDown.whichOn-1 : numSpheres-1);
+
+    // spaceship motion
+    
+    var time=1;
+    switch (event) {
+        
+        // model selection
+        case "Space":
+                if(spaceJump!=1) // ensure no jump called between another jump 
+                {
+                    // sound for jump    
+                    this.engine.sound.playSound("jump",true);
+                    spaceJump=1;
+                    spaceJumpCounter=0.0;
+                }
+                // jumpTime=0;    
+                // yet to write double jump ... well, what do u know ... already did it
+            break;
+        case "ArrowRight": // select next triangle set
+                if(sideJump!=1) // ensure no jump called between another jump 
+                {   
+                    left=0;
+                    right=1;
+                    sideJump=1;
+                    sideJumpCounter=0.0;
+                }
+            break;
+        case "ArrowLeft": // select previous triangle set
+                if(sideJump!=1) // ensure no jump called between another jump 
+                {   
+                    left=1;
+                    right=0;
+                    sideJump=1;
+                    sideJumpCounter=0.0;
+                }
+                // translateModel(vec3.scale(temp,viewRight,viewDelta));
+            break;
+        case "ArrowUp": // select next sphere
+                if(level_transition==0)
+                    velocity = velocity + acceleration*time;
+            break;
+        case "ArrowDown": // select previous sphere
+                if(velocity>0)
+                {
+                    velocity = velocity - deacceleration*time;
+                    if(velocity<0)
+                        velocity=0;
+
+                }
+                
+            break;
+            
+    } // end switch
+} // end handleKeyDown
 
 

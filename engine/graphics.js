@@ -38,110 +38,6 @@ var textureBuffers = [];
 var numSpheres = 0; // how many spheres in the input scene
 
 // does stuff when keys are pressed
-function handleKeyDown(event) {
-    
-    const modelEnum = {TRIANGLES: "triangles", SPHERE: "sphere"}; // enumerated model type
-    const dirEnum = {NEGATIVE: -1, POSITIVE: 1}; // enumerated rotation direction
-    
-    function highlightModel(modelType,whichModel) {
-        handleKeyDown.modelOn = inputSpheres[0];
-        if (handleKeyDown.modelOn != null)
-            handleKeyDown.modelOn.on = false;
-        handleKeyDown.whichOn = whichModel;
-        if (modelType == modelEnum.TRIANGLES)
-            handleKeyDown.modelOn = inputTriangles[whichModel]; 
-        else
-            handleKeyDown.modelOn = inputSpheres[whichModel]; 
-        handleKeyDown.modelOn.on = true; 
-    } // end highlight model
-    
-    function translateModel(offset, currModel) {
-        // if (handleKeyDown.modelOn != null)
-                vec3.add(handleKeyDown.modelOn.translation,handleKeyDown.modelOn.translation,offset);   
-    } // end translate model
-
-    function rotateModel(axis,direction) {
-        if (handleKeyDown.modelOn != null) {
-            var newRotation = mat4.create();
-
-            mat4.fromRotation(newRotation,direction*rotateTheta,axis); // get a rotation matrix around passed axis
-            vec3.transformMat4(handleKeyDown.modelOn.xAxis,handleKeyDown.modelOn.xAxis,newRotation); // rotate model x axis tip
-            vec3.transformMat4(handleKeyDown.modelOn.yAxis,handleKeyDown.modelOn.yAxis,newRotation); // rotate model y axis tip
-        } // end if there is a highlighted model
-    } // end rotate model
-    
-    // set up needed view params
-    var lookAt = vec3.create(), viewRight = vec3.create(), temp = vec3.create(); // lookat, right & temp vectors
-    lookAt = vec3.normalize(lookAt,vec3.subtract(temp,Center,Eye)); // get lookat vector
-    viewRight = vec3.normalize(viewRight,vec3.cross(temp,lookAt,Up)); // get view right vector
-    
-    // highlight static variables
-    handleKeyDown.whichOn = handleKeyDown.whichOn == undefined ? -1 : handleKeyDown.whichOn; // nothing selected initially
-    handleKeyDown.modelOn = handleKeyDown.modelOn == undefined ? null : handleKeyDown.modelOn; // nothing selected initially
-
-    // spaceship highlighted
-    highlightModel(modelEnum.SPHERE,(handleKeyDown.whichOn > 0) ? handleKeyDown.whichOn-1 : numSpheres-1);
-
-    // spaceship motion
-    
-    var time=1;
-    switch (event.code) {
-        
-        // model selection
-        case "Space":
-                if(spaceJump!=1) // ensure no jump called between another jump 
-                {
-                    // sound for jump    
-                    playSound("jump",true);
-                    spaceJump=1;
-                    spaceJumpCounter=0.0;
-                }
-                // jumpTime=0;    
-                // yet to write double jump ... well, what do u know ... already did it
-            break;
-        case "ArrowRight": // select next triangle set
-                if(sideJump!=1) // ensure no jump called between another jump 
-                {   
-                    left=0;
-                    right=1;
-                    sideJump=1;
-                    sideJumpCounter=0.0;
-                }
-            break;
-        case "ArrowLeft": // select previous triangle set
-                if(sideJump!=1) // ensure no jump called between another jump 
-                {   
-                    left=1;
-                    right=0;
-                    sideJump=1;
-                    sideJumpCounter=0.0;
-                }
-                // translateModel(vec3.scale(temp,viewRight,viewDelta));
-            break;
-        case "ArrowUp": // select next sphere
-                if(level_transition==0)
-                    velocity = velocity + acceleration*time;
-            break;
-        case "ArrowDown": // select previous sphere
-                if(velocity>0)
-                {
-                    velocity = velocity - deacceleration*time;
-                    if(velocity<0)
-                        velocity=0;
-
-                }
-                
-            break;
-            
-    } // end switch
-} // end handleKeyDown
-
-
-
-
-
-
-
 
 // set up the webGL environment
 Graphics.prototype.setupWebGL = function( ) 
@@ -526,7 +422,7 @@ Graphics.prototype.setupShaders = function() {
 /////// INSIDE RENDER MODEL SHIT
 // construct the model transform matrix, based on model state
 // render the loaded model
-function renderModels() {
+Graphics.prototype.renderModels = function() {
     function makeModelTransform(currModel) {
         var zAxis = vec3.create(), sumRotation = mat4.create(), temp = mat4.create(), negCenter = vec3.create();
     

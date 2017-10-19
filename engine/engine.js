@@ -54,9 +54,12 @@ Engine.prototype.init = function(){
   }
   else
   {
+    this.input = new Input(this);         //Input handler system
     this.textures = new Textures(this);
     this.graphics = new Graphics( this );
     this.sound = new Sound(this);
+
+    document.addEventListener("keydown", this.input.handleKeyPress.bind(this.input));
   }
 }
 
@@ -84,7 +87,7 @@ Engine.prototype.draw = function() {
   }
   else
   {
-    renderModels();
+    this.graphics.renderModels();
   }
 }
 
@@ -331,7 +334,9 @@ Input.prototype.setMouseMoveHandler = function(handler) {
 }
 
 Input.prototype.setKeyboardPressHandler = function(handler) {
+  
   this.keyboardPressHandler = handler;
+
 }
 
 /**
@@ -400,6 +405,7 @@ Input.prototype.handleMouseMove = function(e) {
 }
 
 Input.prototype.handleKeyPress = function(e) {
+  
   if(this.keyboardPressHandler != null)
    this.keyboardPressHandler(e.code);
 }
@@ -473,19 +479,19 @@ function Textures(engine) {
 
 Textures.prototype.initTexture = function(texture_path,whichSet) 
 {
-  
    this.triangleTexture[whichSet] = gl.createTexture();
    this.triangleTexture[whichSet].image = new Image();    
    this.triangleTexture[whichSet].image.crossOrigin = ''; 
-   
+   this.triangleTexture[whichSet].image.textures = this ;
+   //console.log(this);
    this.triangleTexture[whichSet].image.onload = function () 
    {
-    console.log("gl : "+ this.triangleTexture[whichSet]);
-        this.handleLoadedTexture(this.triangleTexture[whichSet]);
+     //   console.log("gl : "+ this.textures.triangleTexture[whichSet]);
+        this.textures.handleLoadedTexture(this.textures.triangleTexture[whichSet]);
    }
     if(texture_path)
       this.triangleTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
-    console.log("Hello : ",texture_path);
+    //console.log("Hello : ",texture_path);
 }
 
 Textures.prototype.initSphereTexture = function(texture_path,whichSet) 
@@ -493,13 +499,15 @@ Textures.prototype.initSphereTexture = function(texture_path,whichSet)
   this.sphereTexture[whichSet] = gl.createTexture();
   this.sphereTexture[whichSet].image = new Image();    
   this.sphereTexture[whichSet].image.crossOrigin = ''; 
+  this.sphereTexture[whichSet].image.textures = this ;
+
   this.sphereTexture[whichSet].image.onload = function () 
    {
-       this.handleLoadedTexture(this.sphereTexture[whichSet]);  
+       this.textures.handleLoadedTexture(this.textures.sphereTexture[whichSet]);  
    }
     if(texture_path)
     this.sphereTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
-    console.log(texture_path);
+    //console.log(texture_path);
 }
 
 Textures.prototype.handleLoadedTexture = function(texture) 
