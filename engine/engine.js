@@ -8,8 +8,7 @@
  * @param {*} context Drawing Context
  */
 function Engine(canvas, context, gameType) {
-  if(gameType === "2D")
-  {
+  if (gameType === "2D") {
     this.game_type = "2D";
     this.canvas = canvas;
     this.context = context;
@@ -17,8 +16,7 @@ function Engine(canvas, context, gameType) {
     this.drawHandler = null;
     this.init();
   }
-  else
-  {
+  else {
     this.game_type = "3D";
     this.updateHandler = null;
     this.drawHandler = null;
@@ -33,18 +31,17 @@ function Engine(canvas, context, gameType) {
   }
 }
 
-Engine.prototype.init = function(){
-  if(this.game_type == "2D")
-  {
+Engine.prototype.init = function () {
+  if (this.game_type == "2D") {
     this.objects = new Array();           //Game objects(sprites)
     this.objectIdGenerator = 0;           //Unique id for each game object.
     this.particleSystem = new Array();   // Particle System
-  
+
     this.input = new Input(this);         //Input handler system
     this.collision = new Collision(this); //Collision handler system
     this.storage = new Storage(this);
     this.physics = new Physics(this);
-    
+
 
     //Bind engine event listeners
     this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
@@ -52,25 +49,24 @@ Engine.prototype.init = function(){
     this.canvas.onmousemove = this.input.handleMouseMove.bind(this.input);
     document.addEventListener("keydown", this.input.handleKeyPress.bind(this.input));
   }
-  else
-  {
+  else {
     this.input = new Input(this);         //Input handler system
     this.textures = new Textures(this);
-    this.graphics = new Graphics( this );
+    this.graphics = new Graphics(this);
     this.sound = new Sound(this);
 
     document.addEventListener("keydown", this.input.handleKeyPress.bind(this.input));
   }
 }
 
-Engine.prototype.resetObjects = function() {
+Engine.prototype.resetObjects = function () {
   this.init();
 }
 
 /**
  * Update Method of the Game Engine class
  */
-Engine.prototype.update = function() {
+Engine.prototype.update = function () {
   this.physics.update();
   this.collision.update();
 }
@@ -78,15 +74,14 @@ Engine.prototype.update = function() {
 /**
  * Draw Method of the game engine class
  */
-Engine.prototype.draw = function() {
-  if(this.game_type == '2D'){
-  this.canvas.width = this.canvas.width;
+Engine.prototype.draw = function () {
+  if (this.game_type == '2D') {
+    this.canvas.width = this.canvas.width;
     for (var i = 0; i < this.objects.length; i++) {
       this.objects[i].draw(this.context, this.spriteSheet);
     }
   }
-  else
-  {
+  else {
     this.graphics.renderModels();
   }
 }
@@ -94,7 +89,7 @@ Engine.prototype.draw = function() {
 /**
  * Method to add new Objects to the game engines list of Objects
  */
-Engine.prototype.addObject = function(object) {
+Engine.prototype.addObject = function (object) {
   object.id = this.objectIdGenerator;
   this.objects.push(object);
   this.objectIdGenerator++;
@@ -103,23 +98,23 @@ Engine.prototype.addObject = function(object) {
 /**
  * Method to remove Objects from the game engines list of objects
  */
-Engine.prototype.deleteObject = function(id) {
-  if(this.input.objectSelectedId == id) 
+Engine.prototype.deleteObject = function (id) {
+  if (this.input.objectSelectedId == id)
     this.input.objectSelectedId = null;
-  if(this.collision.movedObjectId == id)
+  if (this.collision.movedObjectId == id)
     this.collision.movedObjectId = null;
   var index = this.getObjectIndex(id);
-  if(index != null) {
+  if (index != null) {
     this.particleSystem.push(this.objects[index]);
     this.objects.splice(index, 1);
   }
-} 
-  
+}
+
 /**
 * Method to get a reuable object from the pool (Particle System)
 */
-Engine.prototype.getReusableObject = function(){
-  if(this.particleSystem.length > 0){
+Engine.prototype.getReusableObject = function () {
+  if (this.particleSystem.length > 0) {
     var obj = this.particleSystem[0];
     this.particleSystem.shift();
     return obj;
@@ -130,9 +125,9 @@ Engine.prototype.getReusableObject = function(){
 /**
  * Method to get Object from the engine list of objects 
  */
-Engine.prototype.getObject = function(id) {  
-  for(var index = 0; index < this.objects.length; index++) {
-    if(this.objects[index].id == id)
+Engine.prototype.getObject = function (id) {
+  for (var index = 0; index < this.objects.length; index++) {
+    if (this.objects[index].id == id)
       return this.objects[index];
   }
   return null;
@@ -141,9 +136,9 @@ Engine.prototype.getObject = function(id) {
 /**
  * Method to get Object's index  from the engine list of objects 
  */
-Engine.prototype.getObjectIndex = function(id) {  
-  for(var index = 0; index < this.objects.length; index++) {
-    if(this.objects[index].id == id)
+Engine.prototype.getObjectIndex = function (id) {
+  for (var index = 0; index < this.objects.length; index++) {
+    if (this.objects[index].id == id)
       return index;
   }
   return null;
@@ -152,24 +147,23 @@ Engine.prototype.getObjectIndex = function(id) {
 /**
  * Method to Get Count of Objects in the list of Objects
  */
-Engine.prototype.objectCount = function() {
+Engine.prototype.objectCount = function () {
   return this.objects.length;
 }
 
-Engine.prototype.setUpdateHandler = function(handler) {
+Engine.prototype.setUpdateHandler = function (handler) {
   this.updateHandler = handler;
-  console.log(this.updateHandler);
+  //console.log(this.updateHandler);
 }
 
-Engine.prototype.setDrawHandler = function(handler) {
+Engine.prototype.setDrawHandler = function (handler) {
   this.drawHandler = handler;
-  console.log(this.drawHandler);
+  //console.log(this.drawHandler);
 }
 
-Engine.prototype.gameLoop = function(){
-    this.updateHandler();
-    this.drawHandler();
-  
+Engine.prototype.gameLoop = function () {
+  this.updateHandler();
+  this.drawHandler();
 }
 
 
@@ -196,12 +190,12 @@ function Sprite(x, y, width, height, spriteStyle) {
 /**
  * Function to draw sprite if it is not hidden 
  */
-Sprite.prototype.draw = function(context, spriteSheet) {
-  if(this.tags.hidden != true) {
+Sprite.prototype.draw = function (context, spriteSheet) {
+  if (this.tags.hidden != true) {
     //context.drawImage(this.image, this.X, this.Y, this.image.width, this.image.height);
     context.drawImage(spriteSheet, this.spriteStyle.x, this.spriteStyle.y, this.spriteStyle.width, this.spriteStyle.height, this.X, this.Y, this.width, this.height);
     //draw a red box around selected object
-    if(this.tags.selected == true) {
+    if (this.tags.selected == true) {
       context.beginPath();
       context.lineWidth = "6";
       context.strokeStyle = "red";
@@ -211,7 +205,7 @@ Sprite.prototype.draw = function(context, spriteSheet) {
   }
 }
 
-Engine.prototype.loadSpriteSheet = function(url) {
+Engine.prototype.loadSpriteSheet = function (url) {
   try {
     this.spriteSheet = new Image();
     this.spriteSheet.src = url;
@@ -230,25 +224,27 @@ Engine.prototype.loadSpriteSheet = function(url) {
  */
 function Collision(engine) {
   this.engine = engine;
-  this.movedObjectId = null;
+  //this.movedObjectId = null;
+  this.movedObjectId = new Object(); // Creating new hash map for the moving objects
+  this.checkCollisionBetweenMovingObjects = true;
   this.collisionHandler = null;
 }
 
 /**
  * Sets collisionHandler
  */
-Collision.prototype.setCollisionHandler = function(handler) {
+Collision.prototype.setCollisionHandler = function (handler) {
   this.collisionHandler = handler;
 }
 /**
  * Check if a point-object collision occurs
  */
-Collision.prototype.checkCollision = function(object, x, y) {
+Collision.prototype.checkCollision = function (object, x, y) {
   var minX = object.X;
   var maxX = object.X + object.width;
   var minY = object.Y;
   var maxY = object.Y + object.height;
-  
+
   if (x >= minX && x <= maxX && y >= minY && y <= maxY)
     return true;
   return false;
@@ -257,16 +253,16 @@ Collision.prototype.checkCollision = function(object, x, y) {
 /**
  * Check if an object-object collision occurs 
  */
-Collision.prototype.checkBoxCollision = function(obj1, obj2) {
+Collision.prototype.checkBoxCollision = function (obj1, obj2) {
   //TODO to be added when needed
 }
 
 /**
  * Check if a point x, y collides with any of the game objects
  */
-Collision.prototype.checkCollisionWithAllObjects = function(x, y) {
-  for(var i = 0; i < this.engine.objects.length; i++) {
-    if(this.checkCollision(this.engine.objects[i], x, y)) {
+Collision.prototype.checkCollisionWithAllObjects = function (x, y) {
+  for (var i = 0; i < this.engine.objects.length; i++) {
+    if (this.checkCollision(this.engine.objects[i], x, y)) {
       return true;
     }
   }
@@ -276,24 +272,51 @@ Collision.prototype.checkCollisionWithAllObjects = function(x, y) {
 /**
  * Check if the last moved Object interests with any other object. 
  */
-Collision.prototype.update = function() {
-  if(this.movedObjectId == null)
+Collision.prototype.update = function () {
+  console.log('inside collision update')
+  if (this.movedObjectId == null || Object.keys(this.movedObjectId).length == 0)
     return;
-  var movedObject = this.engine.getObject(this.movedObjectId);
-  if(movedObject == null)
-    return;
-  var movedX = movedObject.X + (movedObject.width / 2);
-  var movedY = movedObject.Y + (movedObject.height / 2);
-  for(var i = 0; i < this.engine.objects.length; i++) {
-    if(this.movedObjectId != this.engine.objects[i].id && this.checkCollision(this.engine.objects[i], movedX, movedY)) {
-      if(this.collisionHandler != null) {
-        this.collisionHandler(movedObject, this.engine.objects[i]);
-        break;
-      }
+
+  for (var id in this.movedObjectId) {
+    var movedObject = this.engine.getObject(id);
+
+    if (movedObject == null)
+      return;
+
+    var movedX = movedObject.X + (movedObject.width / 2);
+    var movedY = movedObject.Y + (movedObject.height / 2);
+
+    for (var i = 0; i < this.engine.objects.length; i++) {
+      
+      if(this.isMovingObject(this.engine.objects[i].id) == false || this.checkCollisionBetweenMovingObjects == true){
+        if (id != this.engine.objects[i].id && this.checkCollision(this.engine.objects[i], movedX, movedY)) {
+          if (this.collisionHandler != null) {
+            this.collisionHandler(movedObject, this.engine.objects[i]);
+            break;
+          }
+        }
+      }      
     }
+    //this.movedObjectId = null;
   }
-  this.movedObjectId = null;
+
+  this.movedObjectId = new Object();
 }
+
+/**
+ * Check if the given object id belongs to a moving object
+ */
+Collision.prototype.isMovingObject = function (id) {
+  return this.movedObjectId != null && this.movedObjectId[id] == true;
+}
+
+/**
+ * Sets the flag to check that handles collision between moving objects
+ */
+Collision.prototype.setCollisionBetweenMovingObjects = function (value) {
+  this.checkCollisionBetweenMovingObjects = value;
+}
+
 
 //---------Input-------------------
 /**
@@ -315,26 +338,26 @@ function Input(engine) {
 /**
  * Set Mouse Down Event Handler
  */
-Input.prototype.setMouseDownHandler = function(handler) {
+Input.prototype.setMouseDownHandler = function (handler) {
   this.mouseDownHandler = handler;
 }
 
 /**
  * Set Mouse Up Event Handler
  */
-Input.prototype.setMouseUpHandler = function(handler) {
+Input.prototype.setMouseUpHandler = function (handler) {
   this.mouseUpHandler = handler;
 }
 
 /**
  * Set Mouse Move Event Handler
  */
-Input.prototype.setMouseMoveHandler = function(handler) {
+Input.prototype.setMouseMoveHandler = function (handler) {
   this.mouseMoveHandler = handler;
 }
 
-Input.prototype.setKeyboardPressHandler = function(handler) {
-  
+Input.prototype.setKeyboardPressHandler = function (handler) {
+
   this.keyboardPressHandler = handler;
 
 }
@@ -342,15 +365,15 @@ Input.prototype.setKeyboardPressHandler = function(handler) {
 /**
  * Set Current selected object
  */
-Input.prototype.setObjectSelected = function(id) {
-  if(this.objectSelectedId != null) {
+Input.prototype.setObjectSelected = function (id) {
+  if (this.objectSelectedId != null) {
     var objectSelected = this.engine.getObject(this.objectSelectedId);
-    if(objectSelected != null)
+    if (objectSelected != null)
       objectSelected.tags.selected = false;
   }
-  if(id != null) {
+  if (id != null) {
     var objectSelected = this.engine.getObject(id);
-    if(objectSelected != null)
+    if (objectSelected != null)
       objectSelected.tags.selected = true;
   }
   this.objectSelectedId = id;
@@ -361,31 +384,35 @@ Input.prototype.setObjectSelected = function(id) {
  * Checks for collision, If it has occurred, determines difference between mouse postion and position of the object 
  * and calls the event handler of the game
  */
-Input.prototype.handleMouseDown = function(e) {
+Input.prototype.handleMouseDown = function (e) {
   var x = e.clientX, y = e.clientY;
   for (var iter = 0; iter < this.engine.objects.length; iter++) {
     if (this.engine.collision.checkCollision(this.engine.objects[iter], x, y)) {
       this.intervalX = x - this.engine.objects[iter].X;
       this.intervalY = y - this.engine.objects[iter].Y;
       this.setObjectSelected(this.engine.objects[iter].id);
-      if(this.mouseDownHandler != null)
+      if (this.mouseDownHandler != null)
         this.mouseDownHandler(this.engine.objects[iter], x - this.intervalX, y - this.intervalY);
       break;
     }
   }
 }
 
-Input.prototype.setMovedObject = function(id) {
-  this.engine.collision.movedObjectId = id;
+Input.prototype.setMovedObject = function (id) {
+  //this.engine.collision.movedObjectId = id;
+  if(this.engine.collision.movedObjectId == null || this.engine.collision.movedObjectId == undefined)
+    this.engine.collision.movedObjectId = new Object();
+
+  this.engine.collision.movedObjectId[id] = true;
 }
 /**
  * call handler if an object was released 
  */
-Input.prototype.handleMouseUp = function(e) {
-  if(/*this.objectSelectedId != null&&*/ this.mouseUpHandler != null) {
+Input.prototype.handleMouseUp = function (e) {
+  if (/*this.objectSelectedId != null&&*/ this.mouseUpHandler != null) {
     var objectSelected = this.engine.getObject(this.objectSelectedId);
     //if(objectSelected != null)
-      this.mouseUpHandler(objectSelected, e.clientX, e.clientY);
+    this.mouseUpHandler(objectSelected, e.clientX, e.clientY);
     this.engine.collision.movedObjectId = this.objectSelectedId;
     this.setObjectSelected(null);
     this.intervalX = null;
@@ -396,18 +423,18 @@ Input.prototype.handleMouseUp = function(e) {
 /**
  * call handler if an object was dragged 
  */
-Input.prototype.handleMouseMove = function(e) {
-  if(/*this.objectSelectedId != null &&*/ this.mouseMoveHandler != null) {
+Input.prototype.handleMouseMove = function (e) {
+  if (/*this.objectSelectedId != null &&*/ this.mouseMoveHandler != null) {
     var objectSelected = this.engine.getObject(this.objectSelectedId);
     //if(objectSelected != null)
-        this.mouseMoveHandler(objectSelected, e.clientX - (this.intervalX == null? 0: this.intervalX), e.clientY - (this.intervalY == null? 0: this.intervalY));
+    this.mouseMoveHandler(objectSelected, e.clientX - (this.intervalX == null ? 0 : this.intervalX), e.clientY - (this.intervalY == null ? 0 : this.intervalY));
   }
 }
 
-Input.prototype.handleKeyPress = function(e) {
-  
-  if(this.keyboardPressHandler != null)
-   this.keyboardPressHandler(e.code);
+Input.prototype.handleKeyPress = function (e) {
+
+  if (this.keyboardPressHandler != null)
+    this.keyboardPressHandler(e.code);
 }
 
 //---------Storage-------------------
@@ -415,13 +442,13 @@ function Storage(engine) {
   this.engine = engine;
 }
 
-Storage.prototype.setValue = function(key, value) {
+Storage.prototype.setValue = function (key, value) {
   if (typeof (Storage) !== "undefined") {
     localStorage.setItem(key, value);
   }
 }
 
-Storage.prototype.getValue = function(key) {
+Storage.prototype.getValue = function (key) {
   if (typeof (Storage) !== "undefined") {
     return localStorage.getItem(key) == null ? 0 : localStorage.getItem(key);
   }
@@ -434,31 +461,31 @@ function Physics(engine) {
   this.outOfBoundsHandler = null;
 }
 
-Physics.prototype.setOutOfBoundsHandler = function(handler) {
+Physics.prototype.setOutOfBoundsHandler = function (handler) {
   this.outOfBoundsHandler = handler
 }
 
-Physics.prototype.update = function() {
-  for(var i = 0; i < this.engine.objects.length; i++) {
-    if(this.engine.objects[i].physics) {
+Physics.prototype.update = function () {
+  for (var i = 0; i < this.engine.objects.length; i++) {
+    if (this.engine.objects[i].physics) {
       var obj = this.engine.objects[i];
-      if(obj.physics.x_velocity != 0 || obj.physics.y_velocity != 0) {
+      if (obj.physics.x_velocity != 0 || obj.physics.y_velocity != 0) {
         this.engine.input.setMovedObject(obj.id);
         obj.X += obj.physics.x_velocity;
         obj.Y += obj.physics.y_velocity;
-        if(obj.X < 0 || (obj.X + 1.5 * obj.width) > this.engine.canvas.width) {
-          if(this.outOfBoundsHandler != null)
+        if (obj.X < 0 || (obj.X + 1.5 * obj.width) > this.engine.canvas.width) {
+          if (this.outOfBoundsHandler != null)
             this.outOfBoundsHandler("X", obj);
         }
-        if(obj.Y < 0 || (obj.Y + obj.height) > this.engine.canvas.height)
-          if(this.outOfBoundsHandler != null)
+        if (obj.Y < 0 || (obj.Y + obj.height) > this.engine.canvas.height)
+          if (this.outOfBoundsHandler != null)
             this.outOfBoundsHandler("Y", obj);
       }
     }
   }
 }
 
-Physics.prototype.initPhysics = function() {
+Physics.prototype.initPhysics = function () {
   var physicsObj = {
     x_velocity: 0,
     y_velocity: 0
@@ -466,7 +493,7 @@ Physics.prototype.initPhysics = function() {
   return physicsObj;
 }
 
-Physics.prototype.getVelocityTan = function(obj) {
+Physics.prototype.getVelocityTan = function (obj) {
   return obj.x_velocity / obj.y_velocity;
 }
 
@@ -477,48 +504,43 @@ function Textures(engine) {
   this.sphereTexture = [];
 }
 
-Textures.prototype.initTexture = function(texture_path,whichSet) 
-{
-   this.triangleTexture[whichSet] = gl.createTexture();
-   this.triangleTexture[whichSet].image = new Image();    
-   this.triangleTexture[whichSet].image.crossOrigin = ''; 
-   this.triangleTexture[whichSet].image.textures = this ;
-   //console.log(this);
-   this.triangleTexture[whichSet].image.onload = function () 
-   {
-     //   console.log("gl : "+ this.textures.triangleTexture[whichSet]);
-        this.textures.handleLoadedTexture(this.textures.triangleTexture[whichSet]);
-   }
-    if(texture_path)
-      this.triangleTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
-    //console.log("Hello : ",texture_path);
+Textures.prototype.initTexture = function (texture_path, whichSet) {
+  this.triangleTexture[whichSet] = gl.createTexture();
+  this.triangleTexture[whichSet].image = new Image();
+  this.triangleTexture[whichSet].image.crossOrigin = '';
+  this.triangleTexture[whichSet].image.textures = this;
+  //console.log(this);
+  this.triangleTexture[whichSet].image.onload = function () {
+    //   console.log("gl : "+ this.textures.triangleTexture[whichSet]);
+    this.textures.handleLoadedTexture(this.textures.triangleTexture[whichSet]);
+  }
+  if (texture_path)
+    this.triangleTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
+  //console.log("Hello : ",texture_path);
 }
 
-Textures.prototype.initSphereTexture = function(texture_path,whichSet) 
-{
+Textures.prototype.initSphereTexture = function (texture_path, whichSet) {
   this.sphereTexture[whichSet] = gl.createTexture();
-  this.sphereTexture[whichSet].image = new Image();    
-  this.sphereTexture[whichSet].image.crossOrigin = ''; 
-  this.sphereTexture[whichSet].image.textures = this ;
+  this.sphereTexture[whichSet].image = new Image();
+  this.sphereTexture[whichSet].image.crossOrigin = '';
+  this.sphereTexture[whichSet].image.textures = this;
 
-  this.sphereTexture[whichSet].image.onload = function () 
-   {
-       this.textures.handleLoadedTexture(this.textures.sphereTexture[whichSet]);  
-   }
-    if(texture_path)
+  this.sphereTexture[whichSet].image.onload = function () {
+    this.textures.handleLoadedTexture(this.textures.sphereTexture[whichSet]);
+  }
+  if (texture_path)
     this.sphereTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
-    //console.log(texture_path);
+  //console.log(texture_path);
 }
 
-Textures.prototype.handleLoadedTexture = function(texture) 
-{
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+Textures.prototype.handleLoadedTexture = function (texture) {
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
 
@@ -528,41 +550,36 @@ function Sound(engine) {
   this.soundArray = [];
 }
 
-Sound.prototype.initSound = function()
-{
+Sound.prototype.initSound = function () {
   this.soundArray.push(new Audio("sound/level1.mp3"));
   this.soundArray.push(new Audio("sound/level2.mp3"));
-	this.soundArray.push(new Audio("sound/level3.mp3"));
-	this.soundArray.push(new Audio("sound/level4.mp3"));
-	this.soundArray.push(new Audio("sound/level5.mp3"));
-	this.soundArray.push(new Audio("sound/tryagain.mp3"));
-	this.soundArray.push(new Audio("sound/jump.wav"));
+  this.soundArray.push(new Audio("sound/level3.mp3"));
+  this.soundArray.push(new Audio("sound/level4.mp3"));
+  this.soundArray.push(new Audio("sound/level5.mp3"));
+  this.soundArray.push(new Audio("sound/tryagain.mp3"));
+  this.soundArray.push(new Audio("sound/jump.wav"));
 }
 
-Sound.prototype.playSound = function(id,flag)
-{
-    switch(id)
-    {
-      case "level1": this.soundArray[0].loop = flag; this.soundArray[0].play(); break;
-      case "level2": this.soundArray[1].loop = flag; this.soundArray[1].play(); break;
-		  case "level3": this.soundArray[2].loop = flag; this.soundArray[2].play(); break;
-		  case "level4": this.soundArray[3].loop = flag; this.soundArray[3].play(); break;
-		  case "level5": this.soundArray[4].loop = flag; this.soundArray[4].play(); break;
-		  case "tryagain": this.soundArray[5].play();
-		  case "jump": this.soundArray[6].play();
-    }
+Sound.prototype.playSound = function (id, flag) {
+  switch (id) {
+    case "level1": this.soundArray[0].loop = flag; this.soundArray[0].play(); break;
+    case "level2": this.soundArray[1].loop = flag; this.soundArray[1].play(); break;
+    case "level3": this.soundArray[2].loop = flag; this.soundArray[2].play(); break;
+    case "level4": this.soundArray[3].loop = flag; this.soundArray[3].play(); break;
+    case "level5": this.soundArray[4].loop = flag; this.soundArray[4].play(); break;
+    case "tryagain": this.soundArray[5].play();
+    case "jump": this.soundArray[6].play();
+  }
 
 }
 
 //stop
-Sound.prototype.stopSound = function(id)
-{
-    switch(id)
-    {
-        case "level1": this.soundArray[0].pause();this.soundArray.currentTime=0 ; break;
-		case "level2": this.soundArray[1].pause();this.soundArray.currentTime=0 ; break;
-		case "level3": this.soundArray[2].pause();this.soundArray.currentTime=0 ; break;
-		case "level4": this.soundArray[3].pause();this.soundArray.currentTime=0 ; break;
-		case "level5": this.soundArray[4].pause();this.soundArray.currentTime=0 ; break;        
-    }    
+Sound.prototype.stopSound = function (id) {
+  switch (id) {
+    case "level1": this.soundArray[0].pause(); this.soundArray.currentTime = 0; break;
+    case "level2": this.soundArray[1].pause(); this.soundArray.currentTime = 0; break;
+    case "level3": this.soundArray[2].pause(); this.soundArray.currentTime = 0; break;
+    case "level4": this.soundArray[3].pause(); this.soundArray.currentTime = 0; break;
+    case "level5": this.soundArray[4].pause(); this.soundArray.currentTime = 0; break;
+  }
 }

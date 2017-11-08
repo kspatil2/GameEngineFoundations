@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>BubbleShooter</title>
+  <title>Multiplayer snakes</title>
 </head>
 <style>
   .contentWrapper {
@@ -41,13 +41,13 @@
   <div style="width:100%">
     <div class="contentWrapper">
       <div id="highScoreWrapper" class="left">
-        <p>High Score: <span id="highScore"></span></p>
+        <p>Player 1 score: <span id="player1score"></span></p>
       </div>
       <div id="levelWrapper" class="left">
         <p>Level <span id="level"></span></p>
       </div>
       <div id="scoreWrapper" class="right">
-        <p class="text-right">Current Score: <span id="currentScore"></span></p>
+        <p class="text-right">Player 2 score: <span id="player2score"></span></p>
       </div>
       <canvas id="whyupdate" width="800" height="640">
         Canvas not supported
@@ -55,7 +55,7 @@
     </div>
     <div class="contentWrapper">
       <div class="left">
-        <p><span style="font-weight: bold;">Controls:</span> Direction Keys for movement and 'R' for restart</p>
+        <p><span style="font-weight: bold;">Controls:</span> Player 1: Direction Keys, Player 2: W (up), S (down), A (left), D (right); 'R' for restart</p>
         <p><span style="font-weight: bold;">Scoring:</span> Jerry (normal food): +25 points, Lava (spoiled food): -50 points.</p>
       </div>
     </div>
