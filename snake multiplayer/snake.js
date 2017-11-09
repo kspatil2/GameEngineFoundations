@@ -33,7 +33,7 @@ SnakeGame.prototype.init = function () {
   this.snakes.push(snake);
 
   // Add the secind snake
-  var secondarySnake = new SnakeLinks(this.engine, this.spriteStyle["snake"], 5, this.cellSize, levelWidth, levelHeight, 'left');
+  var secondarySnake = new SnakeLinks(this.engine, this.spriteStyle["blueSnake"], 5, this.cellSize, levelWidth, levelHeight, 'left');
   secondarySnake.addSnakeLinksToEngine();
 
   this.snakes.push(secondarySnake);
@@ -137,7 +137,8 @@ SnakeGame.prototype.loadContent = function () {
     "snake": { x: 300, y: 300, width: 300, height: 300 },
     "food": { x: 0, y: 300, width: 300, height: 300 },
     "wall": { x: 0, y: 0, width: 300, height: 300 },
-    "spoiledFood": { x: 300, y: 0, width: 300, height: 300 }
+    "spoiledFood": { x: 300, y: 0, width: 300, height: 300 },
+    "blueSnake": {x: 0, y: 600, width: 300, height: 300}
   };
 
   return true;
