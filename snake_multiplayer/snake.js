@@ -14,7 +14,7 @@ function SnakeGame() {
 
 SnakeGame.prototype.init = function () {
 
-  this.cellSize = 40;
+  this.cellSize = 20;
   var levelWidth = this.canvas.width / this.cellSize;
   var levelHeight = this.canvas.height / this.cellSize;
 
@@ -94,6 +94,15 @@ SnakeGame.prototype.handleCollission = function (head, collidedSprite) {
     snake.score -= 50;
   }
   else {
+    console.log("here");
+    if(snake == this.snakes[0])
+    {
+      alert("Blue Wins");
+    }
+    else
+    {
+      alert("Green Wins");
+    }
     this.pauseGame = true;
   }
 }
