@@ -18,7 +18,7 @@ SnakeGame.prototype.init = function () {
   this.cellSize = 20;
   var levelWidth = this.canvas.width / this.cellSize;
   var levelHeight = this.canvas.height / this.cellSize;
-
+  this.engine.network.initNetwork('a123', 'cupxwsjrn486w29');
   this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["wall"]);
   this.levels.addBoundaryObjectsToEngine();
   this.levels.addLevelObjectsToEngine(this.levels.current_level);

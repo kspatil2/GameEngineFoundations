@@ -592,7 +592,7 @@ function Network(engine){
 }
 
 //init
-Network.prototype.init = function(peerId,keyValue){
+Network.prototype.initNetwork = function(peerId,keyValue){
   this.peer = new Peer(peerId,{key: keyValue});
 }
 
