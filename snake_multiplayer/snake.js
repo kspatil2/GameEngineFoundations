@@ -1,4 +1,5 @@
 //var peer = new Peer('a1', {key: 'cupxwsjrn486w29'});
+//var p1 = new Peer('a123',{key: 'cupxwsjrn486w29'});
 
 function SnakeGame() {
   this.canvas = document.getElementById("whyupdate");
@@ -6,11 +7,11 @@ function SnakeGame() {
   this.engine = new Engine(this.canvas, this.context, "2D");
 }
 
-/*peer.on('connection', function(connection) {
-  connection.on('data', function(data) {
-      console.log('p2 speaking..got from p1: '+ data);
-  });
-});*/
+// p1.on('connection', function(connection) {
+//   connection.on('data', function(data) {
+//       console.log('p2 speaking..got from p1: '+ data);
+//   });
+// });
 
 SnakeGame.prototype.init = function () {
 
@@ -44,8 +45,14 @@ SnakeGame.prototype.init = function () {
   //Bind game level listeners
   this.engine.input.setKeyboardPressHandler(this.keyPressed.bind(this));
   this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
+  this.engine.network.setNetworkHandler(this.handleConnection.bind(this));
   this.engine.setUpdateHandler(this.update.bind(this));
   this.engine.setDrawHandler(this.draw.bind(this));
+}
+
+  //Network Handler
+SnakeGame.prototype.handleConnection = function() {
+
 }
 
 SnakeGame.prototype.restart = function () {

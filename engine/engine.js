@@ -588,11 +588,16 @@ Sound.prototype.stopSound = function (id) {
 function Network(engine){
   this.engine = engine;
   this.peer = null;
+  this.networkHandler = null
 }
 
 //init
 Network.prototype.init = function(peerId,keyValue){
   this.peer = new Peer(peerId,{key: keyValue});
+}
+
+Network.prototype.setNetworkHandler = function(handler) {
+  this.networkHandler = handler;
 }
 
 Network.prototype.connect = function() {
