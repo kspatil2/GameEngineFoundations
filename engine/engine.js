@@ -41,7 +41,7 @@ Engine.prototype.init = function () {
     this.collision = new Collision(this); //Collision handler system
     this.storage = new Storage(this);
     this.physics = new Physics(this);
-
+    this.network = new Network(this);
 
     //Bind engine event listeners
     this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
@@ -583,3 +583,23 @@ Sound.prototype.stopSound = function (id) {
     case "level5": this.soundArray[4].pause(); this.soundArray.currentTime = 0; break;
   }
 }
+
+//-------------Network-----------
+function Network(engine){
+  this.engine = engine;
+  this.peer = null;
+}
+
+//init
+Network.prototype.init = function(peerId,keyValue){
+  this.peer = new Peer(peerId,{key: keyValue});
+}
+
+Network.prototype.connect = function() {
+  this.peer.on('connection', function(connection) {
+       connection.on('data', function(data) {
+           console.log('p2 speaking..got from p1: '+ data);
+       });
+   });
+}
+
