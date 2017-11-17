@@ -39,6 +39,8 @@ SnakeGame.prototype.init = function () {
 
   this.snakes.push(secondarySnake);
 
+  this.pauseGame = true;
+
   // Initialize scoring
   this.init_scoring();
 
@@ -52,9 +54,10 @@ SnakeGame.prototype.init = function () {
 
   //Network Handler
 SnakeGame.prototype.handleConnection = function(data) {
-  console.log(data);
-
-  this.move(data.message, data.playerId);
+  if(data.message == "Start")
+    this.pauseGame = false;
+  else
+    this.move(data.message, data.playerId);
 }
 
 SnakeGame.prototype.restart = function () {

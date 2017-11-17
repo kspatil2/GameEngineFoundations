@@ -600,10 +600,13 @@ Network.prototype.initNetwork = function (peerId, keyValue) {
 
   conn.on('open', function () {
     console.log("Network connected")
-    //conn.send('Hello');
     this.playerId = 1;
+    obj = {
+      message: "Start",
+      playerId: this.playerId
+    }
+    conn.send(obj);
   });
-
 
   var handler = this.networkHandler;
 
