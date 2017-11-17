@@ -58,15 +58,17 @@ SnakeGame.prototype.init = function () {
 
   //Network Handler
 SnakeGame.prototype.handleConnection = function(data) {
-  if(data.message == "Start") {
-    // player 2
-    //this.engine.network.playerId = 1;
-    //his.engine.network.playerId = this.engine.network.peerId < data.myPeerId ? 0 : 1;
-    //console.log("Other peer Id = " + data.myPeerId + ", other player id = " + this.this.engine.network.playerId);
-    this.pauseGame = false;
+  switch(data.message) {
+    case "Start": 
+      this.pauseGame = false;
+      break;
+    case "Food":
+      this.food.generate_food(this.food.food, data.value.foodX, data.value.foodY, this.spriteStyle["food"], "food");
+      break;
+    case "Key":
+      this.move(data.value, data.playerId);
+      break;
   }
-  else
-    this.move(data.message, data.playerId);
 }
 
 SnakeGame.prototype.onConnectionRestored = function(){
@@ -133,8 +135,7 @@ SnakeGame.prototype.handleCollission = function (head, collidedSprite) {
 }
 
 SnakeGame.prototype.keyPressed = function(key) {
-  this.engine.network.send(key);
-  //console.log("Player id = " + this.engine.network.playerId)
+  this.engine.network.send("Key", key);
   this.move(key, this.engine.network.playerId);
 }
 
@@ -153,19 +154,6 @@ SnakeGame.prototype.move = function (key, playerId) {
     case "ArrowDown":
       if (this.snakes[playerId].direction != "up") this.snakes[playerId].direction = "down";
       break;
-    /*case "KeyA":
-      if (this.snakes[1].direction != "right") this.snakes[1].direction = "left";
-      break;
-    case "KeyD":
-      if (this.snakes[1].direction != "left") this.snakes[1].direction = "right";
-      break;
-    case "KeyW":
-      if (this.snakes[1].direction != "down") this.snakes[1].direction = "up";
-      this.engine.network.send("KeyW")
-      break;
-    case "KeyS":
-      if (this.snakes[1].direction != "up") this.snakes[1].direction = "down";
-      break;*/
     case "KeyR":
       this.restart();
   }
@@ -487,8 +475,8 @@ Food.prototype.init = function () {
   this.update();
 }
 
-Food.prototype.create_food = function (food, spriteStyle, name) {
-  var x, y;
+
+Food.prototype.generate_food_pos = function() {
   var unique_xy = false;
   while (unique_xy == false) {
     x = Math.round(Math.random() * (this.width - 1));
@@ -499,7 +487,10 @@ Food.prototype.create_food = function (food, spriteStyle, name) {
       unique_xy = true;
     }
   }
+  return [x, y];
+}
 
+Food.prototype.generate_food = function(food, x, y, spriteStyle, name) {
   if (food == undefined) {
     food = new Sprite(this.cellSize * x, this.cellSize * y, this.cellSize, this.cellSize, spriteStyle);
     food.tags.name = name;
@@ -510,9 +501,21 @@ Food.prototype.create_food = function (food, spriteStyle, name) {
   return food;
 }
 
+Food.prototype.create_food = function (food, spriteStyle, name) {
+  var x, y;
+  [x, y] = this.generate_food_pos();
+  this.generate_food(food, x, y, spriteStyle, name);
+}
+
 Food.prototype.update = function () {
   if (this.createNewFood == true) {
-    this.food = this.create_food(this.food, this.spriteStyle, "food");
+    if(this.engine.network.playerId == 0) {
+      this.food = this.create_food(this.food, this.spriteStyle, "food");
+      this.engine.network.send("Food", {
+        foodX: x,
+        foodY: y
+      });
+    }
     this.spoiledFoodTimeLeft = 10;
     this.createNewFood = false;
   }
