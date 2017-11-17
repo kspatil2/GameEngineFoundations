@@ -287,15 +287,15 @@ Collision.prototype.update = function () {
     var movedY = movedObject.Y + (movedObject.height / 2);
 
     for (var i = 0; i < this.engine.objects.length; i++) {
-      
-      if(this.isMovingObject(this.engine.objects[i].id) == false || this.checkCollisionBetweenMovingObjects == true){
+
+      if (this.isMovingObject(this.engine.objects[i].id) == false || this.checkCollisionBetweenMovingObjects == true) {
         if (id != this.engine.objects[i].id && this.checkCollision(this.engine.objects[i], movedX, movedY)) {
           if (this.collisionHandler != null) {
             this.collisionHandler(movedObject, this.engine.objects[i]);
             break;
           }
         }
-      }      
+      }
     }
     //this.movedObjectId = null;
   }
@@ -400,7 +400,7 @@ Input.prototype.handleMouseDown = function (e) {
 
 Input.prototype.setMovedObject = function (id) {
   //this.engine.collision.movedObjectId = id;
-  if(this.engine.collision.movedObjectId == null || this.engine.collision.movedObjectId == undefined)
+  if (this.engine.collision.movedObjectId == null || this.engine.collision.movedObjectId == undefined)
     this.engine.collision.movedObjectId = new Object();
 
   this.engine.collision.movedObjectId[id] = true;
@@ -585,26 +585,63 @@ Sound.prototype.stopSound = function (id) {
 }
 
 //-------------Network-----------
-function Network(engine){
+function Network(engine) {
   this.engine = engine;
   this.peer = null;
   this.networkHandler = null
 }
 
 //init
-Network.prototype.initNetwork = function(peerId,keyValue){
-  this.peer = new Peer(peerId,{key: keyValue});
+Network.prototype.initNetwork = function (peerId, keyValue) {
+  this.peer = new Peer(peerId, { key: keyValue });
+  this.connection = this.peer.connect('a1');
+
+  var conn = this.connection;
+
+  conn.on('open', function () {
+    console.log("Network connected")
+    conn.send('Hello');
+  });
+
+
+  var handler = this.networkHandler;
+
+  this.peer.on('connection', this.onConnect.bind(this));
+
+  /*this.peer.on('connection', function (connection) {
+    connection.on('open', function () {
+      console.log("Network connected")
+      connection.send('Hello');
+    });
+  });*/
+
+  /*this.connection.on('data', function (data) {
+    console.log('p2 speaking..got from p1: ' + data);
+    //this.networkHandler()
+  });*/
 }
 
-Network.prototype.setNetworkHandler = function(handler) {
+Network.prototype.onConnect = function onConnection(connection){
+  connection.on('data', this.networkHandler);
+}
+
+
+
+Network.prototype.send = function (data) {
+  console.log("Sending " + data);
+  this.connection.send(data);
+}
+
+
+Network.prototype.setNetworkHandler = function (handler) {
   this.networkHandler = handler;
 }
 
-Network.prototype.connect = function() {
-  this.peer.on('connection', function(connection) {
-       connection.on('data', function(data) {
-           console.log('p2 speaking..got from p1: '+ data);
-       });
-   });
+Network.prototype.connect = function () {
+  this.peer.on('connection', function (connection) {
+    connection.on('data', function (data) {
+      console.log('p2 speaking..got from p1: ' + data);
+    });
+  });
 }
 

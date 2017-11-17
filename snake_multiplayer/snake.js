@@ -18,7 +18,7 @@ SnakeGame.prototype.init = function () {
   this.cellSize = 20;
   var levelWidth = this.canvas.width / this.cellSize;
   var levelHeight = this.canvas.height / this.cellSize;
-  this.engine.network.initNetwork('a123', 'cupxwsjrn486w29');
+  this.engine.network.initNetwork('a2', 'cupxwsjrn486w29');
   this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["wall"]);
   this.levels.addBoundaryObjectsToEngine();
   this.levels.addLevelObjectsToEngine(this.levels.current_level);
@@ -51,8 +51,9 @@ SnakeGame.prototype.init = function () {
 }
 
   //Network Handler
-SnakeGame.prototype.handleConnection = function() {
-
+SnakeGame.prototype.handleConnection = function(data) {
+  console.log(data);
+  this.keyPressed(data);
 }
 
 SnakeGame.prototype.restart = function () {
@@ -136,6 +137,7 @@ SnakeGame.prototype.keyPressed = function (key) {
       break;
     case "KeyW":
       if (this.snakes[1].direction != "down") this.snakes[1].direction = "up";
+      this.engine.network.send("KeyW")
       break;
     case "KeyS":
       if (this.snakes[1].direction != "up") this.snakes[1].direction = "down";
