@@ -592,47 +592,54 @@ function Network(engine) {
   this.gameRestoreHandler = null;
 }
 
-//init
-Network.prototype.initNetwork = function (peerId, keyValue) {
-  this.playerId = parseInt(peerId);
-  this.peer = new Peer(peerId, { key: keyValue });
-  //this.connection = this.peer.connect('0');
-  this.connection = null;
-  //var conn = this.connection;
-
-  //conn.on('open', this.onConnectionRestored.bind(this));
-
-  var handler = this.networkHandler;
-
-  this.peer.on('connection', this.onConnect.bind(this));
-
-  /*this.peer.on('connection', function (connection) {
-    connection.on('open', function () {
-      console.log("Network connected")
-      connection.send('Hello');
-    });
-  });*/
-
-  /*this.connection.on('data', function (data) {
-    console.log('p2 speaking..got from p1: ' + data);
-    //this.networkHandler()
-  });*/
+Network.prototype.generatePeerId = function() {
+  this.peerId = Math.floor(Math.random() * 10000);
 }
 
-Network.prototype.onConnect = function(connection){
-  console.log("Network handler = " + this.networkHandler);
-  this.connection = connection;
-  this.connection.on('open', this.onConnectionRestored.bind(this));
+Network.prototype.host = function() {
+  document.getElementById("connect").innerHTML = "Waiting...";
+  this.playerId = 0;
+  var network = this;
+  this.peer.on("connection", function(connection) {
+    network.connection = connection;
+    network.connection.on('open', network.onConnectionRestored.bind(network));
+    network.connection.on('data', network.networkHandler);
+  });
+}
+
+Network.prototype.join = function() {
+  document.getElementById("connect").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  this.playerId = 1;
+  var peerId = document.getElementById("peer").value;
+
+  this.connection = this.peer.connect(peerId.toString());
+  //this.connection.on('open', this.onConnectionRestored.bind(this));
   this.connection.on('data', this.networkHandler);
 }
 
-Network.prototype.onConnectionRestored = function(){
+//init
+Network.prototype.initNetwork = function (keyValue) {
+  this.generatePeerId();
+  this.peer = new Peer(this.peerId, { key: keyValue });
+  this.connection = null;
+}
+
+// Network.prototype.onConnect = function(connection){
+//   console.log("Network handler = " + this.networkHandler);
+//   this.connection = connection;
+//   this.connection.on('open', this.onConnectionRestored.bind(this));
+//   this.connection.on('data', this.networkHandler);
+// }
+
+Network.prototype.onConnectionRestored = function() {
   console.log("Network connected. Peer Id = " + this.peerId)
   obj = {
-    message: "Start",
-    playerId: this.playerId
+    message: "Start"
   }
   this.connection.send(obj);
+  document.getElementById("connect").style.display = "none";
+  document.getElementById("game").style.display = "block";
   this.gameRestoreHandler();
 }
 
@@ -643,12 +650,13 @@ Network.prototype.setGameRestoreHandler = function (handler) {
 }
 
 Network.prototype.send = function (data) {
-  console.log("Sending " + data);
+  //console.log("Sending " + data);
   obj = {
     message: data,
     playerId: this.playerId
   }
-  this.connection.send(obj);
+  if(this.connection)
+    this.connection.send(obj);
 }
 
 
@@ -656,11 +664,11 @@ Network.prototype.setNetworkHandler = function (handler) {
   this.networkHandler = handler;
 }
 
-Network.prototype.connect = function () {
-  this.peer.on('connection', function (connection) {
-    connection.on('data', function (data) {
-      console.log('p2 speaking..got from p1: ' + data);
-    });
-  });
-}
+// Network.prototype.connect = function () {
+//   this.peer.on('connection', function (connection) {
+//     connection.on('data', function (data) {
+//       console.log('p2 speaking..got from p1: ' + data);
+//     });
+//   });
+// }
 

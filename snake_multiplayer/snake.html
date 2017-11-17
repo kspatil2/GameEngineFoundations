@@ -38,7 +38,7 @@
 </style>
 
 <body>
-  <div style="width:100%">
+  <div id="game" style="width:100%; display: none">
     <div class="contentWrapper">
       <div id="highScoreWrapper" class="left">
         <p>Player 1 score: <span id="player1score"></span></p>
@@ -60,7 +60,14 @@
       </div>
     </div>
   </div>
-
+  <div id="connect">
+      <h2>Your Peer Id: </h2>
+      <p id="playerId"></p>
+      <button id="hostButton"> Host </button>
+      <h2>Join Peer Id: </h2>
+      <input id="peer" type="text" />
+      <button id="joinButton">Connect</button>
+  </div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/0.3.14/peer.js"></script>
   <script type="text/javascript" src="./../engine/engine.js"></script>
   <script type="text/javascript" src="snake.js"></script>

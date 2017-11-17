@@ -18,7 +18,10 @@ SnakeGame.prototype.init = function () {
   this.cellSize = 20;
   var levelWidth = this.canvas.width / this.cellSize;
   var levelHeight = this.canvas.height / this.cellSize;
-  this.engine.network.initNetwork('1', 'cupxwsjrn486w29');
+  this.engine.network.initNetwork('cupxwsjrn486w29');
+  document.getElementById("playerId").innerHTML = this.engine.network.peerId;
+  document.getElementById("hostButton").onclick = this.engine.network.host.bind(this.engine.network);
+  document.getElementById("joinButton").onclick = this.engine.network.join.bind(this.engine.network);
   this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["wall"]);
   this.levels.addBoundaryObjectsToEngine();
   this.levels.addLevelObjectsToEngine(this.levels.current_level);
@@ -131,7 +134,7 @@ SnakeGame.prototype.handleCollission = function (head, collidedSprite) {
 
 SnakeGame.prototype.keyPressed = function(key) {
   this.engine.network.send(key);
-  console.log("Player id = " + this.engine.network.playerId)
+  //console.log("Player id = " + this.engine.network.playerId)
   this.move(key, this.engine.network.playerId);
 }
 
