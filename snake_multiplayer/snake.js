@@ -65,6 +65,8 @@ SnakeGame.prototype.handleConnection = function(data) {
     case "Food":
       this.food.generate_food(this.food.food, data.value.foodX, data.value.foodY, this.spriteStyle["food"], "food");
       break;
+    case "SpoiledFood":
+      this.food.generate_food(this.food.spoiledFood, data.value.foodX, data.value.foodY, this.spriteStyle["spoiledFood"], "spoiledFood");
     case "Key":
       this.move(data.value, data.playerId);
       break;
@@ -472,7 +474,7 @@ Food.prototype.init = function () {
   this.createNewSpoiledFood = true;
   this.food = undefined;
   this.spoiledFood = undefined;
-  this.update();
+  //this.update();
 }
 
 
@@ -492,12 +494,15 @@ Food.prototype.generate_food_pos = function() {
 
 Food.prototype.generate_food = function(food, x, y, spriteStyle, name) {
   if (food == undefined) {
+    console.log("Create food at ", x, y)
     food = new Sprite(this.cellSize * x, this.cellSize * y, this.cellSize, this.cellSize, spriteStyle);
     food.tags.name = name;
     this.engine.addObject(food);
   }
   food.X = x * this.cellSize;
   food.Y = y * this.cellSize;
+  this.spoiledFoodTimeLeft = 10;
+      
   return food;
 }
 
@@ -509,6 +514,7 @@ Food.prototype.create_food = function (food, spriteStyle, name) {
 
 Food.prototype.update = function () {
   if (this.createNewFood == true) {
+    console.log(this.engine.network.playerId)
     if(this.engine.network.playerId == 0) {
       this.food = this.create_food(this.food, this.spriteStyle, "food");
       this.engine.network.send("Food", {
@@ -516,18 +522,23 @@ Food.prototype.update = function () {
         foodY: y
       });
     }
-    this.spoiledFoodTimeLeft = 10;
     this.createNewFood = false;
   }
   if (this.createNewSpoiledFood == true) {
-    this.spoiledFood = this.create_food(this.spoiledFood, this.spoiledSpriteStyle, "spoiledFood");
-    this.spoiledFoodTimeLeft = 10;
+    if(this.engine.network.playerId == 0) {    
+      this.spoiledFood = this.create_food(this.spoiledFood, this.spoiledSpriteStyle, "spoiledFood");
+      this.engine.network.send("SpoiledFood", {
+        foodX: x,
+        foodY: y
+      });
+    }
     this.createNewSpoiledFood = false;
   }
   if (this.spoiledFoodTimeLeft > 0) {
     this.spoiledFoodTimeLeft--;
     if (this.spoiledFoodTimeLeft <= 0) {
-      this.engine.deleteObject(this.spoiledFood.id);
+      if(this.spoiledFood)
+        this.engine.deleteObject(this.spoiledFood.id);
       this.spoiledFood = undefined;
     }
   }
