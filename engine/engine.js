@@ -588,7 +588,8 @@ Sound.prototype.stopSound = function (id) {
 function Network(engine) {
   this.engine = engine;
   this.peer = null;
-  this.networkHandler = null
+  this.networkHandler = null;
+  this.gameRestoreHandler = null;
 }
 
 //init
@@ -598,15 +599,7 @@ Network.prototype.initNetwork = function (peerId, keyValue) {
   this.playerId = 0;
   var conn = this.connection;
 
-  conn.on('open', function () {
-    console.log("Network connected")
-    this.playerId = 1;
-    obj = {
-      message: "Start",
-      playerId: this.playerId
-    }
-    conn.send(obj);
-  });
+  conn.on('open', this.onConnectionRestored.bind(this));
 
   var handler = this.networkHandler;
 
@@ -625,8 +618,23 @@ Network.prototype.initNetwork = function (peerId, keyValue) {
   });*/
 }
 
+Network.prototype.onConnectionRestored = function(){
+  console.log("Network connected")
+  this.playerId = 1;
+  obj = {
+    message: "Start",
+    playerId: this.playerId
+  }
+  this.connection.send(obj);
+  this.gameRestoreHandler();
+}
+
 Network.prototype.onConnect = function onConnection(connection){
   connection.on('data', this.networkHandler);
+}
+
+Network.prototype.setGameRestoreHandler = function (handler) {
+  this.gameRestoreHandler = handler;
 }
 
 Network.prototype.send = function (data) {

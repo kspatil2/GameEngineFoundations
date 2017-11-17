@@ -48,6 +48,7 @@ SnakeGame.prototype.init = function () {
   this.engine.input.setKeyboardPressHandler(this.keyPressed.bind(this));
   this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
   this.engine.network.setNetworkHandler(this.handleConnection.bind(this));
+  this.engine.network.setGameRestoreHandler(this.onConnectionRestored.bind(this));
   this.engine.setUpdateHandler(this.update.bind(this));
   this.engine.setDrawHandler(this.draw.bind(this));
 }
@@ -55,9 +56,14 @@ SnakeGame.prototype.init = function () {
   //Network Handler
 SnakeGame.prototype.handleConnection = function(data) {
   if(data.message == "Start")
+    // player 2
     this.pauseGame = false;
   else
     this.move(data.message, data.playerId);
+}
+
+SnakeGame.prototype.onConnectionRestored = function(){
+  this.pauseGame = false;
 }
 
 SnakeGame.prototype.restart = function () {
