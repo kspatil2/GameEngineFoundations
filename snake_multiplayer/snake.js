@@ -53,7 +53,8 @@ SnakeGame.prototype.init = function () {
   //Network Handler
 SnakeGame.prototype.handleConnection = function(data) {
   console.log(data);
-  this.keyPressed(data);
+
+  this.move(data.message, data.playerId);
 }
 
 SnakeGame.prototype.restart = function () {
@@ -115,21 +116,27 @@ SnakeGame.prototype.handleCollission = function (head, collidedSprite) {
   }
 }
 
-SnakeGame.prototype.keyPressed = function (key) {
+SnakeGame.prototype.keyPressed = function(key) {
+  this.engine.network.send(key);
+  this.move(key, this.engine.network.playerId);
+}
+
+
+SnakeGame.prototype.move = function (key, playerId) {
   switch (key) {
     case "ArrowLeft":
-      if (this.snakes[0].direction != "right") this.snakes[0].direction = "left";
+      if (this.snakes[playerId].direction != "right") this.snakes[playerId].direction = "left";
       break;
     case "ArrowRight":
-      if (this.snakes[0].direction != "left") this.snakes[0].direction = "right";
+      if (this.snakes[playerId].direction != "left") this.snakes[playerId].direction = "right";
       break;
     case "ArrowUp":
-      if (this.snakes[0].direction != "down") this.snakes[0].direction = "up";
+      if (this.snakes[playerId].direction != "down") this.snakes[playerId].direction = "up";
       break;
     case "ArrowDown":
-      if (this.snakes[0].direction != "up") this.snakes[0].direction = "down";
+      if (this.snakes[playerId].direction != "up") this.snakes[playerId].direction = "down";
       break;
-    case "KeyA":
+    /*case "KeyA":
       if (this.snakes[1].direction != "right") this.snakes[1].direction = "left";
       break;
     case "KeyD":
@@ -141,7 +148,7 @@ SnakeGame.prototype.keyPressed = function (key) {
       break;
     case "KeyS":
       if (this.snakes[1].direction != "up") this.snakes[1].direction = "down";
-      break;
+      break;*/
     case "KeyR":
       this.restart();
   }

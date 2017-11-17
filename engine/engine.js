@@ -595,12 +595,13 @@ function Network(engine) {
 Network.prototype.initNetwork = function (peerId, keyValue) {
   this.peer = new Peer(peerId, { key: keyValue });
   this.connection = this.peer.connect('a1');
-
+  this.playerId = 0;
   var conn = this.connection;
 
   conn.on('open', function () {
     console.log("Network connected")
-    conn.send('Hello');
+    //conn.send('Hello');
+    this.playerId = 1;
   });
 
 
@@ -625,11 +626,13 @@ Network.prototype.onConnect = function onConnection(connection){
   connection.on('data', this.networkHandler);
 }
 
-
-
 Network.prototype.send = function (data) {
   console.log("Sending " + data);
-  this.connection.send(data);
+  obj = {
+    message: data,
+    playerId: this.playerId
+  }
+  this.connection.send(obj);
 }
 
 
