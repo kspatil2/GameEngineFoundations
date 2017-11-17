@@ -594,12 +594,13 @@ function Network(engine) {
 
 //init
 Network.prototype.initNetwork = function (peerId, keyValue) {
+  this.playerId = parseInt(peerId);
   this.peer = new Peer(peerId, { key: keyValue });
-  this.connection = this.peer.connect('a1');
-  this.playerId = 0;
-  var conn = this.connection;
+  //this.connection = this.peer.connect('0');
+  this.connection = null;
+  //var conn = this.connection;
 
-  conn.on('open', this.onConnectionRestored.bind(this));
+  //conn.on('open', this.onConnectionRestored.bind(this));
 
   var handler = this.networkHandler;
 
@@ -618,9 +619,15 @@ Network.prototype.initNetwork = function (peerId, keyValue) {
   });*/
 }
 
+Network.prototype.onConnect = function(connection){
+  console.log("Network handler = " + this.networkHandler);
+  this.connection = connection;
+  this.connection.on('open', this.onConnectionRestored.bind(this));
+  this.connection.on('data', this.networkHandler);
+}
+
 Network.prototype.onConnectionRestored = function(){
-  console.log("Network connected")
-  this.playerId = 1;
+  console.log("Network connected. Peer Id = " + this.peerId)
   obj = {
     message: "Start",
     playerId: this.playerId
@@ -629,9 +636,7 @@ Network.prototype.onConnectionRestored = function(){
   this.gameRestoreHandler();
 }
 
-Network.prototype.onConnect = function onConnection(connection){
-  connection.on('data', this.networkHandler);
-}
+
 
 Network.prototype.setGameRestoreHandler = function (handler) {
   this.gameRestoreHandler = handler;
