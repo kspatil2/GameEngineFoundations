@@ -588,8 +588,14 @@ Sound.prototype.stopSound = function (id) {
 function Network(engine) {
   this.engine = engine;
   this.peer = null;
-  this.networkHandler = null;
-  this.gameRestoreHandler = null;
+  this.networkEventHandler = null;
+  this.connectionRestoreHandler = null;
+}
+
+Network.prototype.initNetwork = function (keyValue) {
+  this.generatePeerId();
+  this.peer = new Peer(this.peerId, { key: keyValue });
+  this.connection = null;
 }
 
 Network.prototype.generatePeerId = function() {
@@ -597,47 +603,40 @@ Network.prototype.generatePeerId = function() {
 }
 
 Network.prototype.host = function() {
-  document.getElementById("connect").innerHTML = "Waiting...";
   this.playerId = 0;
   var network = this;
   this.peer.on("connection", function(connection) {
     network.connection = connection;
     network.connection.on('open', network.onConnectionRestored.bind(network));
-    network.connection.on('data', network.networkHandler);
+    network.connection.on('data', network.networkEventHandler);
   });
 }
 
-Network.prototype.join = function() {
-  document.getElementById("connect").style.display = "none";
-  document.getElementById("game").style.display = "block";
+Network.prototype.join = function(peerId) {
   this.playerId = 1;
-  var peerId = document.getElementById("peer").value;
-
   this.connection = this.peer.connect(peerId.toString());
-  this.connection.on('data', this.networkHandler);
+  this.connection.on('data', this.networkEventHandler);
 }
 
-//init
-Network.prototype.initNetwork = function (keyValue) {
-  this.generatePeerId();
-  this.peer = new Peer(this.peerId, { key: keyValue });
-  this.connection = null;
-}
 
 Network.prototype.onConnectionRestored = function() {
   obj = {
     message: "Start"
   }
   this.connection.send(obj);
-  document.getElementById("connect").style.display = "none";
-  document.getElementById("game").style.display = "block";
-  this.gameRestoreHandler();
+  this.connectionRestoreHandler();
 }
 
-Network.prototype.setGameRestoreHandler = function (handler) {
-  this.gameRestoreHandler = handler;
+Network.prototype.setConnectionRestoreHandler = function (handler) {
+  this.connectionRestoreHandler = handler;
 }
 
+//Set handler to receive event from Peer
+Network.prototype.setNetworkEventHandler = function (handler) {
+  this.networkEventHandler = handler;
+}
+
+//Send event to peer
 Network.prototype.send = function (key, data) {
   obj = {
     message: key,
@@ -646,9 +645,4 @@ Network.prototype.send = function (key, data) {
   }
   if(this.connection)
     this.connection.send(obj);
-}
-
-
-Network.prototype.setNetworkHandler = function (handler) {
-  this.networkHandler = handler;
 }

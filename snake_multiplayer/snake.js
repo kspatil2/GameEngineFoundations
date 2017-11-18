@@ -12,8 +12,8 @@ SnakeGame.prototype.init = function () {
   var levelHeight = this.canvas.height / this.cellSize;
   this.engine.network.initNetwork('cupxwsjrn486w29');
   document.getElementById("playerId").innerHTML = this.engine.network.peerId;
-  document.getElementById("hostButton").onclick = this.engine.network.host.bind(this.engine.network);
-  document.getElementById("joinButton").onclick = this.engine.network.join.bind(this.engine.network);
+  document.getElementById("hostButton").onclick = this.host.bind(this);
+  document.getElementById("joinButton").onclick = this.join.bind(this);
   this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["wall"]);
   this.levels.addBoundaryObjectsToEngine();
   this.levels.addLevelObjectsToEngine(this.levels.current_level);
@@ -42,14 +42,14 @@ SnakeGame.prototype.init = function () {
   //Bind game level listeners
   this.engine.input.setKeyboardPressHandler(this.keyPressed.bind(this));
   this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
-  this.engine.network.setNetworkHandler(this.handleConnection.bind(this));
-  this.engine.network.setGameRestoreHandler(this.onConnectionRestored.bind(this));
+  this.engine.network.setNetworkEventHandler(this.networkEventHandler.bind(this));
+  this.engine.network.setConnectionRestoreHandler(this.onConnectionRestored.bind(this));
   this.engine.setUpdateHandler(this.update.bind(this));
   this.engine.setDrawHandler(this.draw.bind(this));
 }
 
-  //Network Handler
-SnakeGame.prototype.handleConnection = function(data) {
+//Network Event Receive Handler
+SnakeGame.prototype.networkEventHandler = function(data) {
   switch(data.message) {
     case "Start": 
       this.pauseGame = false;
@@ -83,7 +83,22 @@ SnakeGame.prototype.handleConnection = function(data) {
 }
 
 SnakeGame.prototype.onConnectionRestored = function(){
+  document.getElementById("connect").style.display = "none";
+  document.getElementById("game").style.display = "block";
   this.pauseGame = false;
+}
+
+
+SnakeGame.prototype.host = function() {
+  document.getElementById("connect").innerHTML = "Waiting...";
+  this.engine.network.host();
+}
+
+SnakeGame.prototype.join = function() {
+  document.getElementById("connect").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  var peerId = document.getElementById("peer").value;
+  this.engine.network.join(peerId.toString());
 }
 
 SnakeGame.prototype.endGame = function(playerId) {
@@ -164,7 +179,6 @@ SnakeGame.prototype.keyPressed = function(key) {
   this.engine.network.send("Key", key);
   this.move(key, this.engine.network.playerId);
 }
-
 
 SnakeGame.prototype.move = function (key, playerId) {
   switch (key) {
