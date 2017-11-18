@@ -68,6 +68,7 @@ SnakeGame.prototype.handleConnection = function(data) {
       this.snakes[1].score = data.value.score[1];
     case "End":
       this.endGame(data.value);
+      break;
     case "Key":
       this.move(data.value, data.playerId);
       break;
