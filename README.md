@@ -20,22 +20,13 @@ Eat Jerry mouse to increase the size of the snake and get 25 points. Lava is spo
 Whenever, the snake collides with the wall or itself, the game stops. By pressing 'R' the game restarts. The game has been desgined in such a way that the game stops when the snake has actually crossed itself or the wall to avoid confusion.  
 
 Multiplayer Snake:
-Eat Jerry mouse to increase the size of the snake and get 25 points. Lava is spoiled food which will shrink the snake and cost 50 points. Green snake can be controlled using arrow keys while the blue snake can be controlled using 'w','a','s','d'. The scores are displayed for both the snakes individually and calculated individually. If the blue snake runs into green snake or into a wall. Green Snake wins no matter its score.
+Eat Jerry mouse to increase the size of the snake and get 25 points. Lava is spoiled food which will shrink the snake and cost 50 points. The Host controls the green snake and the person joining the game controls the Blue snake.
+To Run the game, run the Index.html file and select the Multiplayer snake game. 1 person can host the server, while the other enters peerId for the game he wishes to join. If the PeerId doesnt exist you can refresh the page to access the create game screen again. If the Host server exists, the game begins.
 
-EVALUATION 
-Correct implementation of a moving snake with links (10%) : 
 COMPLETED
-Snake moves according to input correctly (5%) : COMPLETED
-Implementation of food appearing randomly (10%) : COMPLETED
-Snake correctly collides with food and grows (20%) : COMPLETED
-Collision with walls and snake body itself are correctly implemented (10%) : COMPLETED
-Score and end of game state correctly implemented (20%): COMPLETED
-Gallery page that includes both snake and alchemy games running from the same engine code (25%) : COMPLETED
-
-BONUS 
-Spoiled food that stays on the level for some amount of time. When eaten this causes the snake to shrink. : COMPLETED (Lava image is spoiled food and Jerry is good food. Eating Lava will shrink the snake and reduce the player score.)
-High-score list or the last high-score from the current session (session and persistent storage)
-COMPLETED. (Done using Local Storage of the browser. Should check if the current browser has local storage enabled.)
+2 Snakes moving according to input
+Connection Screen waits for the other player
+Movement, food and collision is working on both Screens
 
 DEMO
 [Demo](https://kspatil2.github.io/GameEngineFoundations/)
