@@ -61,6 +61,13 @@ SnakeGame.prototype.handleConnection = function(data) {
     case "SpoiledFood":
       this.food.spoiledFood = this.food.generate_food(this.food.spoiledFood, data.value.foodX, data.value.foodY, this.spriteStyle["spoiledFood"], "spoiledFood");
       this.food.createNewFood = false;
+      break;
+    case "Score":
+      console.log(data)
+      this.snakes[0].score = data.value.score[0];
+      this.snakes[1].score = data.value.score[1];
+    case "End":
+      this.endGame(data.value);
     case "Key":
       this.move(data.value, data.playerId);
       break;
@@ -69,6 +76,14 @@ SnakeGame.prototype.handleConnection = function(data) {
 
 SnakeGame.prototype.onConnectionRestored = function(){
   this.pauseGame = false;
+}
+
+SnakeGame.prototype.endGame = function(playerId) {
+  this.pauseGame = true;
+  if(playerId == 0)
+    alert("Green Wins!");
+  else
+    alert("Blue Wins!");
 }
 
 SnakeGame.prototype.restart = function () {
@@ -109,6 +124,7 @@ SnakeGame.prototype.handleCollission = function (head, collidedSprite) {
       this.food.createNewSpoiledFood = true;
     //this.levels.score += 25;
     snake.score += 25;
+    this.engine.network.send("Score", {score: [this.snakes[0].score, this.snakes[1].score]});
   }
   else if (collidedSprite.tags.name == "spoiledFood" && snake.snakeLinksArray.length > 1) {
     snake.ateSpoiledFood = true;
@@ -117,14 +133,15 @@ SnakeGame.prototype.handleCollission = function (head, collidedSprite) {
     snake.score -= 50;
   }
   else {
-    console.log("here");
     if(snake == this.snakes[0])
     {
-      alert("Blue Wins");
+      this.endGame(1);
+      this.engine.network.send("End", 1);
     }
     else
     {
-      alert("Green Wins");
+      this.endGame(0);
+      this.engine.network.send("End", 0);
     }
     this.pauseGame = true;
   }
@@ -169,12 +186,11 @@ SnakeGame.prototype.loadContent = function () {
 
   return true;
 }
-var count = 0;
+
 SnakeGame.prototype.update = function () {
   if (this.pauseGame)
     return;
 
-  console.log(count++);
   this.engine.update();
 
   for (var i = 0; i < this.snakes.length; ++i)
