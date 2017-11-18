@@ -62,7 +62,13 @@ SnakeGame.prototype.handleConnection = function(data) {
       this.food.spoiledFood = this.food.generate_food(this.food.spoiledFood, data.value.foodX, data.value.foodY, this.spriteStyle["spoiledFood"], "spoiledFood");
       this.food.createNewFood = false;
       break;
-    case "Score":
+    case "FoodScoreUpdate":
+      this.snakes[data.value.eatenBy].ateFood = true;
+      this.snakes[0].score = data.value.score[0];
+      this.snakes[1].score = data.value.score[1];
+      break;
+    case "SpoiledFoodScoreUpdate":
+      this.snakes[data.value.eatenBy].ateSpoiledFood = true;
       this.snakes[0].score = data.value.score[0];
       this.snakes[1].score = data.value.score[1];
       break;
@@ -109,11 +115,15 @@ SnakeGame.prototype.newLevel = function () {
 
 SnakeGame.prototype.handleCollission = function (head, collidedSprite) {
   var snake = null;
-  if(head.id == this.snakes[0].snakeLinksArray[0].id)
+  var eatenBy;
+  if(head.id == this.snakes[0].snakeLinksArray[0].id) {
     snake = this.snakes[0];
-  else if(head.id == this.snakes[1].snakeLinksArray[0].id)
+    eatenBy = 0;
+  }
+  else if(head.id == this.snakes[1].snakeLinksArray[0].id) {
     snake = this.snakes[1];
-
+    eatenBy = 1;
+  }
   if(snake == null)
     return;
 
@@ -124,12 +134,13 @@ SnakeGame.prototype.handleCollission = function (head, collidedSprite) {
       this.food.createNewSpoiledFood = true;
     //this.levels.score += 25;
     snake.score += 25;
-    this.engine.network.send("Score", {score: [this.snakes[0].score, this.snakes[1].score]});
+    this.engine.network.send("FoodScoreUpdate", {score: [this.snakes[0].score, this.snakes[1].score], eatenBy: eatenBy});
   }
   else if (collidedSprite.tags.name == "spoiledFood" && snake.snakeLinksArray.length > 1) {
     snake.ateSpoiledFood = true;
     this.food.createNewSpoiledFood = true;
     //this.levels.score -= 50;
+    this.engine.network.send("SpoiledFoodScoreUpdate", {score: [this.snakes[0].score, this.snakes[1].score], eatenBy: eatenBy});
     snake.score -= 50;
   }
   else {
