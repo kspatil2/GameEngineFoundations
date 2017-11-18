@@ -63,9 +63,9 @@ SnakeGame.prototype.handleConnection = function(data) {
       this.food.createNewFood = false;
       break;
     case "Score":
-      console.log(data)
       this.snakes[0].score = data.value.score[0];
       this.snakes[1].score = data.value.score[1];
+      break;
     case "End":
       this.endGame(data.value);
       break;
@@ -506,7 +506,6 @@ Food.prototype.generate_food_pos = function() {
 
 Food.prototype.generate_food = function(food, x, y, spriteStyle, name) {
   if (food == undefined) {
-    console.log("Create food at ", x, y)
     food = new Sprite(this.cellSize * x, this.cellSize * y, this.cellSize, this.cellSize, spriteStyle);
     food.tags.name = name;
     this.engine.addObject(food);
@@ -526,24 +525,19 @@ Food.prototype.create_food = function (food, spriteStyle, name) {
 
 Food.prototype.update = function () {
   if (this.createNewFood == true) {
-    console.log(this.engine.network.playerId)
-    //if(this.engine.network.playerId == 0) {
       this.food = this.create_food(this.food, this.spriteStyle, "food");
       this.engine.network.send("Food", {
         foodX: x,
         foodY: y
       });
-    //}
     this.createNewFood = false;
   }
   if (this.createNewSpoiledFood == true) {
-    //if(this.engine.network.playerId == 0) {    
       this.spoiledFood = this.create_food(this.spoiledFood, this.spoiledSpriteStyle, "spoiledFood");
       this.engine.network.send("SpoiledFood", {
         foodX: x,
         foodY: y
       });
-    //}
     this.createNewSpoiledFood = false;
   }
   if (this.spoiledFoodTimeLeft > 0) {
