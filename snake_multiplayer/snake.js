@@ -1,17 +1,9 @@
-//var peer = new Peer('a1', {key: 'cupxwsjrn486w29'});
-//var p1 = new Peer('a123',{key: 'cupxwsjrn486w29'});
-
 function SnakeGame() {
   this.canvas = document.getElementById("whyupdate");
   this.context = this.canvas.getContext('2d');
   this.engine = new Engine(this.canvas, this.context, "2D");
 }
 
-// p1.on('connection', function(connection) {
-//   connection.on('data', function(data) {
-//       console.log('p2 speaking..got from p1: '+ data);
-//   });
-// });
 
 SnakeGame.prototype.init = function () {
 
@@ -63,10 +55,12 @@ SnakeGame.prototype.handleConnection = function(data) {
       this.pauseGame = false;
       break;
     case "Food":
-      this.food.generate_food(this.food.food, data.value.foodX, data.value.foodY, this.spriteStyle["food"], "food");
+      this.food.food = this.food.generate_food(this.food.food, data.value.foodX, data.value.foodY, this.spriteStyle["food"], "food");
+      this.food.createNewFood = false;
       break;
     case "SpoiledFood":
-      this.food.generate_food(this.food.spoiledFood, data.value.foodX, data.value.foodY, this.spriteStyle["spoiledFood"], "spoiledFood");
+      this.food.spoiledFood = this.food.generate_food(this.food.spoiledFood, data.value.foodX, data.value.foodY, this.spriteStyle["spoiledFood"], "spoiledFood");
+      this.food.createNewFood = false;
     case "Key":
       this.move(data.value, data.playerId);
       break;
@@ -175,11 +169,12 @@ SnakeGame.prototype.loadContent = function () {
 
   return true;
 }
-
+var count = 0;
 SnakeGame.prototype.update = function () {
   if (this.pauseGame)
     return;
 
+  console.log(count++);
   this.engine.update();
 
   for (var i = 0; i < this.snakes.length; ++i)
@@ -363,7 +358,7 @@ Levels.prototype.removeLevelObjectsFromEngine = function (level) {
 Levels.prototype.update = function (score) {
   //this.refresh_score();
 
-  var new_level = Math.floor(score / 100);
+  var new_level = Math.floor(score / 10000);
   new_level = Math.max(0, new_level);
   if (new_level != this.current_level) {
     this.removeLevelObjectsFromEngine(this.current_level);
@@ -509,29 +504,29 @@ Food.prototype.generate_food = function(food, x, y, spriteStyle, name) {
 Food.prototype.create_food = function (food, spriteStyle, name) {
   var x, y;
   [x, y] = this.generate_food_pos();
-  this.generate_food(food, x, y, spriteStyle, name);
+  return this.generate_food(food, x, y, spriteStyle, name);
 }
 
 Food.prototype.update = function () {
   if (this.createNewFood == true) {
     console.log(this.engine.network.playerId)
-    if(this.engine.network.playerId == 0) {
+    //if(this.engine.network.playerId == 0) {
       this.food = this.create_food(this.food, this.spriteStyle, "food");
       this.engine.network.send("Food", {
         foodX: x,
         foodY: y
       });
-    }
+    //}
     this.createNewFood = false;
   }
   if (this.createNewSpoiledFood == true) {
-    if(this.engine.network.playerId == 0) {    
+    //if(this.engine.network.playerId == 0) {    
       this.spoiledFood = this.create_food(this.spoiledFood, this.spoiledSpriteStyle, "spoiledFood");
       this.engine.network.send("SpoiledFood", {
         foodX: x,
         foodY: y
       });
-    }
+    //}
     this.createNewSpoiledFood = false;
   }
   if (this.spoiledFoodTimeLeft > 0) {
