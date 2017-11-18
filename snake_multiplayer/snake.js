@@ -67,6 +67,7 @@ SnakeGame.prototype.handleConnection = function(data) {
       this.snakes[1].score = data.value.score[1];
       break;
     case "End":
+      console.log(data.value)
       this.endGame(data.value);
       break;
     case "Key":
@@ -81,16 +82,14 @@ SnakeGame.prototype.onConnectionRestored = function(){
 
 SnakeGame.prototype.endGame = function(playerId) {
   this.pauseGame = true;
+  var winner;
   if(playerId == 0)
-    alert("Green Wins!");
+    winner = "Green";
   else
-    alert("Blue Wins!");
-}
-
-SnakeGame.prototype.restart = function () {
-  this.pauseGame = false;
-  this.levels.init();
-  this.newLevel();
+    winner = "Blue";
+  document.getElementById("connect").style.display = "block";
+  document.getElementById("game").style.display = "none";
+  document.getElementById("connect").innerHTML = "<h2>"+ winner +" Wins !</h2>"
 }
 
 SnakeGame.prototype.newLevel = function () {
@@ -137,11 +136,13 @@ SnakeGame.prototype.handleCollission = function (head, collidedSprite) {
     if(snake == this.snakes[0])
     {
       this.endGame(1);
+      console.log("Game ended sent")
       this.engine.network.send("End", 1);
     }
     else
     {
       this.endGame(0);
+      console.log("Game ended sent")
       this.engine.network.send("End", 0);
     }
     this.pauseGame = true;
@@ -168,8 +169,6 @@ SnakeGame.prototype.move = function (key, playerId) {
     case "ArrowDown":
       if (this.snakes[playerId].direction != "up") this.snakes[playerId].direction = "down";
       break;
-    case "KeyR":
-      this.restart();
   }
 }
 
