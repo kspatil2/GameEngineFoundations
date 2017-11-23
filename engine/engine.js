@@ -667,6 +667,7 @@ function Graph(engine){
   this.engine = engine;
   this.nodes = [];
   this.edges = [];
+  this.heuristic = null;
 }
 
 Graph.prototype.addNode = function(x,y,id) {
@@ -681,22 +682,19 @@ function PathSearch(engine){
   this.engine = engine;
 }
 
-PathSearch.prototype.astar = function(Graph,source, dest){
-  console.log("Am i here?");
-  this.nodes = Graph.nodes;
-  this.edges = Graph.edges; 
+PathSearch.prototype.astar = function(graph,source, dest){
+  this.nodes = graph.nodes;
+  this.edges = graph.edges; 
   this.closedList = new Set();
   this.openList = new Set();
   this.distance = new Map();
   this.total = new Map();
   this.predecessors = new Map();
   this.distance[source] = 0;
-  this.total[source] = this.heuristic(source, dest); 
+  this.total[source] = graph.heuristic(source, dest); 
   this.openList.add(source);
   while(this.openList.size>0){
-    console.log("openlist : " + this.openList);
     var node = this.getMinimum(this.openList);
-    console.log("node : " + node);
     if(node == dest)
       break;
     this.closedList.add(node);
@@ -705,7 +703,7 @@ PathSearch.prototype.astar = function(Graph,source, dest){
     for(var i = 0; i< adjacentNodes.length ;i++){
       if(this.getShortestTotal(adjacentNodes[i])>this.getShortestTotal(node)+this.getDistance(node, adjacentNodes[i])){
         this.distance[adjacentNodes[i]] = this.getShortestTotal(node)+this.getDistance(node, adjacentNodes[i]);
-        this.total[adjacentNodes[i]] = this.distance[adjacentNodes[i]] + this.heuristic(adjacentNodes[i],node);
+        this.total[adjacentNodes[i]] = this.distance[adjacentNodes[i]] + graph.heuristic(adjacentNodes[i],node);
         this.predecessors[adjacentNodes[i]] = node;
         this.openList.add(adjacentNodes[i]);
       }
@@ -748,9 +746,9 @@ PathSearch.prototype.getPath = function(target){
   
 }
 
-PathSearch.prototype.heuristic = function(source, dest){
-  //return (source.x-dest.x)*(source.x-dest.x) + (source.y-dest.y)*(source.y-dest.y); 
-  return 0;
+Graph.prototype.setHeuristic = function(handler) {
+  this.heuristic = handler; 
+  //return 0;
 }
 
 PathSearch.prototype.getMinimum = function(vertexes){

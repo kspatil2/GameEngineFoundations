@@ -9,19 +9,72 @@ CopsAndRobbersGame.prototype.init = function () {
   this.cellSize = 80;
   var levelWidth = this.canvas.width / this.cellSize;
   var levelHeight = this.canvas.height / this.cellSize;
+  this.levelWidth = levelWidth;
+  this.levelHeight = levelHeight;
 
   this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["wall"]);
   this.levels.addLevelObjectsToEngine(this.levels.current_level);
 
   this.createGraph(levelWidth, levelHeight,this.levels.nodeArray);
   // Initialize scoring
-  this.init_scoring();
+  //this.init_scoring();
+
+  this.players = [];
+  this.players[0] = new Player(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["robber2"],"robber", 0, 10, true);
+  this.players[1] = new Player(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["cop"],"cop", 1, 40, true);
+  this.players[2] = new Player(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["robber2"],"robber", 2, 70, false);
+  this.players[3] = new Player(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["cop"],"cop", 3, 16, true);
+  this.turn = 0;
+  this.closestEnemy = 0;
+  this.engine.input.setObjectSelected(this.players[0].sprite.id);
 
   //Bind game level listeners
   this.engine.input.setKeyboardPressHandler(this.keyPressed.bind(this));
   this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
   this.engine.setUpdateHandler(this.update.bind(this));
   this.engine.setDrawHandler(this.draw.bind(this));
+  this.engine.graph.setHeuristic(this.heuristic.bind(this));
+}
+
+function Player(engine, width, height, cellSize, spriteStyle, label, id, nodeId, isAI) {
+  this.engine = engine;
+  this.spriteStyle = spriteStyle;
+  this.label = label;
+  this.id = id;
+  this.width = width;
+  this.height = height;
+  this.cellSize = cellSize;
+  this.currentNodeId = nodeId;
+  this.isAI = isAI;
+  this.isDead = false;
+  this.create_player(height, width, cellSize, nodeId);
+}
+
+Player.prototype.create_player = function(height,width,cellSize)
+{
+    var x = this.currentNodeId%width * cellSize;
+    var y = Math.floor(this.currentNodeId/height) * cellSize;
+    this.sprite = new Sprite(x, y, cellSize, cellSize, this.spriteStyle);
+    this.sprite.tags.label = this.label;
+    this.sprite.tags.id = this.id;
+    this.engine.addObject(this.sprite);
+}
+
+Player.prototype.move= function(newNodeId)
+{
+  for(var index = 0; index < this.engine.graph.edges.length ; index++)
+  {
+    if(this.engine.graph.edges[index].source == this.currentNodeId && this.engine.graph.edges[index].goal == newNodeId)
+    {
+      this.sprite.X =  newNodeId%this.width * this.cellSize;
+      this.sprite.Y =  Math.floor(newNodeId/this.height) * this.cellSize;
+      this.currentNodeId = newNodeId;
+      this.engine.input.setMovedObject(this.sprite.id);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 CopsAndRobbersGame.prototype.createGraph = function(levelWidth, levelHeight, nodeArray)
@@ -50,54 +103,99 @@ CopsAndRobbersGame.prototype.createGraph = function(levelWidth, levelHeight, nod
     } 
   }
 
-  // console.log("Nodes : " + JSON.stringify(this.engine.graph.nodes));
-  // console.log("Edges : " + JSON.stringify(this.engine.graph.edges));
-  console.log("Astar : " + this.engine.pathSearch.astar(this.engine.graph, 10, 42))
 }
 
 CopsAndRobbersGame.prototype.restart = function () {
   this.pauseGame = false;
-  this.levels.init();
-  this.newLevel();
 }
 
-CopsAndRobbersGame.prototype.newLevel = function () {
- 
+CopsAndRobbersGame.prototype.endGame = function () {
+  alert("Cop Wins!");
+  this.pauseGame = true;
 }
 
 CopsAndRobbersGame.prototype.handleCollission = function (head, collidedSprite) {
-  
+  var cop = null;
+  var robber = null;
+  if(head.tags.label == "cop" && collidedSprite.tags.label == "robber") {
+    cop = head;
+    robber = collidedSprite;
+  }
+  if(head.tags.label == "robber" && collidedSprite.tags.label == "cop") {
+    cop = collidedSprite;
+    robber = head;
+  }
+  if(cop != null && robber != null) {
+    console.log("Deleting robber")
+    this.engine.deleteObject(robber.id);
+    //this.players.splice(robber.tags.id, 1);
+    var robberObj;
+
+    for(var i = 0; i < this.players.length; i++) {
+      if(this.players[i].sprite.id == robber.id) {
+        robberObj = this.players[i];
+        this.players[i].isDead = true;
+      }
+    }
+    //this.turn = this.turn % this.players.length;
+    var foundNewEnemy = false;
+    for(var i = 0; i < this.players.length; i++) {
+      if(this.players[i].label == "robber" && this.players[i].isDead == false) {
+        this.closestEnemy = i;
+        foundNewEnemy = true;
+      }
+    }
+
+    if(foundNewEnemy == false)
+      this.endGame();
+
+    if(this.turn == robberObj.id)
+      this.updateTurnIfDead();
+
+  }
+}
+
+
+CopsAndRobbersGame.prototype.getNodeId = function(direction, currentNodeId) {
+  var newNodeId;
+  if(direction == "ArrowLeft")
+    newNodeId = currentNodeId - 1;
+  else if(direction == "ArrowRight")
+    newNodeId = currentNodeId + 1;
+  else if(direction == "ArrowUp")
+    newNodeId = currentNodeId - this.levelWidth;
+  else
+    newNodeId = currentNodeId + this.levelWidth;
+  return newNodeId;
 }
 
 CopsAndRobbersGame.prototype.keyPressed = function (key) {
   switch (key) {
-    // case "ArrowLeft":
-    //   if (this.snakes[0].direction != "right") this.snakes[0].direction = "left";
-    //   break;
-    // case "ArrowRight":
-    //   if (this.snakes[0].direction != "left") this.snakes[0].direction = "right";
-    //   break;
-    // case "ArrowUp":
-    //   if (this.snakes[0].direction != "down") this.snakes[0].direction = "up";
-    //   break;
-    // case "ArrowDown":
-    //   if (this.snakes[0].direction != "up") this.snakes[0].direction = "down";
-    //   break;
-    // case "KeyA":
-    //   if (this.snakes[1].direction != "right") this.snakes[1].direction = "left";
-    //   break;
-    // case "KeyD":
-    //   if (this.snakes[1].direction != "left") this.snakes[1].direction = "right";
-    //   break;
-    // case "KeyW":
-    //   if (this.snakes[1].direction != "down") this.snakes[1].direction = "up";
-    //   break;
-    // case "KeyS":
-    //   if (this.snakes[1].direction != "up") this.snakes[1].direction = "down";
-    //   break;
-    // case "KeyR":
-    //   this.restart();
+    case "ArrowLeft":
+    case "ArrowRight":
+    case "ArrowUp":
+    case "ArrowDown":
+        var newNodeId = this.getNodeId(key, this.players[this.turn].currentNodeId);
+        if(this.players[this.turn].isAI == false && this.players[this.turn].isDead == false) {
+          if(this.players[this.turn].move(newNodeId) == true) 
+            {
+              this.updateTurnIfDead();
+            }
+        }
+      break;
+    
+    case "KeyR":
+      this.restart();
   }
+}
+
+CopsAndRobbersGame.prototype.heuristic = function (source, goal) {
+ //return 0;
+  var sx = source%this.levelWidth;
+  var gx = goal%this.levelWidth;
+  var sy = Math.floor(source/this.levelWidth);
+  var gy = Math.floor(goal/this.levelWidth);
+  return (sx-gx)*(sx-gx) + (sy-gy)*(sy-gy);
 }
 
 CopsAndRobbersGame.prototype.loadContent = function () {
@@ -105,38 +203,48 @@ CopsAndRobbersGame.prototype.loadContent = function () {
     return false;
 
   this.spriteStyle = {
-    "snake": { x: 300, y: 300, width: 300, height: 300 },
-    "food": { x: 0, y: 300, width: 300, height: 300 },
-    "wall": { x: 0, y: 0, width: 300, height: 300 },
-    "spoiledFood": { x: 300, y: 0, width: 300, height: 300 },
-    "blueSnake": {x: 0, y: 600, width: 300, height: 300}
+    "cop": { x: 300, y: 0, width: 300, height: 300 },
+    "robber1": { x: 0, y: 300, width: 300, height: 300 },
+    "robber2": { x: 0, y: 0, width: 300, height: 300 },
+    "wall": { x: 300, y: 300, width: 300, height: 300 }
   };
 
   return true;
 }
 
+
+CopsAndRobbersGame.prototype.updateTurnIfDead = function() {
+  this.turn = (this.turn + 1) % this.players.length;
+  while(this.players[this.turn].isDead == true)
+    this.turn = (this.turn + 1) % this.players.length;
+  this.engine.input.setObjectSelected(this.players[this.turn].sprite.id);
+}
+
 CopsAndRobbersGame.prototype.update = function () {
+  //console.log("Update")
   if (this.pauseGame)
     return;
 
   this.engine.update();
 
-  // for (var i = 0; i < this.snakes.length; ++i)
-  //  // this.snakes[i].update();
-
-  // //Set head of snake as a moved object to compute collision.
-  // this.engine.input.setMovedObject(this.snakes[0].snakeLinksArray[0].id);
-  // this.engine.input.setMovedObject(this.snakes[1].snakeLinksArray[0].id);
-
-  // this.food.update();  
-
-  // this.refresh_score();
-
-  // var maxScore = Math.max(this.snakes[0].score, this.snakes[1].score);
-
-  // this.levels.update(maxScore);
-  // if (this.levels.startNewLevel == true)
-  //   this.newLevel();
+  
+  if (this.players[this.turn].isAI == true) {
+    var newNode = null;
+    if(this.players[this.turn].label == 'robber'){
+      var directions = ["ArrowLeft", "ArrowRight", "ArrowUp","ArrowDown"];
+      var direction = Math.floor(Math.random()*directions.length);
+      newNode = this.getNodeId(directions[direction],this.players[this.turn].currentNodeId);
+    }
+    else{
+      var closestEnemy = this.closestEnemy; //this.players[this.turn].closestEnemy;
+      console.log("Running astar for " + this.players[this.turn].currentNodeId, this.players[closestEnemy].currentNodeId);
+      var path = this.engine.pathSearch.astar(this.engine.graph, this.players[this.turn].currentNodeId, this.players[closestEnemy].currentNodeId);
+      newNode = path[path.length - 2];
+    }
+    if(this.players[this.turn].move(newNode)) {
+        this.updateTurnIfDead();
+    }
+  }
 }
 
 CopsAndRobbersGame.prototype.drawLayout = function () {
@@ -171,19 +279,6 @@ CopsAndRobbersGame.prototype.draw = function () {
   this.drawLayout();
 }
 
-CopsAndRobbersGame.prototype.init_scoring = function () {
-  this.player1Label = document.getElementById("player1score");
-  this.levelLabel = document.getElementById("level");
-  this.player2Label = document.getElementById("player2score");
-  
-  this.refresh_score();
-}
-
-CopsAndRobbersGame.prototype.refresh_score = function () {
-  // this.player1Label.innerHTML = this.snakes[0].score;
-  // this.player2Label.innerHTML = this.snakes[1].score;
-  // this.levelLabel.innerHTML = this.levels.current_level + 1; // level number is zero based
-}
 
 function Levels(engine, width, height, cellSize, spriteStyle) {
   this.engine = engine;
@@ -207,7 +302,6 @@ Levels.prototype.create_levels = function (height, width, cellSize) {
   this.gameLevels[0] = new Array();
   
   var name = "wall";
-  console.log("width : " + width);
   this.nodeArray = [10,15,16,19,20,21,22,24,28,31,33,37,38,39,40,41,42,43,46,48,52, 55, 57,61,64,66,67,68,69,70];
   var wallArray = [];
   var current_pointer = 0;
