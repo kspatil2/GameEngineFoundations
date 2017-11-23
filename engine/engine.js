@@ -42,6 +42,7 @@ Engine.prototype.init = function () {
     this.storage = new Storage(this);
     this.physics = new Physics(this);
     this.network = new Network(this);
+    this.graph = new Graph(this);
 
     //Bind engine event listeners
     this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
@@ -645,4 +646,121 @@ Network.prototype.send = function (key, data) {
   }
   if(this.connection)
     this.connection.send(obj);
+}
+
+function GraphNode(x,y,id) {
+  this.x = x;
+  this.y = y;
+  this.id = id
+}
+
+function Edge(source,goal,weight){
+  this.source = source;
+  this.goal = goal;
+  this.weight = weight;
+}
+
+function Graph(engine){
+  this.engine = engine;
+  this.nodes = null;
+  this.edges = null;
+}
+
+Graph.prototype.addNode = function(x,y,id) {
+  this.nodes.push(new GraphNode(x,y,id));
+}
+
+Graph.prototype.addEdge = function(id1,id2,dist){
+  this.edges.push(new Edge(id1,id2,dist));
+}
+
+function PathSearch(engine){
+  this.engine = engine;
+}
+
+PathSearch.prototype.astar = function(Graph,source, dest){
+  this.nodes = Graph.nodes;
+  this.edges = Graph.edges; 
+  this.closedList = new Set();
+  this.openList = new Set();
+  this.distance = new Map();
+  this.total = new Map();
+  this.predecessors = new Map();
+  distance[source] = 0;
+  total[source] = this.heuristic(source, dest); 
+  openList.add(source);
+  while(openList.length>0){
+    var node = this.getMinimum(openList);
+    if(node == dest)
+      break;
+    closedList.add(node);
+    openList.delete(node);
+    adjacentNodes = this.getNeighbors(node);
+    for(var i = 0; i< adjacentNodes.length ;i++){
+      if(this.getShortestTotal(adjacentNodes[i])>this.getShortestTotal(node)+this.getDistance(node, target)){
+        ditance[adjacentNodes[i]] = this.getShortestTotal(node)+this.getDistance(node, target);
+        total[adjacentNodes[i]] = distance[adjacentNodes[i]] + this.heuristic(adjacentNodes[i],node);
+        predecessors[adjacentNodes[i]] = node;
+        openList.add(adjacentNodes[i]);
+      }
+    } 
+  }
+  return this.getPath(dest);
+}
+
+PathSearch.prototype.getNeighbors = function(node){
+  neighbors = new Array();
+  for(var i = 0; i < this.edges.length; i++){
+    if(edges[i].source == node && !this.closedList.has(edges[i].goal)){
+      neighbors.push(edges[i].goal);
+    }
+  }
+}
+
+PathSearch.prototype.getDistance = function(node, target){
+  for(var i = 0; i < this.edges.size();i++){
+    if(edges[i].source == node && edges[i].goal == target)
+      return edges[i].weight;
+  }
+}
+
+PathSearch.prototype.getPath = function(target){
+  var path = new Array();
+  var step = target;
+  if(this.predecessors[step] == null){
+    return null;
+  }
+  path.push(step);
+  while(predecessors[step]!=null){
+    step = predecessors[step];
+    path.push(step);
+  }
+  
+}
+
+PathSearch.prototype.heuristic = function(source, dest){
+  return (source.x-dest.x)*(source.x-dest.x) + (source.y-dest.y)*(source.y-dest.y); 
+}
+
+PathSearch.prototype.getMinimum = function(vertexes){
+  minimum = null;
+  for(var i = 0;i < vertextes.length; i++){
+    if(minimum = null) {
+      minimum = vertexes[i];
+    }
+    else{
+      if(this.getShortestTotal(vertexes[i])<this.getShortestTotal(minimum))
+        minimum = vertexes[i];
+    }
+  }
+  return minimum;
+}
+
+PathSearch.prototype.getShortestTotal = function(destination) {
+  d = this.total[destination];
+  if(d==null){
+    return Number.MAX_VALUE ;
+  }else {
+        return d;
+    }
 }
