@@ -11,29 +11,29 @@
     padding: 0 1em 0 1em;
   }
 
-  .left{
+  .left {
     float: left;
   }
 
-  .right{
-    float:right;
+  .right {
+    float: right;
   }
 
-  .text-right{
+  .text-right {
     text-align: right;
   }
 
-  #highScoreWrapper{
+  #highScoreWrapper {
     width: 42%;
   }
 
-  #scoreWrapper{
+  #scoreWrapper {
     width: 25%;
-    padding-right: 1.2em;
+    padding-right: 5.5em;
   }
 
-  #levelWrapper{
-    width: 25%;
+  #levelWrapper {
+    width: 2%;
   }
 </style>
 
@@ -41,13 +41,19 @@
   <div style="width:100%">
     <div class="contentWrapper">
       <div id="highScoreWrapper" class="left">
-        <p>Cops score: <span id="player1score"></span></p>
+        <p>Number of turns (Cops):
+          <span id="turns"></span>
+        </p>
       </div>
       <div id="levelWrapper" class="left">
-        <p>Level <span id="level"></span></p>
+        <p>
+          <span id="level"></span>
+        </p>
       </div>
       <div id="scoreWrapper" class="right">
-        <p class="text-right" >Robbers score: <span id="player2score"></span></p>
+        <p class="text-right">Max turns for Cops: 
+          <span id="maxTurns"></span>
+        </p>
       </div>
       <canvas id="whyupdate" width="720" height="720">
         Canvas not supported
@@ -55,7 +61,8 @@
     </div>
     <div class="contentWrapper">
       <div class="left">
-        <p><span style="font-weight: bold;">Controls:</span> Player 1: Direction Keys, Player 2: W (up), S (down), A (left), D (right); 'R' for restart</p>
+        <p>
+          <span style="font-weight: bold;">Controls:</span> Direction Keys to move the robber (mario sprite); 'R' for restart</p>
       </div>
     </div>
   </div>
