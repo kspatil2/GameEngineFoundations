@@ -13,6 +13,7 @@ CopsAndRobbersGame.prototype.init = function () {
   this.levels = new Levels(this.engine, levelWidth, levelHeight, this.cellSize, this.spriteStyle["wall"]);
   this.levels.addLevelObjectsToEngine(this.levels.current_level);
 
+  this.createGraph(levelWidth, levelHeight,this.levels.nodeArray);
   // Initialize scoring
   this.init_scoring();
 
@@ -21,6 +22,37 @@ CopsAndRobbersGame.prototype.init = function () {
   this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
   this.engine.setUpdateHandler(this.update.bind(this));
   this.engine.setDrawHandler(this.draw.bind(this));
+}
+
+CopsAndRobbersGame.prototype.createGraph = function(levelWidth, levelHeight, nodeArray)
+{
+  for(var index = 0; index < nodeArray.length; index++)
+  {
+    // console.log(nodeArray[index]%levelWidth);
+     this.engine.graph.addNode(nodeArray[index]%levelWidth, Math.floor(nodeArray[index]/levelHeight), nodeArray[index]);   
+  }
+
+  for(var i = 0; i < nodeArray.length; i++)
+  {
+    for(var j = 0; j < nodeArray.length; j++)
+    {
+      if(i!=j)
+      {
+        if(nodeArray[i]+levelWidth == nodeArray[j] || nodeArray[i]-levelWidth == nodeArray[j])
+        {
+          this.engine.graph.addEdge(nodeArray[i], nodeArray[j], 1);
+        }
+        if(nodeArray[i]+1 == nodeArray[j] || nodeArray[i]-1 == nodeArray[j])
+        {
+          this.engine.graph.addEdge(nodeArray[i], nodeArray[j], 1);
+        }
+      }
+    } 
+  }
+
+  // console.log("Nodes : " + JSON.stringify(this.engine.graph.nodes));
+  // console.log("Edges : " + JSON.stringify(this.engine.graph.edges));
+  console.log("Astar : " + this.engine.pathSearch.astar(this.engine.graph, 10, 42))
 }
 
 CopsAndRobbersGame.prototype.restart = function () {
@@ -176,12 +208,12 @@ Levels.prototype.create_levels = function (height, width, cellSize) {
   
   var name = "wall";
   console.log("width : " + width);
-  var nodeArray = [10,15,16,19,20,21,22,24,28,31,33,37,38,39,40,41,42,43,46,48,52, 55, 57,61,64,66,67,68,69,70];
+  this.nodeArray = [10,15,16,19,20,21,22,24,28,31,33,37,38,39,40,41,42,43,46,48,52, 55, 57,61,64,66,67,68,69,70];
   var wallArray = [];
   var current_pointer = 0;
   for(var i = 0; i < width*height; i++)
   {
-     if(i != nodeArray[current_pointer])
+     if(i != this.nodeArray[current_pointer])
      {  
         wallArray.push(i);
      }

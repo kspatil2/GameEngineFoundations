@@ -43,6 +43,7 @@ Engine.prototype.init = function () {
     this.physics = new Physics(this);
     this.network = new Network(this);
     this.graph = new Graph(this);
+    this.pathSearch = new PathSearch(this);
 
     //Bind engine event listeners
     this.canvas.onmousedown = this.input.handleMouseDown.bind(this.input);
@@ -648,6 +649,8 @@ Network.prototype.send = function (key, data) {
     this.connection.send(obj);
 }
 
+//-------------Graph-----------
+
 function GraphNode(x,y,id) {
   this.x = x;
   this.y = y;
@@ -662,8 +665,8 @@ function Edge(source,goal,weight){
 
 function Graph(engine){
   this.engine = engine;
-  this.nodes = null;
-  this.edges = null;
+  this.nodes = [];
+  this.edges = [];
 }
 
 Graph.prototype.addNode = function(x,y,id) {
@@ -679,6 +682,7 @@ function PathSearch(engine){
 }
 
 PathSearch.prototype.astar = function(Graph,source, dest){
+  console.log("Am i here?");
   this.nodes = Graph.nodes;
   this.edges = Graph.edges; 
   this.closedList = new Set();
@@ -686,22 +690,24 @@ PathSearch.prototype.astar = function(Graph,source, dest){
   this.distance = new Map();
   this.total = new Map();
   this.predecessors = new Map();
-  distance[source] = 0;
-  total[source] = this.heuristic(source, dest); 
-  openList.add(source);
-  while(openList.length>0){
-    var node = this.getMinimum(openList);
+  this.distance[source] = 0;
+  this.total[source] = this.heuristic(source, dest); 
+  this.openList.add(source);
+  while(this.openList.size>0){
+    console.log("openlist : " + this.openList);
+    var node = this.getMinimum(this.openList);
+    console.log("node : " + node);
     if(node == dest)
       break;
-    closedList.add(node);
-    openList.delete(node);
+    this.closedList.add(node);
+    this.openList.delete(node);
     adjacentNodes = this.getNeighbors(node);
     for(var i = 0; i< adjacentNodes.length ;i++){
-      if(this.getShortestTotal(adjacentNodes[i])>this.getShortestTotal(node)+this.getDistance(node, target)){
-        ditance[adjacentNodes[i]] = this.getShortestTotal(node)+this.getDistance(node, target);
-        total[adjacentNodes[i]] = distance[adjacentNodes[i]] + this.heuristic(adjacentNodes[i],node);
-        predecessors[adjacentNodes[i]] = node;
-        openList.add(adjacentNodes[i]);
+      if(this.getShortestTotal(adjacentNodes[i])>this.getShortestTotal(node)+this.getDistance(node, adjacentNodes[i])){
+        this.distance[adjacentNodes[i]] = this.getShortestTotal(node)+this.getDistance(node, adjacentNodes[i]);
+        this.total[adjacentNodes[i]] = this.distance[adjacentNodes[i]] + this.heuristic(adjacentNodes[i],node);
+        this.predecessors[adjacentNodes[i]] = node;
+        this.openList.add(adjacentNodes[i]);
       }
     } 
   }
@@ -709,18 +715,20 @@ PathSearch.prototype.astar = function(Graph,source, dest){
 }
 
 PathSearch.prototype.getNeighbors = function(node){
-  neighbors = new Array();
+  var neighbors = new Array();
   for(var i = 0; i < this.edges.length; i++){
-    if(edges[i].source == node && !this.closedList.has(edges[i].goal)){
-      neighbors.push(edges[i].goal);
+    if(this.edges[i].source == node && !this.closedList.has(this.edges[i].goal)){
+      neighbors.push(this.edges[i].goal);
     }
   }
+
+  return neighbors;
 }
 
 PathSearch.prototype.getDistance = function(node, target){
-  for(var i = 0; i < this.edges.size();i++){
-    if(edges[i].source == node && edges[i].goal == target)
-      return edges[i].weight;
+  for(var i = 0; i < this.edges.length;i++){
+    if(this.edges[i].source == node && this.edges[i].goal == target)
+      return this.edges[i].weight;
   }
 }
 
@@ -731,26 +739,29 @@ PathSearch.prototype.getPath = function(target){
     return null;
   }
   path.push(step);
-  while(predecessors[step]!=null){
-    step = predecessors[step];
+  while(this.predecessors[step]!=null){
+    step = this.predecessors[step];
     path.push(step);
   }
+
+  return path;
   
 }
 
 PathSearch.prototype.heuristic = function(source, dest){
-  return (source.x-dest.x)*(source.x-dest.x) + (source.y-dest.y)*(source.y-dest.y); 
+  //return (source.x-dest.x)*(source.x-dest.x) + (source.y-dest.y)*(source.y-dest.y); 
+  return 0;
 }
 
 PathSearch.prototype.getMinimum = function(vertexes){
   minimum = null;
-  for(var i = 0;i < vertextes.length; i++){
-    if(minimum = null) {
-      minimum = vertexes[i];
+  for(let i of vertexes){
+    if(minimum == null) {
+      minimum = i;
     }
     else{
-      if(this.getShortestTotal(vertexes[i])<this.getShortestTotal(minimum))
-        minimum = vertexes[i];
+      if(this.getShortestTotal(i)<this.getShortestTotal(minimum))
+        minimum = i;
     }
   }
   return minimum;
