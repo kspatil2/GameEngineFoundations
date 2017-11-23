@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Cops And Robbers</title>
+</head>
+<style>
+  .contentWrapper {
+    width: 57%;
+    margin: 0 auto 0 auto;
+    padding: 0 1em 0 1em;
+  }
+
+  .left{
+    float: left;
+  }
+
+  .right{
+    float:right;
+  }
+
+  .text-right{
+    text-align: right;
+  }
+
+  #highScoreWrapper{
+    width: 42%;
+  }
+
+  #scoreWrapper{
+    width: 25%;
+    padding-right: 1.2em;
+  }
+
+  #levelWrapper{
+    width: 25%;
+  }
+</style>
+
+<body>
+  <div style="width:100%">
+    <div class="contentWrapper">
+      <div id="highScoreWrapper" class="left">
+        <p>Cops score: <span id="player1score"></span></p>
+      </div>
+      <div id="levelWrapper" class="left">
+        <p>Level <span id="level"></span></p>
+      </div>
+      <div id="scoreWrapper" class="right">
+        <p class="text-right" >Robbers score: <span id="player2score"></span></p>
+      </div>
+      <canvas id="whyupdate" width="720" height="720">
+        Canvas not supported
+      </canvas>
+    </div>
+    <div class="contentWrapper">
+      <div class="left">
+        <p><span style="font-weight: bold;">Controls:</span> Player 1: Direction Keys, Player 2: W (up), S (down), A (left), D (right); 'R' for restart</p>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="./../engine/engine.js"></script>
+  <script type="text/javascript" src="copsAndRobbers.js"></script>
+</body>
+
+</html>
