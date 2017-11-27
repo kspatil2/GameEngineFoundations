@@ -275,7 +275,7 @@ Collision.prototype.checkCollisionWithAllObjects = function (x, y) {
  * Check if the last moved Object interests with any other object. 
  */
 Collision.prototype.update = function () {
-  //console.log('inside collision update')
+  
   if (this.movedObjectId == null || Object.keys(this.movedObjectId).length == 0)
     return;
 
@@ -415,7 +415,8 @@ Input.prototype.handleMouseUp = function (e) {
     var objectSelected = this.engine.getObject(this.objectSelectedId);
     //if(objectSelected != null)
     this.mouseUpHandler(objectSelected, e.clientX, e.clientY);
-    this.engine.collision.movedObjectId = this.objectSelectedId;
+    this.setMovedObject(this.objectSelectedId);
+    // this.engine.collision.movedObjectId[this.objectSelectedId] = true;
     this.setObjectSelected(null);
     this.intervalX = null;
     this.intervalY = null;
