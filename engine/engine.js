@@ -103,8 +103,10 @@ Engine.prototype.addObject = function (object) {
 Engine.prototype.deleteObject = function (id) {
   if (this.input.objectSelectedId == id)
     this.input.objectSelectedId = null;
-  if (this.collision.movedObjectId == id)
-    this.collision.movedObjectId = null;
+  //if (this.collision.movedObjectId == id)
+    //this.collision.movedObjectId = null;
+  if(this.collision.isMovingObject(id))
+    delete this.collision.movedObjectId[id];
   var index = this.getObjectIndex(id);
   if (index != null) {
     this.particleSystem.push(this.objects[index]);
@@ -275,7 +277,6 @@ Collision.prototype.checkCollisionWithAllObjects = function (x, y) {
  * Check if the last moved Object interests with any other object. 
  */
 Collision.prototype.update = function () {
-  
   if (this.movedObjectId == null || Object.keys(this.movedObjectId).length == 0)
     return;
 

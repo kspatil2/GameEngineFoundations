@@ -135,8 +135,10 @@ AlchemyGame.prototype.combineImages = function(i1, i2) {
 }
 
 AlchemyGame.prototype.imageMoved = function(picture, x, y) {
-  picture.X = x;
-  picture.Y = y;
+  if(picture){
+    picture.X = x;
+    picture.Y = y;
+  }
 }
 
 
