@@ -1,89 +1,166 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Responsive CSS Tabs</title>
-  
-  
-  
-      <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <style>
+    .featureContainer {
+      position: relative;
+      margin: 2em 0 0 0;
+      width: 100%;
+      height: 18em;
+    }
 
-  
+    .listRight {
+      /*float: right; */
+    }
+
+    .featureLeft {
+      width: 20%;
+      float: left;
+    }
+
+    .featureRight {
+      width: 20%;
+      float: right;
+    }
+
+    .featureCenter {
+      width: 60%;
+      overflow: auto;
+      float: left;
+    }
+
+    .featureList {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .featureList li {
+      padding: 1em;
+      display: block !important;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
   <h1>Game Engine</h1>
+  <main>
 
-<main>
-  
-  <input id="tab1" type="radio" name="tabs" checked>
-  <label for="tab1">Description</label>
-    
-  <input id="tab2" type="radio" name="tabs">
-  <label for="tab2">Features</label>
-    
-  <input id="tab3" type="radio" name="tabs">
-  <label for="tab3">Documentation</label>
-    
-  <input id="tab4" type="radio" name="tabs">
-  <label for="tab4">Games</label>
-    
-  <section id="content1">
-    <p>
-     This Game Engine was developed as a part of the course game engine foundation (CSC591) using javascript, and html canvas.
-    </p>
-    <p>
-	The engine contains Sub Engines to handle Rendering, Input, Graphics, Networking, AI and Physics.
-    </p>
-  </section>
-    
-  <section id="content2">
-  </section>
-    
-  <section id="content3">
-  </section>
-    
-  <section id="content4">
+    <input id="tab1" type="radio" name="tabs" checked>
+    <label for="tab1">Description</label>
+
+    <input id="tab2" type="radio" name="tabs">
+    <label for="tab2">Features</label>
+
+    <input id="tab3" type="radio" name="tabs">
+    <label for="tab3">Documentation</label>
+
+    <input id="tab4" type="radio" name="tabs">
+    <label for="tab4">Games</label>
+
+    <input id="tab5" type="radio" name="tabs">
+    <label for="tab5">Getting Started</label>
+
+    <section id="content1">
+      <p>
+        This Game Engine was developed as a part of the course game engine foundation (CSC591) using javascript, and html canvas.
+      </p>
+      <p>
+        The engine contains Sub Engines to handle Rendering, Input, Graphics, Networking, AI and Physics.
+      </p>
+    </section>
+
+    <section id="content2">
+      <h2>Features</h2>
+      <div class="featureContainer">
+        <div class="featureLeft">
+          <ul class="featureList listRight">
+            <li>WebGl and Canvas</li>
+            <li>Input</li>
+            <li>Collision</li>
+            <li>Storage</li>
+            <li>Physics</li>
+          </ul>
+        </div>
+        <div class="featureCenter">
+          <p style="text-align: center;">
+            <img src="gallery/Skyroadsfeatures.png" style="width:54em; height:24em">
+          </p>
+        </div>
+        <div class="featureRight">
+          <ul class="featureList">
+            <li>Networking</li>
+            <li>Graphs</li>
+            <li>AI</li>
+            <li>Sound</li>
+            <li>Graphics (Sprites and Textures)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="content3">
+    </section>
+
+    <section id="content4">
+
       <head>
-    <title>Games Gallery</title>
-	<style>
-		li {
-    			display: inline-grid;
-			}
-	</style>
-  </head>
-<body>
-  <h2>Games Gallery</h2>
-  <li>
-    <a href="alchemy/alchemy.html">Alchemy</a><br>
-    <img src="gallery/alchemy.png" style="float:left;width:200px; height:200px">
-  </li>
-  <li>
-    <a href="snake/snake.html">Snake</a><br>
-    <img src="gallery/snake.png" style="float:left; width:200px; height:200px">
-  </li>
-  <li>
-    <a href="snake_multiplayer/snake.html">Multi Player Snake</a><br>
-    <img src="gallery/multiSnake.png" style="float:left; width:200px; height:200px">
-  </li>
-  <li>
-    <a href="bubbleShooter/index.html">Bubble Shooter</a><br>
-    <img src="gallery/bubbleShooter.png" style="width:200px; height:200px">
-  </li>
-  <li>
-    <a href="skyroads/skyroads.html">Skyroads</a><br>
-    <img src="gallery/skyroads.png" style="width:200px; height:200px">
-  </li>
-  <li>
-    <a href="copsAndRobbers/copsAndRobbers.html">Cops and Robbers</a><br>
-    <img src="gallery/cops.png" style="width:200px; height:200px">
-  </li>
+        <title>Games Gallery</title>
+        <style>
+          li {
+            display: inline-grid;
+          }
+        </style>
+      </head>
+
+      <body>
+        <h2>Games Gallery</h2>
+        <li>
+          <a href="alchemy/alchemy.html">Alchemy</a>
+          <br>
+          <img src="gallery/alchemy.png" style="float:left;width:200px; height:200px">
+        </li>
+        <li>
+          <a href="snake/snake.html">Snake</a>
+          <br>
+          <img src="gallery/snake.png" style="float:left; width:200px; height:200px">
+        </li>
+        <li>
+          <a href="snake_multiplayer/snake.html">Multi Player Snake</a>
+          <br>
+          <img src="gallery/multiSnake.png" style="float:left; width:200px; height:200px">
+        </li>
+        <li>
+          <a href="bubbleShooter/index.html">Bubble Shooter</a>
+          <br>
+          <img src="gallery/bubbleShooter.png" style="width:200px; height:200px">
+        </li>
+        <li>
+          <a href="skyroads/skyroads.html">Skyroads</a>
+          <br>
+          <img src="gallery/skyroads.png" style="width:200px; height:200px">
+        </li>
+        <li>
+          <a href="copsAndRobbers/copsAndRobbers.html">Cops and Robbers</a>
+          <br>
+          <img src="gallery/cops.png" style="width:200px; height:200px">
+        </li>
+      </body>
+
+    </section>
+
+    <section id="content5">
+    </section>
+
+  </main>
+
+
 </body>
 
-  </section>
-    
-</main>
-  
-  
-</body>
 </html>
