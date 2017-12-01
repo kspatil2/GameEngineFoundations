@@ -6,6 +6,12 @@
  * @class  Game Engine Class 
  * @param {*} canvas Canvas element from the HTML File
  * @param {*} context Drawing Context
+/**
+ * 
+ * 
+ * @param {any} canvas 
+ * @param {any} context 
+ * @param {any} gameType 
  */
 function Engine(canvas, context, gameType) {
   if (gameType === "2D") {
@@ -30,7 +36,9 @@ function Engine(canvas, context, gameType) {
     this.init();
   }
 }
-
+/**
+ * This is the constructor function for the Engine Class
+ */
 Engine.prototype.init = function () {
   if (this.game_type == "2D") {
     this.objects = new Array();           //Game objects(sprites)
@@ -61,6 +69,9 @@ Engine.prototype.init = function () {
   }
 }
 
+/**
+ * This Function is called on restarting the game
+ */
 Engine.prototype.resetObjects = function () {
   this.init();
 }
@@ -164,7 +175,9 @@ Engine.prototype.setDrawHandler = function (handler) {
   this.drawHandler = handler;
   //console.log(this.drawHandler);
 }
-
+/**
+ * The main game Loop of the Engine
+ */
 Engine.prototype.gameLoop = function () {
   this.updateHandler();
   this.drawHandler();
@@ -209,6 +222,12 @@ Sprite.prototype.draw = function (context, spriteSheet) {
   }
 }
 
+/**
+ * Loads the Sprite Sheet for the current game
+ * 
+ * @param {any} url 
+ * @returns 
+ */
 Engine.prototype.loadSpriteSheet = function (url) {
   try {
     this.spriteSheet = new Image();
@@ -358,7 +377,11 @@ Input.prototype.setMouseUpHandler = function (handler) {
 Input.prototype.setMouseMoveHandler = function (handler) {
   this.mouseMoveHandler = handler;
 }
-
+/**
+ * Set Keypress Event Handler
+ * 
+ * @param {any} handler 
+ */
 Input.prototype.setKeyboardPressHandler = function (handler) {
 
   this.keyboardPressHandler = handler;
@@ -400,7 +423,11 @@ Input.prototype.handleMouseDown = function (e) {
     }
   }
 }
-
+/**
+ * Sets the object/objects to be moved
+ * 
+ * @param {any} id 
+ */
 Input.prototype.setMovedObject = function (id) {
   //this.engine.collision.movedObjectId = id;
   if (this.engine.collision.movedObjectId == null || this.engine.collision.movedObjectId == undefined)
@@ -408,6 +435,7 @@ Input.prototype.setMovedObject = function (id) {
 
   this.engine.collision.movedObjectId[id] = true;
 }
+
 /**
  * call handler if an object was released 
  */
@@ -434,24 +462,42 @@ Input.prototype.handleMouseMove = function (e) {
     this.mouseMoveHandler(objectSelected, e.clientX - (this.intervalX == null ? 0 : this.intervalX), e.clientY - (this.intervalY == null ? 0 : this.intervalY));
   }
 }
-
+/**
+ * call handler if key was pressed
+ * 
+ * @param {any} e 
+ */
 Input.prototype.handleKeyPress = function (e) {
 
   if (this.keyboardPressHandler != null)
     this.keyboardPressHandler(e.code);
 }
 
-//---------Storage-------------------
+/**
+ * This class is for storage
+ * 
+ * @param {any} engine 
+ */
 function Storage(engine) {
   this.engine = engine;
 }
-
+/**
+ * Store key value pair
+ * 
+ * @param {any} key key of Map
+ * @param {any} value Value corresponding to the key
+ */
 Storage.prototype.setValue = function (key, value) {
   if (typeof (Storage) !== "undefined") {
     localStorage.setItem(key, value);
   }
 }
-
+/**
+ * Get value for a given key
+ * 
+ * @param {any} key Key of the Map
+ * @returns 
+ */
 Storage.prototype.getValue = function (key) {
   if (typeof (Storage) !== "undefined") {
     return localStorage.getItem(key) == null ? 0 : localStorage.getItem(key);
@@ -459,16 +505,29 @@ Storage.prototype.getValue = function (key) {
   return null;
 }
 
-//---------Physics-------------------
+//--------------------Physics---------------------
+/**
+ * The Main Physics class constructor
+ * 
+ * @param {any} engine The current engine object
+ */
 function Physics(engine) {
   this.engine = engine;
   this.outOfBoundsHandler = null;
 }
 
+/**
+ * Sets Out of bounds handler
+ * 
+ * @param {any} handler Event Handler function
+ */
 Physics.prototype.setOutOfBoundsHandler = function (handler) {
   this.outOfBoundsHandler = handler
 }
-
+/**
+ * The Update function for physics sub engine
+ * 
+ */
 Physics.prototype.update = function () {
   for (var i = 0; i < this.engine.objects.length; i++) {
     if (this.engine.objects[i].physics) {
@@ -489,6 +548,11 @@ Physics.prototype.update = function () {
   }
 }
 
+/**
+ * The init Function for the physics sub engine
+ * 
+ * @returns 
+ */
 Physics.prototype.initPhysics = function () {
   var physicsObj = {
     x_velocity: 0,
@@ -496,18 +560,33 @@ Physics.prototype.initPhysics = function () {
   };
   return physicsObj;
 }
-
+/**
+ * 
+ * 
+ * @param {any} obj 
+ * @returns 
+ */
 Physics.prototype.getVelocityTan = function (obj) {
   return obj.x_velocity / obj.y_velocity;
 }
 
 //---------Textures-------------------
+
+/**
+ * Texture Class
+ * @param {*} engine current Engine
+ */
 function Textures(engine) {
   this.engine = engine;
   this.triangleTexture = [];
   this.sphereTexture = [];
 }
-
+/**
+ * Initialize texture
+ * 
+ * @param {any} texture_path path to texture image
+ * @param {any} whichSet index of model
+ */
 Textures.prototype.initTexture = function (texture_path, whichSet) {
   this.triangleTexture[whichSet] = gl.createTexture();
   this.triangleTexture[whichSet].image = new Image();
@@ -522,7 +601,12 @@ Textures.prototype.initTexture = function (texture_path, whichSet) {
     this.triangleTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
   //console.log("Hello : ",texture_path);
 }
-
+/**
+ * initialize sphere texture
+ * 
+ * @param {any} texture_path path to texture image
+ * @param {any} whichSet index of sphere
+ */
 Textures.prototype.initSphereTexture = function (texture_path, whichSet) {
   this.sphereTexture[whichSet] = gl.createTexture();
   this.sphereTexture[whichSet].image = new Image();
@@ -536,7 +620,11 @@ Textures.prototype.initSphereTexture = function (texture_path, whichSet) {
     this.sphereTexture[whichSet].image.src = "https://kspatil2.github.io/" + texture_path;
   //console.log(texture_path);
 }
-
+/**
+ * to add texture to GL
+ * 
+ * @param {any} texture 
+ */
 Textures.prototype.handleLoadedTexture = function (texture) {
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -549,11 +637,19 @@ Textures.prototype.handleLoadedTexture = function (texture) {
 
 
 //---------Sound-------------------
+/**
+ * Sound Class
+ * 
+ * @param {any} engine Current game Engine
+ */
 function Sound(engine) {
   this.engine = engine;
   this.soundArray = [];
 }
-
+/**
+ * Init Function for sound Class
+ * 
+ */
 Sound.prototype.initSound = function () {
   this.soundArray.push(new Audio("sound/level1.mp3"));
   this.soundArray.push(new Audio("sound/level2.mp3"));
@@ -563,7 +659,12 @@ Sound.prototype.initSound = function () {
   this.soundArray.push(new Audio("sound/tryagain.mp3"));
   this.soundArray.push(new Audio("sound/jump.wav"));
 }
-
+/**
+ * Play Sound
+ * 
+ * @param {any} id index of SoundArray
+ * @param {any} flag Flag to pause or play the sound
+ */
 Sound.prototype.playSound = function (id, flag) {
   switch (id) {
     case "level1": this.soundArray[0].loop = flag; this.soundArray[0].play(); break;
@@ -577,7 +678,11 @@ Sound.prototype.playSound = function (id, flag) {
 
 }
 
-//stop
+/**
+ * Stops sound
+ * 
+ * @param {any} id index of the SoundArray 
+ */
 Sound.prototype.stopSound = function (id) {
   switch (id) {
     case "level1": this.soundArray[0].pause(); this.soundArray.currentTime = 0; break;
@@ -589,23 +694,38 @@ Sound.prototype.stopSound = function (id) {
 }
 
 //-------------Network-----------
+/**
+ * Network Class
+ * 
+ * @param {any} engine 
+ */
 function Network(engine) {
   this.engine = engine;
   this.peer = null;
   this.networkEventHandler = null;
   this.connectionRestoreHandler = null;
 }
-
+/**
+ * Initialize a new connection 
+ * 
+ * @param {any} keyValue 
+ */
 Network.prototype.initNetwork = function (keyValue) {
   this.generatePeerId();
   this.peer = new Peer(this.peerId, { key: keyValue });
   this.connection = null;
 }
-
+/**
+ * 
+ * Function to generate a random peerId
+ */
 Network.prototype.generatePeerId = function() {
   this.peerId = Math.floor(Math.random() * 10000);
 }
-
+/**
+ * Function to create a new host
+ * 
+ */
 Network.prototype.host = function() {
   this.playerId = 0;
   var network = this;
@@ -615,14 +735,21 @@ Network.prototype.host = function() {
     network.connection.on('data', network.networkEventHandler);
   });
 }
-
+/**
+ * Function to join a new Connection
+ * 
+ * @param {any} peerId peerId of Host
+ */
 Network.prototype.join = function(peerId) {
   this.playerId = 1;
   this.connection = this.peer.connect(peerId.toString());
   this.connection.on('data', this.networkEventHandler);
 }
 
-
+/**
+ * Called when connection starts
+ * 
+ */
 Network.prototype.onConnectionRestored = function() {
   obj = {
     message: "Start"
@@ -630,17 +757,30 @@ Network.prototype.onConnectionRestored = function() {
   this.connection.send(obj);
   this.connectionRestoreHandler();
 }
-
+/**
+ * Sets Connection restore handler
+ * 
+ * @param {any} handler handler function
+ */
 Network.prototype.setConnectionRestoreHandler = function (handler) {
   this.connectionRestoreHandler = handler;
 }
 
-//Set handler to receive event from Peer
+/**
+ * sets  Network Handler
+ * 
+ * @param {any} handler handler function 
+ */
 Network.prototype.setNetworkEventHandler = function (handler) {
   this.networkEventHandler = handler;
 }
 
-//Send event to peer
+/**
+ * Sends data over the network
+ * 
+ * @param {any} key key of the map
+ * @param {any} data data corresponding to the key
+ */
 Network.prototype.send = function (key, data) {
   obj = {
     message: key,
@@ -652,38 +792,77 @@ Network.prototype.send = function (key, data) {
 }
 
 //-------------Graph-----------
-
+/**
+ * Node class
+ * 
+ * @param {any} x 
+ * @param {any} y 
+ * @param {any} id 
+ */
 function GraphNode(x,y,id) {
   this.x = x;
   this.y = y;
   this.id = id
 }
-
+/**
+ * Edge Class
+ * 
+ * @param {any} source 
+ * @param {any} goal 
+ * @param {any} weight 
+ */
 function Edge(source,goal,weight){
   this.source = source;
   this.goal = goal;
   this.weight = weight;
 }
-
+/**
+ * Graph Class
+ * 
+ * @param {any} engine 
+ */
 function Graph(engine){
   this.engine = engine;
   this.nodes = [];
   this.edges = [];
   this.heuristic = null;
 }
-
+/**
+ * Create new Node
+ * 
+ * @param {any} x x coordinate
+ * @param {any} y y coordinate
+ * @param {any} id id of node
+ */
 Graph.prototype.addNode = function(x,y,id) {
   this.nodes.push(new GraphNode(x,y,id));
 }
-
+/**
+ * Add new edge
+ * 
+ * @param {any} id1 node 1
+ * @param {any} id2 node 2
+ * @param {any} dist edge weight
+ */
 Graph.prototype.addEdge = function(id1,id2,dist){
   this.edges.push(new Edge(id1,id2,dist));
 }
-
+/**
+ * Constructor for the Search Class
+ * 
+ * @param {any} engine The current engine
+ */
 function PathSearch(engine){
   this.engine = engine;
 }
-
+/**
+ * Get Shortest Path between a given source and dest
+ * 
+ * @param {any} graph 
+ * @param {any} source 
+ * @param {any} dest 
+ * @returns 
+ */
 PathSearch.prototype.astar = function(graph,source, dest){
   this.nodes = graph.nodes;
   this.edges = graph.edges; 
@@ -713,7 +892,12 @@ PathSearch.prototype.astar = function(graph,source, dest){
   }
   return this.getPath(dest);
 }
-
+/**
+ * Returns List of Neighbors
+ * 
+ * @param {any} node given node in the graph
+ * @returns list of nodes
+ */
 PathSearch.prototype.getNeighbors = function(node){
   var neighbors = new Array();
   for(var i = 0; i < this.edges.length; i++){
@@ -724,14 +908,25 @@ PathSearch.prototype.getNeighbors = function(node){
 
   return neighbors;
 }
-
+/**
+ * Gets the distance from node to target
+ * 
+ * @param {any} node 
+ * @param {any} target 
+ * @returns 
+ */
 PathSearch.prototype.getDistance = function(node, target){
   for(var i = 0; i < this.edges.length;i++){
     if(this.edges[i].source == node && this.edges[i].goal == target)
       return this.edges[i].weight;
   }
 }
-
+/**
+ * Return the path given the target
+ * 
+ * @param {any} target target of the search
+ * @returns path List of Nodes
+ */
 PathSearch.prototype.getPath = function(target){
   var path = new Array();
   var step = target;
@@ -747,12 +942,21 @@ PathSearch.prototype.getPath = function(target){
   return path;
   
 }
-
+/**
+ * Set Heuristic Function
+ * 
+ * @param {any} handler handler to set heuristic 
+ */
 Graph.prototype.setHeuristic = function(handler) {
   this.heuristic = handler; 
   //return 0;
 }
-
+/**
+ * Selects minimum Valued node from OpenList
+ * 
+ * @param {any} vertexes OpenList
+ * @returns minimum cost Node
+ */
 PathSearch.prototype.getMinimum = function(vertexes){
   minimum = null;
   for(let i of vertexes){
@@ -766,7 +970,12 @@ PathSearch.prototype.getMinimum = function(vertexes){
   }
   return minimum;
 }
-
+/**
+ * Return Shortest total distance to the destination Cost + Heuristic
+ * 
+ * @param {any} destination Goal of the search
+ * @returns Shortest Total cost + heuristic
+ */
 PathSearch.prototype.getShortestTotal = function(destination) {
   d = this.total[destination];
   if(d==null){
