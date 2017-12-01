@@ -78,6 +78,10 @@ label[for*='4']:before {
   content: '\f1a9';
 }
 
+label[for*='5']:before {
+  content: '\f1b2';
+}
+
 label:hover {
   color: #888;
   cursor: pointer;
