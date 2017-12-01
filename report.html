@@ -3,14 +3,16 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Game Engine</title>
+  <title>Bottlefall Game Engine</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="highlight/styles/default.css">
+  <script src="highlight/highlight.pack.js"></script>
   <style>
     .featureContainer {
       position: relative;
       margin: 2em 0 0 0;
       width: 100%;
-      height: 18em;
+      min-height: 18em;
     }
 
     .listRight {
@@ -44,31 +46,39 @@
       display: block !important;
       cursor: pointer;
     }
+
     #content5 p {
       margin: 10px;
     }
+
     #content5 h3 {
       margin: 20px;
     }
+
     #content5 code {
-      font: 12px Monaco,"Courier New","DejaVu Sans Mono","Bitstream Vera Sans Mono",monospace;
+      font: 12px Monaco, "Courier New", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
       color: #52595d;
       border: 1px solid #ccc;
       background-color: #f9f9f9;
       display: inline-block;
       margin: 0px;
     }
+
+    .featureHeading {
+      margin: 0;
+      font-weight: bold;
+    }
+
+    li {
+      display: inline-grid;
+    }
   </style>
 </head>
 
 <body>
-  <h1>Game Engine</h1>
+  <h1>BottleFall Game Engine</h1>
   <main>
-
-    <input id="tab1" type="radio" name="tabs" checked>
-    <label for="tab1">Description</label>
-
-    <input id="tab2" type="radio" name="tabs">
+    <input id="tab2" type="radio" name="tabs" checked>
     <label for="tab2">Features</label>
 
     <input id="tab3" type="radio" name="tabs">
@@ -80,13 +90,22 @@
     <input id="tab5" type="radio" name="tabs">
     <label for="tab5">Getting Started</label>
 
+    <input id="tab1" type="radio" name="tabs">
+    <label for="tab1">About Us</label>
+
     <section id="content1">
       <p>
         This Game Engine was developed as a part of the course game engine foundation (CSC591) using javascript, and html canvas.
       </p>
       <p>
-        The engine contains Sub Engines to handle Rendering, Input, Graphics, Networking, AI and Physics.
-      </p>
+        The engine contains Sub Engines to handle Rendering, Input, Graphics, Networking, AI and Physics.</p>
+      <p style="font-weight: bold;">Created By:</p>
+      <ul class="featureList">
+        <li>Akshay Aarlikatti (aarlika)</li>
+        <li>Anshul Chandra (achand13)</li>
+        <li>Kshitij Patil (kspatil2)</li>
+        <li>Rishabh Sinha (rsinha2)</li>
+      </ul>
     </section>
 
     <section id="content2">
@@ -94,81 +113,111 @@
       <div class="featureContainer">
         <div class="featureLeft">
           <ul class="featureList listRight">
-            <li>WebGl and Canvas</li>
-            <li>Input</li>
-            <li>Collision</li>
-            <li>Storage</li>
-            <li>Physics</li>
+            <li>
+              <p class="featureHeading">WebGL and Canvas</p>
+              Supports 2D as well as 3D graphics rendering using HTML Canvas and WebGL.
+            </li>
+            <li>
+              <p class="featureHeading">Input</p>
+              Supports Input through keyboard and mouse controls.
+            </li>
+            <li>
+              <p class="featureHeading">Collision</p>
+              Collision detection using axis-aligned bounding box.
+            </li>
+            <li>
+              <p class="featureHeading">Storage</p>
+              Allows for browser storage for storing game states.
+            </li>
+            <li>
+              <p class="featureHeading">Physics</p>
+              Inbuilt 2D-velocity sub-engine.
+            </li>
+            <li>
+              <p class="featureHeading">Particle System</p>
+              Supports all kinds of particle systems through memory efficient use of game objects.
+            </li>
           </ul>
         </div>
         <div class="featureCenter">
           <p style="text-align: center;">
-            <img src="gallery/Skyroadsfeatures.png" style="width:54em; height:24em">
+            <img src="gallery/Skyroadsfeatures.png" style="width:54em; height:35em">
           </p>
         </div>
         <div class="featureRight">
           <ul class="featureList">
-            <li>Networking</li>
-            <li>Graphs</li>
-            <li>AI</li>
-            <li>Sound</li>
-            <li>Graphics (Sprites and Textures)</li>
+            <li>
+              <p class="featureHeading">Networking</p>
+              Networking implemented through peerjs framework for great multiplayer experience.
+            </li>
+            <li>
+              <p class="featureHeading">Graphs</p>
+              Flexible support commonly used graphs.
+            </li>
+            <li>
+              <p class="featureHeading">AI</p>
+              Pathfinding implemented through adaptable A* and Dijkstra with support for custom heuristics.
+            </li>
+            <li>
+              <p class="featureHeading">Sound</p>
+              Supports multiple sounds for levels and event handlers.
+            </li>
+            <li>
+              <p class="featureHeading">Sprites</p>
+              Sprites supported through custom spritesheets.
+            </li>
+            <li>
+              <p class="featureHeading">Textures</p>
+              Supports texture mapping for spherical models, and WebGL triangles.
+            </li>
           </ul>
         </div>
       </div>
     </section>
 
     <section id="content3">
-      <div> 
-            <object type="text/html" data="engine/index.html" width="100%" style="overflow:auto; min-height: 600px;">
-            </object>
+      <div>
+        <object type="text/html" data="engine/index.html" width="100%" style="overflow:auto; min-height: 600px;">
+        </object>
       </div>
     </section>
 
     <section id="content4">
-
-      <head>
-        <title>Games Gallery</title>
-        <style>
-          li {
-            display: inline-grid;
-          }
-        </style>
-      </head>
-
-      <body>
-        <h2>Games Gallery</h2>
-        <li>
-          <a href="alchemy/alchemy.html">Alchemy</a>
-          <br>
-          <img src="gallery/alchemy.png" style="float:left;width:200px; height:200px">
-        </li>
-        <li>
-          <a href="snake/snake.html">Snake</a>
-          <br>
-          <img src="gallery/snake.png" style="float:left; width:200px; height:200px">
-        </li>
-        <li>
-          <a href="snake_multiplayer/snake.html">Multi Player Snake</a>
-          <br>
-          <img src="gallery/multiSnake.png" style="float:left; width:200px; height:200px">
-        </li>
-        <li>
-          <a href="bubbleShooter/index.html">Bubble Shooter</a>
-          <br>
-          <img src="gallery/bubbleShooter.png" style="width:200px; height:200px">
-        </li>
-        <li>
-          <a href="skyroads/skyroads.html">Skyroads</a>
-          <br>
-          <img src="gallery/skyroads.png" style="width:200px; height:200px">
-        </li>
-        <li>
-          <a href="copsAndRobbers/copsAndRobbers.html">Cops and Robbers</a>
-          <br>
-          <img src="gallery/cops.png" style="width:200px; height:200px">
-        </li>
-      </body>
+      <h2>Games Gallery</h2>
+      <div class="featureContainer">
+        <ul>
+          <li>
+            <a href="alchemy/alchemy.html">Alchemy</a>
+            <br>
+            <img src="gallery/alchemy.png" style="float:left;width:200px; height:200px">
+          </li>
+          <li>
+            <a href="snake/snake.html">Snake</a>
+            <br>
+            <img src="gallery/snake.png" style="float:left; width:200px; height:200px">
+          </li>
+          <li>
+            <a href="snake_multiplayer/snake.html">Multi Player Snake</a>
+            <br>
+            <img src="gallery/multiSnake.png" style="float:left; width:200px; height:200px">
+          </li>
+          <li>
+            <a href="bubbleShooter/index.html">Bubble Shooter</a>
+            <br>
+            <img src="gallery/bubbleShooter.png" style="width:200px; height:200px">
+          </li>
+          <li>
+            <a href="skyroads/skyroads.html">Skyroads</a>
+            <br>
+            <img src="gallery/skyroads.png" style="width:200px; height:200px">
+          </li>
+          <li>
+            <a href="copsAndRobbers/copsAndRobbers.html">Cops and Robbers</a>
+            <br>
+            <img src="gallery/cops.png" style="width:200px; height:200px">
+          </li>
+        </ul>
+      </div>
 
     </section>
 
@@ -176,48 +225,61 @@
       <h2>Getting Started </h2>
       <h3>Installation</h3>
       <hr>
-        <p>Download and include engine.js file in your html page.</p>
-        <code><pre>&lt;script type="text/javascript" src="engine/engine.js"&gt;&lt;/script&gt;</pre></code>
-        <p>For 3D, additionally include graphics.js and gl-matrix.js.</p>
+      <p>Download and include engine.js file in your html page.</p>
+      <pre><code class="html">&lt;script type="text/javascript" src="engine/engine.js"&gt;&lt;/script&gt;</code></pre>
+      <p>For 3D, additionally include graphics.js and gl-matrix.js.</p>
       <h3>Basic Game Setup</h3>
       <hr>
-        <p><b>Create Engine Object</b></p>
-        <p>Create a game engine object in order to access the features of the game engine.</p>
-        <code><pre>var engine = new Engine(canvas, context, "2D");</pre></code>
-        <p><b>Set Handlers</b></p>
-        <p>Set up the handler callbacks.</p>
-        <code><pre>
+      <p>
+        <b>Create Engine Object</b>
+      </p>
+      <p>Create a game engine object in order to access the features of the game engine.</p>
+      <pre><code class="html">var engine = new Engine(canvas, context, "2D");</code></pre>
+      <p>
+        <b>Set Handlers</b>
+      </p>
+      <p>Set up the handler callbacks.</p>
+      <pre><code class="html">
 //Basic game loop handlers
 engine.setUpdateHandler(gameUpdateFunction);
 engine.setDrawHandler(gameDrawFunction);
 
 //Additional event handlers
-engine.input.setKeyboardPressHandler(keyPressed);</pre></code>
-        </p>        
-        <p><b>Update</b></p>
-        <p>Write your update function of the game loop. Make sure to call the engine's update function to update physics/collision etc. You can add some pre/post processing to the engine's update call.</p>
-        <code><pre>
+engine.input.setKeyboardPressHandler(keyPressed);</code></pre>
+      </p>
+      <p>
+        <b>Update</b>
+      </p>
+      <p>Write your update function of the game loop. Make sure to call the engine's update function to update physics/collision
+        etc. You can add some pre/post processing to the engine's update call.</p>
+      <pre><code class="html">
 function gameUpdateFunction() {
     ...
     engine.update();
     ...
-}</pre></code>
-        <p><b>Draw</b></p>
-        <p>Write your draw function of the game loop. Make sure to call the engine's draw function to draw all game objects added to the game engine.</p>
-        <code><pre>
+}</code></pre>
+      <p>
+        <b>Draw</b>
+      </p>
+      <p>Write your draw function of the game loop. Make sure to call the engine's draw function to draw all game objects added
+        to the game engine.</p>
+      <pre><code class="html">
 function gameDrawFunction() {
     ...
     engine.draw();
     ...
-}</pre></code>
-        <p><b>Starting the game loop</b></p>
-        <p>Start the engine's game loop with a simple setInterval call. You can specify how frequently your game loop to be run by adjusting the frameTime parameter.</p>
-        <code><pre>setInterval(engine.GameLoop, frameTime);</pre></code>
+}</code></pre>
+      <p>
+        <b>Starting the game loop</b>
+      </p>
+      <p>Start the engine's game loop with a simple setInterval call. You can specify how frequently your game loop to be run
+        by adjusting the frameTime parameter.</p>
+      <pre><code class="html">setInterval(engine.GameLoop, frameTime);</code></pre>
     </section>
 
   </main>
 
-
+  <script>hljs.initHighlightingOnLoad();</script>
 </body>
 
 </html>
