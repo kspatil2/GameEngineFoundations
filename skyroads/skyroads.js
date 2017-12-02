@@ -258,9 +258,9 @@ Skyroads.prototype.UpdateScoreAndShit = function()
     this.displayContext.font = '15pt Calibri';
     this.displayContext.fillStyle = 'white';
     this.displayContext.fillText("Score :"+display_score, 5, 20);
-    this.displayContext.fillText("HighScore :"+HighScore,1250,20); // 330
+    this.displayContext.fillText("HighScore :"+HighScore,830,20); // 330
     this.displayContext.fillText("Velocity :"+vel_now.toFixed(2),5,40);
-    this.displayContext.fillText("Level :"+current_level,690,790); // 210, 480
+    this.displayContext.fillText("Level :"+current_level,440,620); // 210, 480
     this.displayContext.fillText("Oxygen : "+oxygen_level.toFixed(0),2,60);
     this.displayContext.fillText("Fuel : "+fuel_level.toFixed(0),2,80);
 
