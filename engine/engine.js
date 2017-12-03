@@ -437,6 +437,16 @@ Input.prototype.setMovedObject = function (id) {
 }
 
 /**
+ * Removes an object from the moving object list
+ * 
+ * @param {any} id 
+ */
+Input.prototype.removeMovedObject = function (id) {
+  if(this.engine.collision.movedObjectId!= null && this.engine.collision.movedObjectId[id] == true)
+    delete this.engine.collision.movedObjectId[id];
+}
+
+/**
  * call handler if an object was released 
  */
 Input.prototype.handleMouseUp = function (e) {

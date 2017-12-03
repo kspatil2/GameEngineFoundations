@@ -115,6 +115,8 @@ BubbleShooter.prototype.handleCollision = function (shooter, collidedObject) {
   shooter.physics.y_velocity = 0;
   shooter.X = this.levels.getX(i, j);
   shooter.Y = this.levels.getY(i, j);
+
+  this.engine.input.removeMovedObject(shooter.id);
 }
 
 BubbleShooter.prototype.drawLayout = function () {
