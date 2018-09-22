@@ -22,13 +22,27 @@
 #mission
 {
     position: absolute;
-    left: 0px;
-    top: 510px;
+    left: 960px;
+    top: 0px;
     z-index: 20;
 }
 #status
 {
     position: absolute;
-    left: 512px;
+    left: 960px;
+    top:100px;
     z-index: 20;
+}
+#SoundCheck {
+    position: absolute;
+    left: 0px;
+    top: 650px;
+    z-index: 20;
+}
+
+#Frustum{
+    position: absolute;
+    left: 20px;
+    top: 650px;
+    z-index:20;
 }

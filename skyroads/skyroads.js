@@ -83,6 +83,14 @@ Skyroads.prototype.UpdateScoreAndShit = function()
     if(sphere == undefined || sphere == null)
         return;
     
+    if(document.getElementById("SoundCheck").checked == false)
+    {
+        this.engine.sound.stopSound("level"+sound_count);
+    }
+    else
+    {
+        this.engine.sound.playSound("level"+sound_count);   
+    }
     var sphere_center = vec3.create(), sphere_bottom = vec3.create(); sphere_front = vec3.create();sphere_left = vec3.create();sphere_right = vec3.create();       
     sphere_center = vec3.add(sphere_center,sphere.translation,vec3.fromValues(sphere.x,sphere.y,sphere.z));        
     sphere_bottom = vec3.add(sphere_bottom,sphere.translation,vec3.fromValues(sphere.x, -sphere.r,sphere.z));
@@ -102,6 +110,8 @@ Skyroads.prototype.UpdateScoreAndShit = function()
     // console.log("HELOOOOOOO");
     // if(future_collision!=1)
     vec3.add(sphere.translation,sphere.translation,vec3.scale(temp,lookAt,velocity));   
+
+       //document.getElementById("mission").innerHTML = "YOU DON'T HAVE CONTROL OVER THE FORCE. TRY AGAIN"; 
 
     if(spaceJump==1 && spaceJumpCounter<jumpTime)
     {
@@ -318,6 +328,9 @@ Skyroads.prototype.UpdateScoreAndShit = function()
     }
     else if(sphere_center[1] < 0 ||future_collision||oxygen_level==0||fuel_level==0)
     {
+        
+        this.engine.sound.playSound("tryagain",true);
+
         if(score+current_score > HighScore)
         {
             HighScore = current_score+score;
@@ -328,9 +341,13 @@ Skyroads.prototype.UpdateScoreAndShit = function()
         {
             current_score = current_score+score; 
             level_completed=level_completed+1; // add +1 till 10
-            this.engine.sound.stopSound("level"+sound_count);
-            sound_count = sound_count+1;
-            this.engine.sound.playSound("level"+sound_count,true);
+
+            if(document.getElementById("SoundCheck").checked == false)
+            {
+                this.engine.sound.stopSound("level"+sound_count);
+                sound_count = sound_count+1;
+                this.engine.sound.playSound("level"+sound_count,true);
+            }
             // console.log(level_completed);
             var offset = vec3.fromValues(20,0,0);
             if(level_completed<NUMBER_OF_LEVELS)
@@ -350,7 +367,7 @@ Skyroads.prototype.UpdateScoreAndShit = function()
         }   
         else
         {
-            this.engine.sound.playSound("tryagain",true);
+            
             restart_level(sphere);
             restart=0;
             future_collision=0;
@@ -559,16 +576,18 @@ Skyroads.prototype.loadContent = function () {
 }
 
 Skyroads.prototype.init = function () {
- 
+    
     this.engine.sound.initSound();
- 
-    //Bind game level listeners
+    
+       //Bind game level listeners
     this.engine.input.setKeyboardPressHandler(this.keyPressed.bind(this));
     //this.engine.collision.setCollisionHandler(this.handleCollission.bind(this));
     this.engine.setDrawHandler(this.draw.bind(this));
     this.engine.setUpdateHandler(this.UpdateScoreAndShit.bind(this));
     this.engine.setDrawHandler(this.draw.bind(this));
+
     this.engine.sound.playSound("level1",true);
+    
 }
     
 
@@ -578,48 +597,6 @@ Skyroads.prototype.draw = function(){
 
 Skyroads.prototype.keyPressed = function(event) {
     
-//    console.log("Accepting input");
-    // const modelEnum = {TRIANGLES: "triangles", SPHERE: "sphere"}; // enumerated model type
-    // const dirEnum = {NEGATIVE: -1, POSITIVE: 1}; // enumerated rotation direction
-    
-    // function highlightModel(modelType,whichModel) {
-    //     handleKeyDown.modelOn = inputSpheres[0];
-    //     if (handleKeyDown.modelOn != null)
-    //         handleKeyDown.modelOn.on = false;
-    //     handleKeyDown.whichOn = whichModel;
-    //     if (modelType == modelEnum.TRIANGLES)
-    //         handleKeyDown.modelOn = inputTriangles[whichModel]; 
-    //     else
-    //         handleKeyDown.modelOn = inputSpheres[whichModel]; 
-    //     handleKeyDown.modelOn.on = true; 
-    // } // end highlight model
-    
-    // function translateModel(offset, currModel) {
-    //     // if (handleKeyDown.modelOn != null)
-    //             vec3.add(handleKeyDown.modelOn.translation,handleKeyDown.modelOn.translation,offset);   
-    // } // end translate model
-
-    // function rotateModel(axis,direction) {
-    //     if (handleKeyDown.modelOn != null) {
-    //         var newRotation = mat4.create();
-
-    //         mat4.fromRotation(newRotation,direction*rotateTheta,axis); // get a rotation matrix around passed axis
-    //         vec3.transformMat4(handleKeyDown.modelOn.xAxis,handleKeyDown.modelOn.xAxis,newRotation); // rotate model x axis tip
-    //         vec3.transformMat4(handleKeyDown.modelOn.yAxis,handleKeyDown.modelOn.yAxis,newRotation); // rotate model y axis tip
-    //     } // end if there is a highlighted model
-    // } // end rotate model
-    
-    // // set up needed view params
-    // var lookAt = vec3.create(), viewRight = vec3.create(), temp = vec3.create(); // lookat, right & temp vectors
-    // lookAt = vec3.normalize(lookAt,vec3.subtract(temp,Center,Eye)); // get lookat vector
-    // viewRight = vec3.normalize(viewRight,vec3.cross(temp,lookAt,Up)); // get view right vector
-    
-    // // highlight static variables
-    // handleKeyDown.whichOn = handleKeyDown.whichOn == undefined ? -1 : handleKeyDown.whichOn; // nothing selected initially
-    // handleKeyDown.modelOn = handleKeyDown.modelOn == undefined ? null : handleKeyDown.modelOn; // nothing selected initially
-
-    // // spaceship highlighted
-    // highlightModel(modelEnum.SPHERE,(handleKeyDown.whichOn > 0) ? handleKeyDown.whichOn-1 : numSpheres-1);
 
     // spaceship motion
     
