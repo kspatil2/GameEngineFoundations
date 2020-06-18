@@ -29,4 +29,4 @@ Connection Screen waits for the other player
 Movement, food and collision is working on both Screens
 
 DEMO
-[Demo](https://kspatil2.github.io/GameEngineFoundations/)
+[Demo](https://kshitij-patil.github.io/GameEngineFoundations/)
