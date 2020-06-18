@@ -566,7 +566,7 @@ Skyroads.prototype.loadContent = function () {
     var cw = this.imageCanvas.width, ch = this.imageCanvas.height;
     imageContext = this.imageCanvas.getContext("2d");
     var bkgdImage = new Image();
-    bkgdImage.src = "https://ncsucgclass.github.io/prog3/stars.jpg";
+    bkgdImage.src = "https://kspatil2.github.io/stars.jpg";
     bkgdImage.onload = function () {
         var iw = bkgdImage.width, ih = bkgdImage.height;
         imageContext.drawImage(bkgdImage, 0, 0, iw, ih, 0, 0, cw, ch);
